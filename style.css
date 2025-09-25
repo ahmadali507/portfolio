@@ -1,0 +1,562 @@
+/* Portfolio Styles - External CSS */
+/* Consistent fonts, colors, borders, and spacing across all pages */
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* Container and Layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+header {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 2.5em;
+}
+
+.subtitle {
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+}
+
+/* Navigation Menu - Horizontal Links */
+nav {
+    text-align: center;
+    margin: 20px 0;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+}
+
+nav a {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 12px 20px;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    border: 2px solid transparent;
+}
+
+nav a:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+nav a:active {
+    transform: translateY(0);
+}
+
+/* Main Content */
+.main-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* Intro Section */
+.intro {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.intro h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 2em;
+}
+
+.intro p {
+    font-size: 1.1em;
+    color: #555;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Grid Layouts */
+.highlights, .hobbies-grid, .contact-grid, .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+/* Card Styles */
+.highlight-card, .hobby-card, .contact-card, .skill-category {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    border-left: 5px solid #3498db;
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 20px;
+}
+
+.highlight-card:hover, .hobby-card:hover, .contact-card:hover, .skill-category:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.highlight-card h3, .hobby-card h3, .contact-card h3, .skill-category h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+}
+
+.highlight-card p, .hobby-card p, .contact-card p {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Float and Clear Layout for Images and Content */
+.content-with-image {
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.content-with-image img {
+    float: left;
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    margin-right: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.content-with-image .text-content {
+    overflow: hidden;
+}
+
+.content-with-image .text-content h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+}
+
+.content-with-image .text-content p {
+    color: #555;
+    line-height: 1.6;
+}
+
+/* Clear floats */
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Image Gallery with Float */
+.gallery-grid {
+    display: block;
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+.gallery-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    float: left;
+    width: 31%;
+    margin: 1%;
+    margin-bottom: 20px;
+    min-height: 400px;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.gallery-item-content {
+    padding: 20px;
+}
+
+.gallery-item h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.gallery-item p {
+    color: #555;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+/* Clear float after every 3rd item */
+.gallery-item:nth-child(3n+1) {
+    clear: left;
+}
+
+/* Responsive adjustments for gallery */
+@media (max-width: 768px) {
+    .gallery-item {
+        width: 48%;
+        margin: 1%;
+    }
+    
+    .gallery-item:nth-child(3n+1) {
+        clear: none;
+    }
+    
+    .gallery-item:nth-child(2n+1) {
+        clear: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-item {
+        width: 100%;
+        margin: 0 0 20px 0;
+        float: none;
+    }
+    
+    .gallery-item:nth-child(2n+1) {
+        clear: none;
+    }
+}
+
+/* Contact Form */
+.contact-form {
+    background: #ecf0f1;
+    padding: 30px;
+    border-radius: 10px;
+    margin-top: 30px;
+}
+
+.contact-form h3 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.form-group textarea {
+    height: 120px;
+    resize: vertical;
+}
+
+.submit-btn {
+    background: #3498db;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.submit-btn:hover {
+    background: #2980b9;
+}
+
+/* Skills Specific Styles */
+.skill-category ul {
+    list-style: none;
+    padding: 0;
+}
+
+.skill-category li {
+    background: white;
+    margin: 10px 0;
+    padding: 12px 15px;
+    border-radius: 5px;
+    border-left: 3px solid #3498db;
+    transition: all 0.3s;
+}
+
+.skill-category li:hover {
+    background: #e8f4fd;
+    transform: translateX(5px);
+}
+
+.skill-level {
+    float: right;
+    background: #3498db;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+}
+
+.expert { background: #27ae60; }
+.advanced { background: #f39c12; }
+.intermediate { background: #3498db; }
+
+/* Color Variations for Different Categories */
+.programming-hobby, .programming-skills {
+    border-left-color: #e74c3c;
+}
+
+.problem-solving-hobby {
+    border-left-color: #e67e22;
+}
+
+.learning-hobby {
+    border-left-color: #9b59b6;
+}
+
+.tech-exploration-hobby {
+    border-left-color: #1abc9c;
+}
+
+.open-source-hobby {
+    border-left-color: #34495e;
+}
+
+.email-card {
+    border-left-color: #e74c3c;
+}
+
+.phone-card {
+    border-left-color: #27ae60;
+}
+
+.location-card {
+    border-left-color: #f39c12;
+}
+
+.linkedin-card {
+    border-left-color: #0077b5;
+}
+
+.frameworks-skills {
+    border-left-color: #27ae60;
+}
+
+.frameworks-skills li {
+    border-left-color: #27ae60;
+}
+
+.databases-skills {
+    border-left-color: #f39c12;
+}
+
+.databases-skills li {
+    border-left-color: #f39c12;
+}
+
+.ui-skills {
+    border-left-color: #9b59b6;
+}
+
+.ui-skills li {
+    border-left-color: #9b59b6;
+}
+
+.cloud-skills {
+    border-left-color: #1abc9c;
+}
+
+.cloud-skills li {
+    border-left-color: #1abc9c;
+}
+
+.soft-skills {
+    border-left-color: #34495e;
+}
+
+.soft-skills li {
+    border-left-color: #34495e;
+}
+
+/* Special Sections */
+.contact-info, .availability, .project-highlight, .experience-section, .achievements-section {
+    background: #ecf0f1;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+    border-left: 4px solid #3498db;
+}
+
+.availability {
+    background: #d5f4e6;
+    border-left-color: #27ae60;
+}
+
+.achievements-section {
+    background: #d5f4e6;
+    border-left-color: #27ae60;
+}
+
+.contact-info h3, .availability h3, .project-highlight h3, .experience-section h3, .achievements-section h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.contact-info p, .availability p, .project-highlight p, .experience-section p, .achievements-section p {
+    color: #555;
+    margin: 5px 0;
+}
+
+/* Experience and Achievement Items */
+.experience-item, .achievement-item {
+    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border-left: 3px solid #3498db;
+}
+
+.achievement-item {
+    border-left-color: #27ae60;
+}
+
+.experience-item h4, .achievement-item h4 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.achievement-item h4 {
+    color: #27ae60;
+}
+
+.experience-item p, .achievement-item p {
+    color: #555;
+    margin: 5px 0;
+}
+
+/* Gallery Intro */
+.gallery-intro {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.gallery-intro h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.gallery-intro p {
+    color: #555;
+    font-size: 1.1em;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Hobby Icons */
+.hobby-icon, .contact-icon {
+    font-size: 2em;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.contact-icon {
+    font-size: 2.5em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .gallery-item {
+        width: 45%;
+        margin: 2.5%;
+    }
+    
+    nav a {
+        margin: 5px;
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+    
+    .content-with-image img {
+        float: none;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-item {
+        width: 100%;
+        margin: 0 0 20px 0;
+    }
+    
+    nav a {
+        display: block;
+        margin: 5px 0;
+    }
+}
