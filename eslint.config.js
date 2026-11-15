@@ -4,14 +4,20 @@ import tseslint from 'typescript-eslint';
 import eslintPluginAstro from 'eslint-plugin-astro';
 
 export default [
-  { ignores: ['dist/', '.astro/', 'node_modules/', '.shots/'] },
+  { ignores: ['dist/', '.astro/', 'node_modules/', '.shots/', '.claude/'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...eslintPluginAstro.configs.recommended,
   {
     files: ['scripts/**/*.mjs', '*.config.{js,mjs}'],
     languageOptions: {
-      globals: { process: 'readonly', console: 'readonly', URL: 'readonly' },
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        URL: 'readonly',
+        Buffer: 'readonly',
+        document: 'readonly',
+      },
     },
   },
 ];

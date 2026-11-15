@@ -1,0 +1,5 @@
+#!/bin/sh
+# Runs the full verification gate before every commit. Enabled with:
+#   git config core.hooksPath .githooks
+set -e
+npm run verify --silent

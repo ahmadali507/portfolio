@@ -1,0 +1,122 @@
+{
+  "_note": "Vendored agent skills. Copied from the pinned commit after a manual audit. Do not edit by hand; see docs/SKILLS.md.",
+  "skills": {
+    "unslop-ui": {
+      "repo": "JCarterJohnson/vibecoded-design-tells",
+      "commit": "f7c4aefc2c797a66e55b49354a93917ab60d33ac",
+      "path": "skill",
+      "contentSha256": "fdf8007c6981ebffa670565a173274672c02b9e10ffc5d1d19dac1381bcdfebd"
+    },
+    "unslop-text": {
+      "repo": "JCarterJohnson/vibecoded-design-tells",
+      "commit": "f7c4aefc2c797a66e55b49354a93917ab60d33ac",
+      "path": "unslop-ai-text/skill",
+      "contentSha256": "ef9b3ca200466884d4fdd83ae14c23fac62e847aa292d72cb51ae8d7547a003d"
+    },
+    "make-interfaces-feel-better": {
+      "repo": "jakubkrehel/make-interfaces-feel-better",
+      "commit": "35545ea1512ad59fa463e6b1f95ca9c052981fe6",
+      "path": "skills/make-interfaces-feel-better",
+      "contentSha256": "1ce922899ac60b435ea89963f7056af98a61da4a34d076ca8b6764e3b1087373"
+    },
+    "threejs-fundamentals": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-fundamentals",
+      "contentSha256": "1d56debaddca1f27d6bc59a7ee2e40047a9ac1683fe44bfe9af385e7d717a74f"
+    },
+    "threejs-geometry": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-geometry",
+      "contentSha256": "fdb1985802f37a0cf0a944c55eaa3757314e8bfd8f3198d1d42f72b8581ec0ee"
+    },
+    "threejs-materials": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-materials",
+      "contentSha256": "088744399d201eb8b8d3417fc0e2df3c88abde4ec83df7e81fae06cf77fc35b6"
+    },
+    "threejs-shaders": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-shaders",
+      "contentSha256": "d821b932a8964dad3c7db641c49170cd0a2c21daff9af483fffcbc4b0f753be2"
+    },
+    "threejs-postprocessing": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-postprocessing",
+      "contentSha256": "12959acf48b961b2619d5571591781643a597a09a36ac757a29713c38643a85a"
+    },
+    "threejs-lighting": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-lighting",
+      "contentSha256": "7fd08d55314f97f02ab976ceb54397d5e5c0fcbdbc946c292df12d2e7a408753"
+    },
+    "threejs-animation": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-animation",
+      "contentSha256": "bc5dc2bc2a5aa121901d081177e497fd05fbddf5ed8ec85013bd07b61e0012b7"
+    },
+    "threejs-interaction": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-interaction",
+      "contentSha256": "71c755d86d98671618ef7a98e29724aab491a575b89a8c14d3d16b503dfb867c"
+    },
+    "threejs-loaders": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-loaders",
+      "contentSha256": "8946ea8307bf12ab2d3c3400a0793dcc105223845da4f4ffc3b7229cb8f63beb"
+    },
+    "threejs-textures": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-textures",
+      "contentSha256": "4677400a635ee6c3461cbfe6073139cd552c1bfe9489cd907aa91b02c7a855f0"
+    },
+    "webgpu-threejs-tsl": {
+      "repo": "dgreenheck/webgpu-claude-skill",
+      "commit": "af2319bd01bb7cc881267a9ef42cafdaf5e9029d",
+      "path": "skills/webgpu-threejs-tsl",
+      "contentSha256": "886535f967acfb42615d8ed22167b472fcc6822aedd097338b26388a45037f59"
+    },
+    "3dviz-pro-max": {
+      "repo": "viettranx/3dviz-pro-max",
+      "commit": "d077e0e68915c25be8e71d74684d3144fd1c2aca",
+      "path": "skills/3dviz-pro-max",
+      "localChanges": "Removed scripts/hero-tier.py and templates/kits/blender/ (Blender integration disabled).",
+      "contentSha256": "1a7f3f78dcb011b06930e0bee7412b18ecd2415a16196daf68ede10cf5166844"
+    },
+    "impeccable": {
+      "repo": "pbakaus/impeccable",
+      "commit": "2b86d9c07b97d4bed7de23583e1bd1e58dd2baae",
+      "path": ".claude/skills/impeccable",
+      "contentSha256": "a786d252b5aba0094bbcd0691a9e6cdc39280f85448b3bedda8ab4ceea4958b0",
+      "localChanges": "Markdown only: SKILL.md and reference/. scripts/ (engine launcher, binary download, live browser JS) not installed. No hooks."
+    },
+    "threejs-performance": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-performance",
+      "contentSha256": "3fbcb6297b65b715d40b1b65b68bbb01620688c797e67724be3c9ab77cc1b9f8"
+    },
+    "threejs-asset-pipeline": {
+      "repo": "CloudAI-X/threejs-skills",
+      "commit": "0e181866f095b5f06d005133876e926515390d95",
+      "path": "skills/threejs-asset-pipeline",
+      "contentSha256": "e8460e25bf8c087a6c623200a835d9002022cde60698017ffaf82f4142541f8b"
+    },
+    "design-taste-frontend": {
+      "repo": "Leonxlnx/taste-skill",
+      "commit": "f6b76575f949707b4e3c37cd86cb44b0b98643e8",
+      "path": "skills/taste-skill",
+      "contentSha256": "5e7a81780406453bf8dfc55cdb2fef66a66c0881a4efb675d4c1c54f182ed754",
+      "localChanges": "Removed the hooks block (Stop hook running scripts/gate.mjs) from SKILL.md frontmatter."
+    }
+  }
+}
