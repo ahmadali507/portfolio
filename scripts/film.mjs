@@ -3,6 +3,7 @@
 // Usage: node scripts/film.mjs <url> --name <prefix> --at 0,700,1400 [--mobile] [--settle <ms>]
 //   --at      comma-separated scroll offsets in CSS px, or '@selector' (optionally '@selector|offsetPx').
 //   --mobile  390x844 at 2x instead of 1440x900.
+//   --sweep   "x1,y1,x2,y2" viewport fractions: drag the mouse along that line just before each frame.
 // Writes .shots/<prefix>-<index>.png. Headless Chromium with SwiftShader.
 
 import { mkdirSync } from 'node:fs';
@@ -19,6 +20,7 @@ const flag = (name, fallback) => {
 const name = flag('--name', 'film');
 const at = flag('--at', '0').split(',');
 const settle = Number(flag('--settle', '1600'));
+const sweep = flag('--sweep', '');
 const mobileIdx = argv.indexOf('--mobile');
 const mobile = mobileIdx >= 0;
 if (mobile) argv.splice(mobileIdx, 1);
@@ -52,6 +54,13 @@ for (let i = 0; i < at.length; i++) {
     } else window.scrollTo(0, Number(t));
   }, target);
   await page.waitForTimeout(settle);
+  if (sweep) {
+    const [x1, y1, x2, y2] = sweep.split(',').map(Number);
+    const vp = page.viewportSize();
+    await page.mouse.move(x1 * vp.width, y1 * vp.height);
+    await page.mouse.move(x2 * vp.width, y2 * vp.height, { steps: 28 });
+    await page.waitForTimeout(220);
+  }
   const file = join(out, `${name}-${String(i).padStart(2, '0')}.png`);
   await page.screenshot({ path: file });
   console.log(`film: ${target} -> ${file}`);

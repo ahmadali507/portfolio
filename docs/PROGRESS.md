@@ -14,7 +14,7 @@ Resume point for a fresh session. Read CLAUDE.md and the contract files first, t
 
 ## Direction
 
-Glass Deck (DESIGN.md section 1, docs/SCENE.md). Ahmad rejected both the seven-stage Request Path and the Kinetic Field pin field. Do not bring either back.
+Glass Deck, dark, with the liquid splash (DESIGN.md section 1, docs/SCENE.md). Rejected by Ahmad, do not bring back: the seven-stage Request Path, the Kinetic Field pin field, the light theme, sticky stacking cards.
 
 ## Where things are
 
@@ -24,6 +24,7 @@ Glass Deck (DESIGN.md section 1, docs/SCENE.md). Ahmad rejected both the seven-s
 - `src/scripts/world-gate.ts`: capability gate and lazy import of the engine.
 - `src/components/WorldHost.astro`: `#world`, persisted across navigation, holds the poster.
 - `src/motion/core.ts`: Lenis, the one ticker, ScrollTrigger, router lifecycle. `src/motion/scenes.ts`: page choreography. `src/motion/state.ts`: shared progress values.
+- `src/motion/liquid.ts`: the cursor splash (own canvas, raw WebGL2). `src/components/WorkGallery.astro`: the pinned wheel gallery markup.
 - `src/engine/world/Showcase.ts`: the glossy deck and its poses. `cardArt.ts`: card faces rendered once.
 - `src/engine/world/Covers.ts`: WebGL plates mapped onto `[data-plate]` figures, tracked plates, stack cut line.
 - `scripts/film.mjs`: frames at scroll positions for reviewing choreography.

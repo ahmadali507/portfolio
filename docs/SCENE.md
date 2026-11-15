@@ -18,7 +18,11 @@ Reliefs and finishes are visual identity only. They make no claim about the proj
 | 72 to 100 percent       | The row holds                                       | The whole scene recedes into a framed window           |
 | Next section rises      | The deck lifts out of the frame                     | The statement slides over; its words light up          |
 
-Then the night chapter: full-width cards stack, each settling back, tilting, and dimming as the next slides over. Then a sideways practice track, the about block, and the closing call to action.
+Then the work gallery, pinned for five screens: the deck rises back in as a wheel in depth. Scroll turns the wheel, and each card eases to a rest at the front while the next waits below and the last tips away above. The project's title, summary, and a giant index numeral change beside it. Then a sideways practice track, the about block, and the closing call to action.
+
+## Liquid splash
+
+A fluid trail follows the pointer on every page and inverts what it covers, so the dark page shows its light negative inside the splash, with faint silk folds. The trail creeps, thins, and drains in about two seconds. A mouse press adds a larger splash; a tap makes one on touch screens. See `ARCHITECTURE.md` section 8.
 
 ## Camera
 

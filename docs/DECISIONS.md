@@ -71,3 +71,12 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Page transitions:** the old page settles back to 94 percent and dims while the new one wipes up with a clip-path; the header has its own transition name and does not animate. Under reduced motion Astro drops the animation.
 - **Removed:** the pin field (`Field.ts`), the Kinetic Field text zones and stage bands, the line-relief poster, `FeaturedWork` and `WorkLedger`.
 - **New tooling:** `scripts/film.mjs` captures a sequence of frames at scroll positions to review choreography.
+
+## 2026-11-16 (dark theme, liquid splash, wheel gallery)
+
+- **Dark theme site-wide at Ahmad's instruction.** Ground `#0A0B0C`, surface `#131516`, ink `#EDEDEB`, muted `#9A9FA2`, rule `#2A2D2F`. Small accent text uses `#F0805F`; the deep accent `#B02E0E` is kept only as a button hover fill. All pairs recomputed and recorded in `DESIGN.md`. The separate night theme is gone.
+- **Liquid splash, after the reference Ahmad supplied** (a fluid shape following the cursor that reveals the inverted theme). Built as a fed-back mask on its own canvas with `mix-blend-mode: difference`, so real DOM text and the 3D cards invert without duplicating any content. Raw WebGL2, no added dependency, two draw calls while active and none at rest. Cost: a second small GL context and a full-screen blend layer.
+- **The liquid canvas keeps its own `ResizeObserver`.** It must run when the three.js engine does not, so it cannot share the Engine's. This is the one exception to the single resize path.
+- **Stacking cards removed; Ahmad called them ordinary.** The work chapter is now a pinned wheel gallery driven by the same 3D deck: `motion.workPos` is eased per segment so each card dwells at the front. Without WebGL the gallery shows SVG reliefs; without JavaScript or under reduced motion it is a plain list.
+- **Card finishes reordered for a dark ground:** porcelain, vermilion, graphite, pearl, obsidian.
+- **Card art uses mipmaps** so contours stay smooth when cards are small or angled.

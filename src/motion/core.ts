@@ -29,6 +29,9 @@ function readPage(): void {
   motion.focus = Number(document.body.dataset.focus ?? -1);
   motion.hero = 0;
   motion.exit = 0;
+  motion.workIn = 0;
+  motion.workPos = 0;
+  motion.workOut = 0;
   motion.heroCovered = motion.page !== 'home';
   motion.hover = -1;
   motion.mountedAt = gsap.ticker.time;

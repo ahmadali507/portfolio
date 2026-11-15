@@ -1,5 +1,6 @@
 import {
   Color,
+  LinearMipmapLinearFilter,
   Mesh,
   OrthographicCamera,
   PlaneGeometry,
@@ -70,7 +71,12 @@ export function renderCardArt(
   width = 1024,
   height = 640,
 ): WebGLRenderTarget {
-  const target = new WebGLRenderTarget(width, height, { depthBuffer: false });
+  // Mipmaps keep the fine contours smooth when a card is small or seen at an angle.
+  const target = new WebGLRenderTarget(width, height, {
+    depthBuffer: false,
+    generateMipmaps: true,
+    minFilter: LinearMipmapLinearFilter,
+  });
   // Stored as sRGB so the 8-bit target keeps precision in the darks; sampling decodes it.
   target.texture.colorSpace = SRGBColorSpace;
   target.texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());

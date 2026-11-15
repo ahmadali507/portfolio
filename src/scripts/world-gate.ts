@@ -33,6 +33,11 @@ async function start(): Promise<void> {
     return;
   }
   host.dataset.state = 'loading';
+  // The liquid splash is independent of the 3D engine: its own canvas, its own tiny context.
+  const liquid = document.getElementById('liquid');
+  if (liquid instanceof HTMLCanvasElement) {
+    void import('../motion/liquid').then((m) => m.initLiquid(liquid, core)).catch(() => liquid.remove());
+  }
   try {
     const { boot } = await import('../engine/boot');
     await boot(host, core);

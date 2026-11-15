@@ -15,7 +15,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  color-scheme: light;
+  color-scheme: dark;
   scroll-padding-top: calc(var(--header-h) + var(--space-4));
 }
 
@@ -297,18 +297,20 @@ a {
   }
 }
 
-/* ---------- night theme: the work chapter ---------- */
+/* ---------- raised panel: one step above the ground ---------- */
 .theme-night {
-  --color-bg: var(--night);
-  --color-surface: var(--night-raised);
-  --color-ink: var(--night-ink);
-  --color-ink-muted: var(--night-muted);
-  --color-rule: var(--night-rule);
-  --color-trace-ink: #f0805f;
-  --hairline: 1px solid var(--night-rule);
-  --rule-strong: 1px solid var(--night-ink);
-  background: var(--night);
-  color: var(--night-ink);
+  background: var(--color-surface);
+}
+
+/* ---------- liquid layer: inverts whatever it covers; decorative, never takes the pointer ---------- */
+.liquid {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 40;
+  pointer-events: none;
+  mix-blend-mode: difference;
 }
 
 /* ---------- buttons ---------- */
@@ -335,8 +337,8 @@ a {
 @media (hover: hover) {
   /* Light text on the dark accent: 5.5:1. */
   .btn:hover {
-    background: var(--color-trace-ink);
-    color: var(--night-ink);
+    background: var(--color-trace-deep);
+    color: var(--color-ink);
   }
 
   .btn:hover .arrow {

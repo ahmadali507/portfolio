@@ -59,6 +59,7 @@ export class Showcase implements WorldPart {
   private tiltX = 0;
   private tiltY = 0;
   private hovered = -1;
+  private wasGallery = false;
 
   // Scratch, allocated once.
   private readonly pa = new Vector3();
@@ -174,6 +175,19 @@ export class Showcase implements WorldPart {
     }
   }
 
+  /** Work gallery: cards on a spiral in depth. d is the card's distance from the front, in cards. */
+  private helix(i: number, portrait: boolean): void {
+    const d = i - motion.workPos;
+    // A wheel turning toward the viewer: the next card waits below, the last one tips away above.
+    const a = d * 0.6;
+    const r = portrait ? 5.2 : 5.4;
+    // Rises from below as the section arrives, lifts away as it leaves.
+    const travel = (1 - motion.workIn) * -9 + motion.workOut * 10;
+    this.pa.set(d * 0.3, -Math.sin(a) * r + travel * (1 + Math.abs(d) * 0.15), Math.cos(a) * r - r);
+    this.ea.set(a * 1.05, -0.3 + d * 0.1, d * 0.04);
+    this.qa.setFromEuler(this.ea);
+  }
+
   private blend(i: number, a: 'enter' | 'stack' | 'fan' | 'row' | 'away' | 'feature', b: typeof a, t: number): void {
     this.pose(a, i, this.pa, this.ea);
     this.pose(b, i, this.pb, this.eb);
@@ -203,7 +217,13 @@ export class Showcase implements WorldPart {
     const toFan = smoothstep(p, 0.02, 0.38);
     const toRow = smoothstep(p, 0.4, 0.74);
 
-    if (motion.page === 'home') {
+    const gallery = motion.page === 'home' && motion.workIn > 0 && motion.workOut < 1;
+    if (gallery) {
+      gx = portrait ? 0 : 2.5;
+      gy = portrait ? 1.5 : 0;
+      gs = portrait ? 0.5 : 1.05;
+      show = true;
+    } else if (motion.page === 'home') {
       gx = portrait ? 0 : MathUtils.lerp(3.05, 0, toRow);
       gy = (portrait ? MathUtils.lerp(-1.75, 0, toRow) : -0.1) + motion.exit * 9;
       gs = portrait ? MathUtils.lerp(0.68, 0.62, toRow) : MathUtils.lerp(0.78, 1, toRow);
@@ -242,7 +262,9 @@ export class Showcase implements WorldPart {
       const card = this.cards[i]!;
       const mesh = card.mesh;
 
-      if (motion.page === 'home') {
+      if (gallery) {
+        this.helix(i, portrait);
+      } else if (motion.page === 'home') {
         const intro = rm ? 1 : easeOutExpo(clamp((since - 0.2 - i * 0.09) / 1.4, 0, 1));
         if (toRow > 0) this.blend(i, 'fan', 'row', toRow);
         else this.blend(i, 'stack', 'fan', toFan);
@@ -267,12 +289,14 @@ export class Showcase implements WorldPart {
       this.pa.z += card.lift * 0.45;
       this.pa.y += card.lift * (motion.page === 'home' && toFan < 0.5 ? 0.25 : 0.12);
 
+      if (gallery !== this.wasGallery) mesh.position.copy(this.pa);
       mesh.position.lerp(this.pa, k);
       mesh.quaternion.slerp(this.qa, k);
       if (mesh.position.distanceToSquared(this.pa) > 1e-6 || mesh.quaternion.angleTo(this.qa) > 1e-3) this.moving = true;
       if (Math.abs(card.lift - (isHover ? 1 : 0)) > 1e-3) this.moving = true;
     }
 
+    this.wasGallery = gallery;
     const g = this.group;
     const gk = rm ? 1 : 1 - Math.exp(-5 * dt);
     g.position.x += (gx - g.position.x) * gk;

@@ -16,7 +16,7 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   revealLines(doc);
   rise(doc);
   statement(doc);
-  stackCards(doc);
+  workGallery(doc);
   horizontal(doc);
   magnetic(doc);
   peek(doc);
@@ -133,30 +133,56 @@ function statement(doc: Document): void {
   });
 }
 
-// ---------- Work: full-width cards stack; each settles back as the next slides over it ----------
-function stackCards(doc: Document): void {
-  const cards = Array.from(doc.querySelectorAll<HTMLElement>('[data-stack-card]'));
-  cards.forEach((card, i) => {
-    const next = cards[i + 1];
-    const inner = card.querySelector<HTMLElement>('[data-stack-inner]');
-    const shade = card.querySelector<HTMLElement>('[data-stack-shade]');
-    if (!next || !inner) return;
-    const depth = cards.length - i;
-    gsap
-      .timeline({
-        scrollTrigger: { trigger: next, start: 'top bottom', end: 'top top+=12%', scrub: true },
-      })
-      .to(inner, { scale: 1 - Math.min(depth, 4) * 0.025, rotateX: 4, yPercent: -2, ease: 'none' }, 0)
-      .to(shade ?? {}, { opacity: 0.55, ease: 'none' }, 0);
-    // The card the reader is on tells the 3D layer and the cursor which project is live.
-    ScrollTrigger.create({
-      trigger: card,
-      start: 'top center',
-      end: 'bottom center',
-      onToggle: (self) => {
-        if (self.isActive) motion.hover = Number(card.dataset.index ?? -1);
-      },
-    });
+// ---------- Work: a pinned gallery. Scroll turns the 3D spiral; the DOM shows the project in front ----------
+function workGallery(doc: Document): void {
+  const section = doc.querySelector<HTMLElement>('[data-work]');
+  if (!section) return;
+  const items = Array.from(section.querySelectorAll<HTMLElement>('[data-work-item]'));
+  const count = section.querySelector<HTMLElement>('[data-work-count]');
+  const bar = section.querySelector<HTMLElement>('[data-work-bar]');
+  const n = items.length;
+  if (n < 2) return;
+  section.dataset.live = '';
+  let active = -1;
+  const setActive = (i: number) => {
+    if (i === active) return;
+    active = i;
+    for (let j = 0; j < n; j++) {
+      const it = items[j]!;
+      it.dataset.state = j === i ? 'active' : j < i ? 'past' : 'next';
+      // Only the project in front is reachable by keyboard and assistive tech.
+      it.inert = j !== i;
+    }
+    if (count) count.textContent = String(i + 1).padStart(2, '0');
+    motion.hover = -1;
+  };
+  setActive(0);
+
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: (self) => {
+      // Dwell at each project: ease between whole positions so a card rests at the front.
+      const x = self.progress * (n - 1);
+      const f = x - Math.floor(x);
+      const e = gsap.utils.clamp(0, 1, (f - 0.22) / 0.56);
+      motion.workPos = Math.floor(x) + e * e * (3 - 2 * e);
+      setActive(Math.round(x));
+      if (bar) bar.style.transform = `scaleX(${self.progress.toFixed(4)})`;
+    },
+  });
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top bottom',
+    end: 'top top',
+    onUpdate: (self) => (motion.workIn = self.progress),
+  });
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'bottom bottom',
+    end: 'bottom top',
+    onUpdate: (self) => (motion.workOut = self.progress),
   });
 }
 

@@ -12,6 +12,10 @@ export const motion = {
   exit: 0,
   /** True once the next section fully covers the hero, so the 3D stack can rest. */
   heroCovered: false,
+  /** Work gallery: 0..1 while it rises into place, position in cards (0..n-1), 0..1 while it leaves. */
+  workIn: 0,
+  workPos: 0,
+  workOut: 0,
   /** Featured card index a case-study page is about, or -1. */
   focus: -1,
   /** Featured card index under the pointer in the DOM (rows, stack cards), or -1. */

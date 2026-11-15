@@ -5,7 +5,7 @@ import { Quality } from './Quality';
 import type { EngineContext, FrameInput, WorldPart } from './types';
 
 /** Clear color (alpha 0). Kept equal to --color-bg so antialiased edges blend toward the page. */
-const CLEAR = '#ededeb';
+const CLEAR = '#0a0b0c';
 /** A second context loss inside this window keeps the poster for the rest of the session. */
 const LOSS_WINDOW_MS = 60_000;
 const MAX_DT = 1 / 15;

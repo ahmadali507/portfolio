@@ -74,8 +74,8 @@ const personLd = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#ededeb" />
-    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#0a0b0c" />
+    <meta name="color-scheme" content="dark" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="sitemap" href="/sitemap.xml" />
@@ -115,6 +115,7 @@ const personLd = {
   <body data-slug={slug} data-focus={focus}>
     <a class="skip-link" href="#main">Skip to content</a>
     <WorldHost />
+    <canvas id="liquid" class="liquid" transition:persist="liquid" aria-hidden="true"></canvas>
     <script type="application/json" id="world-data" set:html={JSON.stringify(worldData)} />
     <SiteHeader current={page} />
     <main id="main" tabindex="-1" transition:name="main">

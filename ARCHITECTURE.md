@@ -97,10 +97,12 @@ Adopted on 2026-11-15, replacing Kinetic Field. See `DESIGN.md` section 1 and `d
 - `src/motion/core.ts` owns Lenis, the one `gsap.ticker` callback, and ScrollTrigger (from the installed `gsap` package). The Engine subscribes its frame function to that loop. `src/motion/state.ts` is a plain object both sides read: DOM choreography writes progress values from ScrollTrigger callbacks; the engine reads them each frame. No layout reads are needed for the story.
 - `src/motion/scenes.ts` holds the page choreography inside one `gsap.context` per page, reverted on `astro:before-swap`.
 
+**Liquid layer.** `src/motion/liquid.ts` draws on its own canvas (`#liquid`, persisted, top-most, `pointer-events: none`, `mix-blend-mode: difference`) with a small raw WebGL2 context, no second three.js renderer. A quarter-resolution 8-bit mask is fed back each frame (diffuse, creep, decay) with the pointer path stamped in, then thresholded at full resolution. Two draw calls per frame while a trail is alive, none at rest. It subscribes to the one loop in `motion/core.ts` and has its own `ResizeObserver` for its canvas. Off under reduced motion.
+
 **Scene parts.**
 
-- `Showcase` (`src/engine/world/Showcase.ts`): one `RoundedBoxGeometry` shared by up to 5 meshes with `MeshPhysicalMaterial` (clear coat). Each card face is rendered once into a render target from the pattern shader (`cardArt.ts`). Reflections come from `RoomEnvironment` through `PMREMGenerator`, so no HDR file is downloaded. Poses (enter, stack, fan, row, feature, away) are pure functions; each frame damps meshes toward them.
-- `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]`, drawn in an orthographic pass in CSS pixels after the deck. Static plates use cached rectangles. Plates marked `data-plate-track` (stacking cards, the cursor preview) read their rectangle each frame; at most 6 exist on a page. A stacked plate discards fragments below the top edge of the next card.
+- `Showcase` (`src/engine/world/Showcase.ts`): one `RoundedBoxGeometry` shared by up to 5 meshes with `MeshPhysicalMaterial` (clear coat). Each card face is rendered once into a render target from the pattern shader (`cardArt.ts`). Reflections come from `RoomEnvironment` through `PMREMGenerator`, so no HDR file is downloaded. Poses (enter, stack, fan, row, wheel, feature, away) are pure functions; each frame damps meshes toward them. The wheel is the work gallery: card angle follows `motion.workPos`, which `scenes.ts` eases so a card rests at the front.
+- `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]`, drawn in an orthographic pass in CSS pixels after the deck. Static plates use cached rectangles. Plates marked `data-plate-track` (the cursor preview) read their rectangle each frame.
 
 **Budget plan (fits the DESIGN.md limits).**
 

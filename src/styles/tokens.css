@@ -1,21 +1,17 @@
 /* Design tokens. Values come from DESIGN.md section 2. Components use these, never raw hex. */
 
 :root {
-  /* Color */
-  --color-bg: #ededeb;
-  --color-surface: #e1e2df;
-  --color-ink: #1b1d1e;
-  --color-ink-muted: #4f5456;
-  --color-rule: #a3a7a5;
+  /* Color: dark throughout. Contrast on --color-bg: ink 16.8:1, muted 7.4:1, accent 4.7:1 (large text and marks). */
+  --color-bg: #0a0b0c;
+  --color-surface: #131516;
+  --color-ink: #ededeb;
+  --color-ink-muted: #9a9fa2;
+  --color-rule: #2a2d2f;
   --color-trace: #e2401c;
-  --color-trace-ink: #b02e0e;
-
-  /* Night theme for the work chapter. Contrast on --night: ink 16.5:1, muted 7.2:1, accent 4.6:1. */
-  --night: #0d0e0f;
-  --night-raised: #17191a;
-  --night-ink: #ededeb;
-  --night-muted: #9a9fa2;
-  --night-rule: #2c2f31;
+  /* Small accent text on dark. */
+  --color-trace-ink: #f0805f;
+  /* Deep accent for fills under light text. */
+  --color-trace-deep: #b02e0e;
 
   /* Type families. Fallback faces are metric-matched in fonts.css to limit layout shift. */
   --font-display: 'Familjen Grotesk', 'Familjen Fallback', sans-serif;
@@ -60,7 +56,7 @@
 
   /* Lines and focus */
   --hairline: 1px solid var(--color-rule);
-  --rule-strong: 1px solid var(--color-ink);
+  --rule-strong: 1px solid var(--color-ink-muted);
   --focus-ring: 2px solid var(--color-trace);
 
   /* Motion */

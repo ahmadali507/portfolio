@@ -1,0 +1,358 @@
+---
+// Featured work as a pinned gallery. With JavaScript, the section pins and scroll turns the 3D
+// spiral of cards (engine/world/Showcase.ts) while this markup shows the project in front.
+// Without JavaScript, or under reduced motion, it is a plain list of projects with relief covers.
+import Relief from './Relief.astro';
+import Todo from './Todo.astro';
+import { patternFor, seedFor, STATUS_LABEL, toneFor, type Project } from '@/lib/projects';
+
+interface Props {
+  projects: Project[];
+  total: number;
+}
+const { projects, total } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section id="work" class="work" aria-labelledby="work-title" data-work style={`--n:${projects.length}`}>
+  <div class="pin">
+    <header class="head page">
+      <p class="label">Selected work</p>
+      <h2 id="work-title" class="visually-hidden">Selected work</h2>
+      <div class="head-right">
+        <a class="mono all" href="/work/" data-magnetic="0.2">All {total} projects <span aria-hidden="true">→</span></a>
+        <p class="counter mono" aria-hidden="true">
+          <span data-work-count>01</span> / {pad(projects.length)}
+        </p>
+      </div>
+    </header>
+
+    <ol class="items page" role="list">
+      {
+        projects.map((p, i) => {
+          const d = p.data;
+          const tone = toneFor(i);
+          return (
+            <li class="item" data-work-item data-state={i === 0 ? 'active' : 'next'}>
+              <span class="ghost" aria-hidden="true">
+                {pad(i + 1)}
+              </span>
+              <div class="info">
+                <p class="label">
+                  {STATUS_LABEL[d.status.value]} <Todo when={d.status.placeholder} />
+                </p>
+                <h3>
+                  <a href={`/work/${p.id}/`}>{d.title}</a>
+                </h3>
+                <p class="summary">
+                  {d.summary.value} <Todo when={d.summary.placeholder} />
+                </p>
+                <p class="meta mono">
+                  {d.stack.value.slice(0, 4).join(' / ')} <Todo when={d.stack.placeholder} />
+                </p>
+                <a class="btn" href={`/work/${p.id}/`} data-magnetic="0.2" aria-label={`Case study: ${d.title}`}>
+                  Case study <span class="arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+              <div class="cover" style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}>
+                <Relief
+                  pattern={patternFor(p)}
+                  seed={seedFor(p)}
+                  label={`Generative relief cover for ${d.title}. Not a screenshot.`}
+                />
+              </div>
+            </li>
+          );
+        })
+      }
+    </ol>
+
+    <footer class="foot page">
+      <div class="bar" aria-hidden="true"><span data-work-bar></span></div>
+    </footer>
+  </div>
+</section>
+
+<style>
+  .work {
+    position: relative;
+    z-index: 2;
+    background: var(--color-bg);
+    padding-block: var(--space-9);
+  }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: var(--space-6);
+  }
+
+  .head-right {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-6);
+  }
+
+  .counter {
+    display: none;
+  }
+
+  /* ---------- static list (no JavaScript, or reduced motion) ---------- */
+  .items {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .item {
+    position: relative;
+    display: grid;
+    gap: var(--space-5);
+    align-items: center;
+  }
+
+  .ghost {
+    display: none;
+  }
+
+  .info {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+  }
+
+  h3 {
+    font-size: clamp(2.75rem, 8vw, 8rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+
+  h3 a {
+    text-decoration: none;
+  }
+
+  .summary {
+    font-size: var(--text-lead);
+    line-height: 1.35;
+    max-width: 30ch;
+  }
+
+  .meta {
+    color: var(--color-ink-muted);
+  }
+
+  .cover {
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--relief-bg);
+  }
+
+  .foot {
+    display: flex;
+  }
+
+  .bar {
+    display: none;
+  }
+
+  .all {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  @media (min-width: 56rem) {
+    .item {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-8);
+    }
+  }
+
+  /* ---------- live gallery: pinned, one project in front ---------- */
+  .work[data-live] {
+    height: calc(var(--n) * 100svh);
+    padding: 0;
+  }
+
+  .work[data-live] .pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding-block: calc(var(--header-h) + var(--space-5)) var(--space-5);
+    overflow: hidden;
+  }
+
+  .work[data-live] .head {
+    padding-bottom: 0;
+  }
+
+  .work[data-live] .counter {
+    display: block;
+    color: var(--color-ink-muted);
+  }
+
+  .work[data-live] .counter span {
+    color: var(--color-ink);
+  }
+
+  .work[data-live] .items {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+
+  .work[data-live] .item {
+    position: absolute;
+    inset: 0 var(--page-gutter);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .work[data-live] .item[data-state='active'] {
+    pointer-events: auto;
+  }
+
+  /* Giant index numeral behind the copy. */
+  .work[data-live] .ghost {
+    display: block;
+    position: absolute;
+    left: -0.04em;
+    bottom: -0.12em;
+    font-family: var(--font-display);
+    font-size: clamp(14rem, 34vw, 34rem);
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: var(--color-surface);
+    opacity: 0;
+    transform: translateY(8%);
+    transition:
+      opacity 700ms var(--ease-expo),
+      transform 900ms var(--ease-expo);
+  }
+
+  .work[data-live] .item[data-state='active'] .ghost {
+    opacity: 1;
+    transform: none;
+  }
+
+  .work[data-live] .info {
+    position: relative;
+    max-width: min(46%, 38rem);
+  }
+
+  /* Each line of the project in front rises in turn; the one leaving exits upward. */
+  .work[data-live] .info > * {
+    opacity: 0;
+    transform: translateY(2.5rem);
+    transition:
+      opacity 450ms var(--ease-out),
+      transform 800ms var(--ease-expo);
+  }
+
+  .work[data-live] .item[data-state='past'] .info > * {
+    transform: translateY(-2.5rem);
+  }
+
+  .work[data-live] .item[data-state='active'] .info > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  .work[data-live] .item[data-state='active'] .info > :nth-child(2) {
+    transition-delay: 60ms;
+  }
+
+  .work[data-live] .item[data-state='active'] .info > :nth-child(3) {
+    transition-delay: 120ms;
+  }
+
+  .work[data-live] .item[data-state='active'] .info > :nth-child(4) {
+    transition-delay: 180ms;
+  }
+
+  .work[data-live] .item[data-state='active'] .info > :nth-child(5) {
+    transition-delay: 240ms;
+  }
+
+  /* The cover is the 3D card when WebGL runs; otherwise the relief shows on the right. */
+  .work[data-live] .cover {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: min(44%, 36rem);
+    opacity: 0;
+    transform: translateY(-50%) scale(0.94);
+    transition:
+      opacity 500ms var(--ease-out),
+      transform 800ms var(--ease-expo);
+  }
+
+  .work[data-live] .item[data-state='active'] .cover {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+
+  :global(html:has(#world[data-state='live'])) .work[data-live] .cover {
+    display: none;
+  }
+
+  .work[data-live] .foot {
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-6);
+    padding-top: 0;
+  }
+
+  .work[data-live] .bar {
+    display: block;
+    width: min(100%, 26rem);
+    height: 1px;
+    background: var(--color-rule);
+  }
+
+  .bar span {
+    display: block;
+    height: 1px;
+    background: var(--color-ink);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  @media (max-width: 56rem) {
+    .work[data-live] .item {
+      align-items: flex-end;
+      padding-bottom: var(--space-4);
+    }
+
+    .work[data-live] .info {
+      max-width: 100%;
+    }
+
+    .work[data-live] .ghost {
+      bottom: auto;
+      top: 0;
+    }
+
+    .work[data-live] .cover {
+      top: 4%;
+      right: 50%;
+      width: 82%;
+      transform: translateX(50%) scale(0.94);
+    }
+
+    .work[data-live] .item[data-state='active'] .cover {
+      transform: translateX(50%);
+    }
+
+    .work[data-live] h3 {
+      font-size: clamp(2.5rem, 12vw, 4rem);
+    }
+  }
+</style>

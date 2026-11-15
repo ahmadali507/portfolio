@@ -4,12 +4,13 @@ This file binds every human and agent working on the site. If a skill, a tutoria
 
 ## 1. Aesthetic direction
 
-Direction replaced on 2026-11-15 by Ahmad's instruction: **Glass Deck.** Request Path and Kinetic Field are retired. See `docs/DECISIONS.md`.
+Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2026-11-16. Request Path and Kinetic Field are retired. See `docs/DECISIONS.md`.
 
-- **Visual persona:** clean, glossy, and minimal. Giant grotesk type on a pale ground, one night chapter for the work, and a single hero object finished like lacquer and porcelain. Every motion is staged as a beat: entrance, hold, exit.
+- **Visual persona:** dark, clean, glossy, and minimal. Giant grotesk type on a near-black ground and a single hero object finished like lacquer and porcelain. Every motion is staged as a beat: entrance, hold, exit.
 - **The hero object:** a deck of glossy cards, one per featured project, each carrying that project's generative relief. The deck flies in on load, fans out, lines up while the camera pulls back, then the whole scene recedes into a framed window as the next section rises over it.
 - **Continuity:** the canvas persists across navigation. On a case study, that project's card takes the banner; on the work index the deck fans beside the heading. Moving between pages, the cards fly to their new poses.
-- **Work chapter:** full-width night cards stack as the reader scrolls; each settles back, tilts, and dims as the next slides over it. Each card's art is a live WebGL plate in the same finish as its 3D card, with a sheen that follows the pointer.
+- **Liquid splash:** the pointer leaves a fluid trail that inverts everything beneath it: type, cards, and header flip to the light theme inside the splash and flow back to dark as it drains. A tap makes one splash on touch screens.
+- **Work chapter:** a pinned gallery. The deck becomes a wheel in depth; scroll turns it so each project's card swings to the front and rests there while its title, summary, and a giant index numeral change beside it. No stacking cards.
 - **What the world must never become:** a particle cloud, a neon wireframe, glowing outlines, or motion that runs with no input. Apart from the load entrance, the scene moves only with scroll, pointer, or navigation.
 - **Honesty rule:** reliefs and finishes are visual identity only. They never encode a metric or imply a claim about a project.
 
@@ -45,22 +46,20 @@ Direction replaced on 2026-11-15 by Ahmad's instruction: **Glass Deck.** Request
 
 ### Color tokens
 
-| Token               | Value     | Use                                                                                             | Contrast                                                |
-| ------------------- | --------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `--color-bg`        | `#EDEDEB` | Page ground                                                                                     | Base                                                    |
-| `--color-surface`   | `#E1E2DF` | Hero stage, practice panels                                                                     | 1.1:1 against bg                                        |
-| `--color-ink`       | `#1B1D1E` | Primary text, linework                                                                          | 14.4:1 on bg, 13.0:1 on surface                         |
-| `--color-ink-muted` | `#4F5456` | Secondary text, captions                                                                        | 6.6:1 on bg, 5.9:1 on surface                           |
-| `--color-rule`      | `#A3A7A5` | Hairlines only, never text                                                                      | decorative                                              |
-| `--color-trace`     | `#E2401C` | The accent: the vermilion card, active marks, focus rings. Non-text marks and text 24px and larger only on light ground | 3.30:1 on bg, 4.02:1 on ink                             |
-| `--color-trace-ink` | `#B02E0E` | Small accent text on light ground; button hover fill with `--night-ink` text (5.5:1)            | 5.5:1 on bg                                             |
-| `--night`           | `#0D0E0F` | Night chapter ground (work)                                                                     | Base                                                    |
-| `--night-ink`       | `#EDEDEB` | Text on night                                                                                   | 16.5:1                                                  |
-| `--night-muted`     | `#9A9FA2` | Secondary text on night                                                                         | 7.2:1                                                   |
+| Token                | Value     | Use                                                       | Contrast                        |
+| -------------------- | --------- | --------------------------------------------------------- | ------------------------------- |
+| `--color-bg`         | `#0A0B0C` | Page ground                                               | Base                            |
+| `--color-surface`    | `#131516` | Raised panels, the mat around the hero frame              | 1.1:1 against bg                |
+| `--color-ink`        | `#EDEDEB` | Primary text                                              | 16.8:1 on bg, 15.6:1 on surface |
+| `--color-ink-muted`  | `#9A9FA2` | Secondary text, captions                                  | 7.4:1 on bg, 6.9:1 on surface   |
+| `--color-rule`       | `#2A2D2F` | Hairlines only, never text                                | decorative                      |
+| `--color-trace`      | `#E2401C` | The accent: the vermilion card, active marks, focus rings | 4.7:1 on bg                     |
+| `--color-trace-ink`  | `#F0805F` | Small accent text                                         | 7.5:1 on bg, 6.9:1 on surface   |
+| `--color-trace-deep` | `#B02E0E` | Button hover fill under `--color-ink` text                | 5.5:1 with ink                  |
 
 - The trace accent covers under 5 percent of any viewport. It marks the one thing that is live right now and nothing else.
 - No gradients on UI surfaces. Depth comes from real reflections in the 3D scene and restrained shadows under the stacking cards.
-- A dark variant is not in scope. If added later, it needs its own contrast table and a decision log entry.
+- The site is dark only. A light variant would need its own contrast table and a decision log entry. Inside the liquid splash the page is inverted by blending; that is decoration, and all content stays readable outside it.
 
 ### Rules
 
