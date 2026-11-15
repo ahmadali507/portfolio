@@ -1,0 +1,41 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# environment variables and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# local screenshots and test output
+.shots/
+test-results/
+playwright-report/
+coverage/
+
+# caches
+.cache/
+.eslintcache
+*.tsbuildinfo
+
+# local agent settings (personal, not shared)
+.claude/settings.local.json
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

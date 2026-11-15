@@ -1,0 +1,6 @@
+dist/
+.astro/
+node_modules/
+.shots/
+package-lock.json
+docs/reference/
