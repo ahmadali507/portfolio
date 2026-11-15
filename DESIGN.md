@@ -7,12 +7,13 @@ This file binds every human and agent working on the site. If a skill, a tutoria
 Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2026-11-16. Request Path and Kinetic Field are retired. See `docs/DECISIONS.md`.
 
 - **Visual persona:** dark, clean, glossy, and minimal. Giant grotesk type on a near-black ground and a single hero object finished like lacquer and porcelain. Every motion is staged as a beat: entrance, hold, exit.
-- **The hero object:** a deck of glossy cards, one per featured project, each carrying that project's generative relief. The deck flies in on load, fans out, lines up while the camera pulls back, then the whole scene recedes into a framed window as the next section rises over it.
+- **The hero object:** a deck of glossy cards, one per featured project. Each card face is a live motion graphic of what that project does (an editor with two people typing, a document being searched and answered, a call being routed) with the project's name on it. The deck flies in on load and recedes into a framed window as the next section rises over it.
+- **Chemistry in the name:** the letters of the main heading fill with a sequence of twelve procedural phenomena (foam, reaction-diffusion stripes, ink in water, crystallisation, boiling, oxidation, acid etch, ferrofluid, smoke, dividing cells, mercury, frost). Each grows through the word as a reaction front and replaces the last. The text stays real and readable.
 - **Continuity:** the canvas persists across navigation. On a case study, that project's card takes the banner; on the work index the deck fans beside the heading. Moving between pages, the cards fly to their new poses.
 - **Liquid splash:** the pointer leaves a fluid trail that inverts everything beneath it: type, cards, and header flip to the light theme inside the splash and flow back to dark as it drains. A tap makes one splash on touch screens.
-- **Work chapter:** a pinned gallery. The deck becomes a wheel in depth; scroll turns it so each project's card swings to the front and rests there while its title, summary, and a giant index numeral change beside it. No stacking cards.
-- **What the world must never become:** a particle cloud, a neon wireframe, glowing outlines, or motion that runs with no input. Apart from the load entrance, the scene moves only with scroll, pointer, or navigation.
-- **Honesty rule:** reliefs and finishes are visual identity only. They never encode a metric or imply a claim about a project.
+- **Work chapter:** a pinned gallery. Cards come into view one at a time: each rises from below, rests facing the viewer while its title, summary, and a giant index numeral show beside it, then leaves upward. No stacking cards, no row.
+- **What the world must never become:** a particle cloud, a neon wireframe, glowing outlines, or abstract decoration that says nothing about the work. Card graphics and the heading phenomena play on their own while on screen; everything else moves only with scroll, pointer, or navigation. All of it holds still under reduced motion.
+- **Honesty rule:** card graphics are diagrams of what a kind of product does. They are not screenshots, and they never show a metric or imply a result.
 
 ### Banned UI patterns (immediate reject)
 

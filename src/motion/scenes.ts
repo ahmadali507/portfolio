@@ -7,11 +7,13 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion } from './state';
 import type { MotionCore } from './core';
+import { mountChem } from './chem';
 
 const EXPO = 'expo.out';
 
 export function mountScenes(doc: Document, core: MotionCore): void {
   heroScene(doc);
+  mountChem(doc, core);
   if (motion.reduced) return;
   revealLines(doc);
   rise(doc);
@@ -43,7 +45,7 @@ function heroScene(doc: Document): void {
       return;
     }
     // Cinematic zoom-out: the full-bleed scene pulls back into a framed window.
-    const t = gsap.utils.clamp(0, 1, (p - 0.72) / 0.28);
+    const t = gsap.utils.clamp(0, 1, (p - 0.25) / 0.75);
     const e = t * t * (3 - 2 * t);
     const clip = e > 0 ? `inset(${(e * 10).toFixed(2)}% ${(e * 8).toFixed(2)}% ${(e * 10).toFixed(2)}% ${(e * 8).toFixed(2)}% round ${(e * 28).toFixed(1)}px)` : '';
     world.style.clipPath = clip;
@@ -82,10 +84,9 @@ function heroScene(doc: Document): void {
   const tl = gsap.timeline({
     scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom bottom', scrub: 0.6 },
   });
-  if (copy) tl.to(copy, { yPercent: -18, opacity: 0, ease: 'none', duration: 0.3 }, 0.12);
-  if (meta) tl.to(meta, { y: 40, opacity: 0, ease: 'none', duration: 0.2 }, 0.1);
-  if (cue) tl.to(cue, { opacity: 0, ease: 'none', duration: 0.08 }, 0);
-  tl.to({}, { duration: 0.58 }, 0.42);
+  if (copy) tl.to(copy, { yPercent: -10, scale: 0.9, transformOrigin: '0% 50%', ease: 'none', duration: 0.75 }, 0.25);
+  if (meta) tl.to(meta, { y: 40, opacity: 0, ease: 'none', duration: 0.25 }, 0.1);
+  if (cue) tl.to(cue, { opacity: 0, ease: 'none', duration: 0.1 }, 0);
 }
 
 // ---------- Headings: words rise out of a mask when they enter ----------
@@ -261,7 +262,9 @@ function peek(doc: Document): void {
     row.addEventListener('pointerenter', () => {
       peekEl.dataset.pattern = row.dataset.pattern ?? '0';
       peekEl.dataset.seed = row.dataset.seed ?? '0';
-      peekEl.dataset.tone = row.dataset.tone ?? '1';
+      peekEl.dataset.base = row.dataset.base ?? '';
+      peekEl.dataset.line = row.dataset.line ?? '';
+      peekEl.dataset.accent = row.dataset.accent ?? '';
       gsap.to(peekEl, { scale: 1, opacity: 1, duration: 0.5, ease: EXPO });
     });
   });

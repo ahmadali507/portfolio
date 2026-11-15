@@ -23,6 +23,7 @@ const { title, pattern, seed, tone, size = 'feature' } = Astro.props;
   data-seed={seed.toFixed(3)}
   data-base={tone.base}
   data-line={tone.line}
+  data-accent={tone.accent}
   style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}
 >
   <div class="frame">

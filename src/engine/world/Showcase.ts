@@ -17,7 +17,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { motion } from '../../motion/state';
 import type { EngineContext, FrameInput, Tier, WorldPart } from '../types';
-import { renderCardArt } from './cardArt';
+import { CardArt, type CardData } from './cardArt';
 
 const { clamp, smoothstep, damp } = MathUtils;
 
@@ -26,18 +26,10 @@ const CARD_H = 2.0;
 const CARD_D = 0.07;
 const FOV = 30;
 
-interface CardData {
-  slug: string;
-  pattern: number;
-  seed: number;
-  base: string;
-  line: string;
-}
-
 interface Card {
   mesh: Mesh;
   material: MeshPhysicalMaterial;
-  art: WebGLRenderTarget;
+  art: CardArt;
   lift: number;
 }
 
@@ -60,6 +52,7 @@ export class Showcase implements WorldPart {
   private tiltY = 0;
   private hovered = -1;
   private wasGallery = false;
+  private artCursor = 0;
 
   // Scratch, allocated once.
   private readonly pa = new Vector3();
@@ -89,12 +82,13 @@ export class Showcase implements WorldPart {
 
     // Tier 2 (weak devices): fewer bevel segments and smaller card art.
     this.geometry = new RoundedBoxGeometry(CARD_W, CARD_H, CARD_D, tier === 1 ? 5 : 3, 0.11);
-    const artW = tier === 1 ? 1024 : 512;
+    const artW = tier === 1 ? 768 : 512;
 
     for (const d of Showcase.readCards()) {
-      const art = renderCardArt(renderer, d.pattern, d.seed, d.base, d.line, artW, artW * 0.625);
+      const art = new CardArt(renderer, d, artW, artW * 0.625);
+      art.render(renderer, 1 + d.index);
       const material = new MeshPhysicalMaterial({
-        map: art.texture,
+        map: art.target.texture,
         roughness: 0.32,
         metalness: 0,
         clearcoat: 1,
@@ -146,9 +140,9 @@ export class Showcase implements WorldPart {
         rot.set(-1.4, 0.3, 0.6 - i * 0.2);
         break;
       case 'stack':
-        // A neat deck seen at three quarters: the top card is the first project.
-        pos.set(c * 0.07, (n - 1 - i) * 0.11 - 0.2, c * 0.04);
-        rot.set(-1.08, 0, 0.42 + c * 0.035);
+        // A deck tipped toward the viewer, so the top card's graphic reads; the rest peek out behind it.
+        pos.set(c * 0.2, (n - 1 - i) * 0.1 - 0.15 - c * 0.12, -i * 0.12);
+        rot.set(-0.62, 0.0, 0.3 + c * 0.05);
         break;
       case 'fan': {
         const a = c * (portrait ? 0.2 : 0.24);
@@ -161,8 +155,9 @@ export class Showcase implements WorldPart {
           pos.set(0, -c * 2.35, -Math.abs(c) * 0.4);
           rot.set(0, 0, 0);
         } else {
-          pos.set(c * 3.55, Math.sin(c * 0.9) * 0.15, -Math.abs(c) * 0.3);
-          rot.set(0, -c * 0.06, 0);
+          // An arc facing the viewer: the middle card nearest, the ends turned in.
+          pos.set(c * 3.5, 0, -Math.abs(c) * 0.55);
+          rot.set(0, -c * 0.17, 0);
         }
         break;
       case 'feature':
@@ -178,13 +173,12 @@ export class Showcase implements WorldPart {
   /** Work gallery: cards on a spiral in depth. d is the card's distance from the front, in cards. */
   private helix(i: number, portrait: boolean): void {
     const d = i - motion.workPos;
-    // A wheel turning toward the viewer: the next card waits below, the last one tips away above.
-    const a = d * 0.6;
-    const r = portrait ? 5.2 : 5.4;
+    // One at a time: each card rises from below, faces the viewer at the center, and leaves upward.
+    const gap = portrait ? 5.6 : 4.3;
     // Rises from below as the section arrives, lifts away as it leaves.
     const travel = (1 - motion.workIn) * -9 + motion.workOut * 10;
-    this.pa.set(d * 0.3, -Math.sin(a) * r + travel * (1 + Math.abs(d) * 0.15), Math.cos(a) * r - r);
-    this.ea.set(a * 1.05, -0.3 + d * 0.1, d * 0.04);
+    this.pa.set(0, -d * gap + travel, -Math.abs(d) * 0.9);
+    this.ea.set(d * 0.32, -0.26, d * 0.05);
     this.qa.setFromEuler(this.ea);
   }
 
@@ -214,8 +208,7 @@ export class Showcase implements WorldPart {
     let camTarget = 11;
     let show: boolean;
     const p = motion.hero;
-    const toFan = smoothstep(p, 0.02, 0.38);
-    const toRow = smoothstep(p, 0.4, 0.74);
+    // The deck stays a deck: it recedes as the scene pulls back into its frame.
 
     const gallery = motion.page === 'home' && motion.workIn > 0 && motion.workOut < 1;
     if (gallery) {
@@ -224,11 +217,11 @@ export class Showcase implements WorldPart {
       gs = portrait ? 0.5 : 1.05;
       show = true;
     } else if (motion.page === 'home') {
-      gx = portrait ? 0 : MathUtils.lerp(3.05, 0, toRow);
-      gy = (portrait ? MathUtils.lerp(-1.75, 0, toRow) : -0.1) + motion.exit * 9;
-      gs = portrait ? MathUtils.lerp(0.68, 0.62, toRow) : MathUtils.lerp(0.78, 1, toRow);
+      gx = portrait ? 0 : MathUtils.lerp(3.05, 2.2, smoothstep(p, 0.1, 1));
+      gy = (portrait ? -1.75 : -0.1) + motion.exit * 9;
+      gs = portrait ? 0.68 : 0.78;
       // The camera pulls back as the cards line up, so the whole row fits before the frame closes in.
-      camTarget = 11 + (portrait ? 11 : 12) * smoothstep(p, 0.32, 0.78);
+      camTarget = 11 + 4 * smoothstep(p, 0.15, 1);
       show = !motion.heroCovered;
     } else {
       // Banner pages: the group sits in the head band and scrolls away with it.
@@ -266,8 +259,7 @@ export class Showcase implements WorldPart {
         this.helix(i, portrait);
       } else if (motion.page === 'home') {
         const intro = rm ? 1 : easeOutExpo(clamp((since - 0.2 - i * 0.09) / 1.4, 0, 1));
-        if (toRow > 0) this.blend(i, 'fan', 'row', toRow);
-        else this.blend(i, 'stack', 'fan', toFan);
+        this.blend(i, 'stack', 'stack', 0);
         if (intro < 1) {
           this.pose('enter', i, this.pb, this.eb);
           this.qb.setFromEuler(this.eb);
@@ -287,7 +279,7 @@ export class Showcase implements WorldPart {
       const isHover = i === this.hovered || i === domHover;
       card.lift = rm ? 0 : damp(card.lift, isHover ? 1 : 0, 8, dt);
       this.pa.z += card.lift * 0.45;
-      this.pa.y += card.lift * (motion.page === 'home' && toFan < 0.5 ? 0.25 : 0.12);
+      this.pa.y += card.lift * 0.12;
 
       if (gallery !== this.wasGallery) mesh.position.copy(this.pa);
       mesh.position.lerp(this.pa, k);
@@ -312,7 +304,17 @@ export class Showcase implements WorldPart {
     cam.position.set(0, 0, this.camZ);
     cam.lookAt(0, 0, 0);
 
-    return this.moving || input.pointerMoved || (motion.page === 'home' && since < 2.2);
+    // The card graphics play while the deck is on screen. Under reduced motion they hold one frame.
+    const playing = show && !rm;
+    if (playing) {
+      const renderer = this.ctx.renderer;
+      // Two faces per frame, in turn: every card still refreshes about 24 times a second at 60 Hz.
+      for (let j = 0; j < 2; j++) {
+        this.artCursor = (this.artCursor + 1) % n;
+        this.cards[this.artCursor]!.art.render(renderer, input.time);
+      }
+    }
+    return this.moving || playing || input.pointerMoved || (motion.page === 'home' && since < 2.2);
   }
 
   dispose(): void {

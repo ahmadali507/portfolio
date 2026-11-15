@@ -80,3 +80,13 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Stacking cards removed; Ahmad called them ordinary.** The work chapter is now a pinned wheel gallery driven by the same 3D deck: `motion.workPos` is eased per segment so each card dwells at the front. Without WebGL the gallery shows SVG reliefs; without JavaScript or under reduced motion it is a plain list.
 - **Card finishes reordered for a dark ground:** porcelain, vermilion, graphite, pearl, obsidian.
 - **Card art uses mipmaps** so contours stay smooth when cards are small or angled.
+
+## 2026-11-16 (live cards, chemistry heading, one-by-one gallery, positioning)
+
+- **Card faces are motion graphics, not abstract reliefs.** Ahmad called the contour cards placeholders that portray nothing. Each featured project now has an animated diagram of what it does, plus its name and a two-word kind on the card. The same scenes drive the case-study covers and the work-index preview. The SVG relief stays only as the no-WebGL fallback.
+- **Kinds on cards** (Collaborative editor, Document Q&A, Content platform, Call routing, Storybooks) restate Ahmad's one-line summaries. No new facts.
+- **Performance regression found on Ahmad's machine and fixed.** With five 1024 x 640 faces redrawn every frame the stats overlay showed about 20 ticks a second. Faces are now 768 x 480, two are refreshed per frame in turn, and the longest shader loop was shortened. Not yet re-measured on that machine.
+- **Hero row removed.** Ahmad asked for cards to arrive one by one and travel upward, not line up. The hero pin is shorter (170svh): the deck stays a deck while the scene pulls back into its frame. The gallery is a vertical conveyor with a dwell at each project.
+- **Chemistry in the heading**, after Ahmad's second reference. Twelve procedural phenomena cycle through the letters with reaction-front transitions. Darken blending with output clamped to the ground color keeps the ground untouched and the DOM text real. A third small WebGL context per page; half-rate drawing keeps it cheap.
+- **Autonomous motion allowed for card graphics and the heading only.** This relaxes the earlier rule that nothing moves without input. Both stop under reduced motion and when off screen.
+- **Positioning revised by Ahmad:** a software engineer with an entrepreneurial mindset, not an AI or RAG specialist. Copy now leads with building products end to end and co-founding the agency; AI systems are one practice among five. Every statement comes from facts already in `docs/CONTENT.md`.

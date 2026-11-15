@@ -14,9 +14,9 @@ const first = chars(FIRST_NAME);
 const last = chars(SURNAME, FIRST_NAME.length + 2);
 
 const practice = [
-  { area: 'AI systems', items: ['RAG pipelines', 'LLM integrations', 'Multi-agent systems', 'Voice agents'] },
   { area: 'Full-stack SaaS', items: ['Next.js', 'React', 'Node.js', 'TypeScript', 'Supabase', 'PostgreSQL'] },
   { area: 'Mobile apps', items: ['React Native'] },
+  { area: 'AI systems', items: ['LLM integrations', 'RAG pipelines', 'Multi-agent systems', 'Voice agents'] },
   { area: 'Cloud', items: ['AWS', 'GCP'] },
   { area: 'Automation', items: ['n8n', 'Zapier'] },
 ];
@@ -41,7 +41,7 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
 
       <div class="hero-copy page" data-hero-copy>
         <p class="label enter" style="--d:120ms">{PERSON.role} / {PERSON.location}</p>
-        <h1 id="hero-title" aria-label={FULL_NAME}>
+        <h1 id="hero-title" aria-label={FULL_NAME} data-chem>
           <span class="line" aria-hidden="true">
             {first.map(({ c, i }) => <span class="ch" style={`--i:${i}`}>{c}</span>)}
           </span>
@@ -77,7 +77,7 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
       as="p"
       mode="statement"
       class="statement-text"
-      text="Most AI work stops at the demo. I build the rest: the retrieval, the agents, the APIs, and the product around them, for clients who need it running on Monday."
+      text="I started as a freelancer on Upwork and worked with 38+ clients. Then I co-founded an agency around the same work. I treat every build as if I own it: scope it, build all of it, ship it, and keep it running."
     />
   </section>
 
@@ -114,11 +114,12 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
   <section class="about page" aria-labelledby="about-title">
     <p class="label">About</p>
     <div class="about-grid">
-      <SplitWords as="h2" id="about-title" text="From Upwork freelancer to agency co-founder" />
+      <SplitWords as="h2" id="about-title" text="An engineer who also runs the business" />
       <div class="about-body" data-rise>
         <p>
-          I am a software engineer in Islamabad and a co-founder of {PERSON.company}. I started on Upwork as a freelancer,
-          then helped build an agency around the same work. {PERSON.direction}
+          I co-founded {PERSON.company}, an AI and software agency serving clients in the US, the UK, and the Middle
+          East, where I lead AI automation and SaaS development. Before that I was a Top Rated freelancer on Upwork.
+          I am finishing a BS in Software Engineering at NUST. {PERSON.direction}
         </p>
         <a class="text-link mono" href="/about/">More about my background <span aria-hidden="true">→</span></a>
       </div>
@@ -151,7 +152,7 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
 
   /* Tall only with JavaScript, where scroll drives the 3D story. */
   :global(html.js) .hero {
-    height: 330svh;
+    height: 170svh;
   }
 
   @media (prefers-reduced-motion: reduce) {

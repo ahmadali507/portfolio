@@ -54,7 +54,7 @@ const titleChars = [...d.title];
       <p class="label enter" style="--d:100ms">
         <a href="/work/">Work</a> / Case study {pad(index + 1)} of {pad(total)}
       </p>
-      <h1 id="case-title" aria-label={d.title}>
+      <h1 id="case-title" aria-label={d.title} data-chem>
         <span class="line" aria-hidden="true">
           {titleChars.map((c, i) => <span class="ch" style={`--i:${i}`}>{c === ' ' ? ' ' : c}</span>)}
         </span>

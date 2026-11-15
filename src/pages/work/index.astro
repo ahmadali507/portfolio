@@ -12,18 +12,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <Base
   page="work"
   title="Work"
-  description="Projects by Ahmad: AI systems, full-stack SaaS, mobile apps, and automation work for clients."
+  description="Projects by Ahmad: SaaS products, mobile apps, AI systems, and automation built for clients."
 >
   <div class="page">
     <header class="head">
       <p class="label enter" style="--d:100ms">Index / {pad(all.length)} projects</p>
-      <h1 class="giant" aria-label="Work">
+      <h1 class="giant" aria-label="Work" data-chem>
         <span class="line" aria-hidden="true">
           {[...'Work'].map((c, i) => <span class="ch" style={`--i:${i}`}>{c}</span>)}
         </span>
       </h1>
       <p class="lead enter" style="--d:500ms">
-        AI systems, SaaS products, mobile apps, and automation, built for clients and for research.
+        SaaS products, mobile apps, AI systems, and automation, built for clients and for research.
       </p>
       {
         DRAFT_PREVIEW && (
@@ -52,6 +52,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                   data-seed={seedFor(p).toFixed(3)}
                   data-base={tone.base}
                   data-line={tone.line}
+                  data-accent={tone.accent}
                 >
                   <a class="row" href={`/work/${p.id}/`}>
                     <span class="idx mono">{pad(i + 1)}</span>

@@ -76,14 +76,30 @@ const PATTERN_BY_SLUG: Record<string, number> = {
   xiomara: 3,
   'voice-transfer-system': 4,
   'magicalbook-store': 5,
+  prepify: 6,
+  'scrape-stripe': 8,
+  cricping: 7,
+  'ai-interviewer': 7,
+  eapo: 7,
+  orderlyflow: 7,
+  'spiking-mamba': 9,
 };
+
+/** Two or three words for the card's corner label, taken from the one-line summaries. */
+const KIND_BY_SLUG: Record<string, string> = {
+  shocodoc: 'Collaborative editor',
+  'docuchat-ai': 'Document Q&A',
+  xiomara: 'Content platform',
+  'voice-transfer-system': 'Call routing',
+  'magicalbook-store': 'Storybooks',
+};
+
+export const kindFor = (p: Project): string => KIND_BY_SLUG[p.id] ?? 'Project';
 
 export const patternFor = (p: Project): number => {
   const fixed = PATTERN_BY_SLUG[p.id];
   if (fixed !== undefined) return fixed;
-  let h = 0;
-  for (const ch of p.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return 6 + (h % 3);
+  return 6;
 };
 
 /** Stable 0..1 seed per project, so variants of a shared pattern differ. */

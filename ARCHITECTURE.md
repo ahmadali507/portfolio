@@ -99,9 +99,11 @@ Adopted on 2026-11-15, replacing Kinetic Field. See `DESIGN.md` section 1 and `d
 
 **Liquid layer.** `src/motion/liquid.ts` draws on its own canvas (`#liquid`, persisted, top-most, `pointer-events: none`, `mix-blend-mode: difference`) with a small raw WebGL2 context, no second three.js renderer. A quarter-resolution 8-bit mask is fed back each frame (diffuse, creep, decay) with the pointer path stamped in, then thresholded at full resolution. Two draw calls per frame while a trail is alive, none at rest. It subscribes to the one loop in `motion/core.ts` and has its own `ResizeObserver` for its canvas. Off under reduced motion.
 
+**Heading chemistry.** `src/motion/chem.ts` appends a canvas to the `[data-chem]` heading with `mix-blend-mode: darken` inside an opaque, isolated wrapper, and clamps its output to the ground color, so only the light letters change. One raw WebGL2 context per page, released on `astro:before-swap`, drawn at half frame rate and CSS-pixel resolution, paused off screen.
+
 **Scene parts.**
 
-- `Showcase` (`src/engine/world/Showcase.ts`): one `RoundedBoxGeometry` shared by up to 5 meshes with `MeshPhysicalMaterial` (clear coat). Each card face is rendered once into a render target from the pattern shader (`cardArt.ts`). Reflections come from `RoomEnvironment` through `PMREMGenerator`, so no HDR file is downloaded. Poses (enter, stack, fan, row, wheel, feature, away) are pure functions; each frame damps meshes toward them. The wheel is the work gallery: card angle follows `motion.workPos`, which `scenes.ts` eases so a card rests at the front.
+- `Showcase` (`src/engine/world/Showcase.ts`): one `RoundedBoxGeometry` shared by up to 5 meshes with `MeshPhysicalMaterial` (clear coat). Each card face is a render target drawn by the scene shader (`shaders/scenes.ts`, `cardArt.ts`); two faces are refreshed per frame in turn while the deck is on screen, so nothing is uploaded from the CPU. Reflections come from `RoomEnvironment` through `PMREMGenerator`, so no HDR file is downloaded. Poses (enter, stack, fan, row, wheel, feature, away) are pure functions; each frame damps meshes toward them. The wheel is the work gallery: card angle follows `motion.workPos`, which `scenes.ts` eases so a card rests at the front.
 - `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]`, drawn in an orthographic pass in CSS pixels after the deck. Static plates use cached rectangles. Plates marked `data-plate-track` (the cursor preview) read their rectangle each frame.
 
 **Budget plan (fits the DESIGN.md limits).**

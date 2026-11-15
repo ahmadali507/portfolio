@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { motion, type PageKind } from './state';
 import { mountScenes } from './scenes';
+import { unmountChem } from './chem';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -80,6 +81,7 @@ export function initCore(): MotionCore {
   document.addEventListener('astro:before-swap', () => {
     ctx?.revert();
     ctx = null;
+    unmountChem();
     lenis.stop();
   });
   document.addEventListener('astro:page-load', () => {

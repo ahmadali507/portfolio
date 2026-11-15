@@ -7,7 +7,7 @@ import SiteHeader from '@/components/SiteHeader.astro';
 import SiteFooter from '@/components/SiteFooter.astro';
 import WorldHost from '@/components/WorldHost.astro';
 import { FULL_NAME, PERSON, SITE, CONTACT } from '@/config/site';
-import { patternFor, seedFor, toneFor, visibleProjects } from '@/lib/projects';
+import { kindFor, patternFor, seedFor, toneFor, visibleProjects } from '@/lib/projects';
 
 interface Props {
   title?: string;
@@ -28,7 +28,17 @@ const { featured } = await visibleProjects();
 const worldData = {
   cards: featured.map((p, i) => {
     const tone = toneFor(i);
-    return { slug: p.id, pattern: patternFor(p), seed: seedFor(p), base: tone.base, line: tone.line };
+    return {
+      slug: p.id,
+      title: p.data.title,
+      kind: kindFor(p),
+      index: i,
+      pattern: patternFor(p),
+      seed: seedFor(p),
+      base: tone.base,
+      line: tone.line,
+      accent: tone.accent,
+    };
   }),
 };
 const fullTitle = title ? `${title} | ${FULL_NAME}` : SITE.title;
@@ -49,10 +59,8 @@ const personLd = {
   alumniOf: { '@type': 'CollegeOrUniversity', name: 'National University of Sciences and Technology (NUST)' },
   worksFor: { '@type': 'Organization', name: PERSON.company },
   knowsAbout: [
-    'Retrieval-augmented generation',
-    'LLM integration',
-    'Multi-agent systems',
-    'Voice agents',
+    'Software engineering',
+    'SaaS development',
     'Next.js',
     'React',
     'Node.js',
@@ -61,6 +69,10 @@ const personLd = {
     'React Native',
     'AWS',
     'Google Cloud',
+    'Workflow automation',
+    'LLM integration',
+    'Retrieval-augmented generation',
+    'Multi-agent systems',
   ],
   ...(sameAs.length ? { sameAs } : {}),
 };

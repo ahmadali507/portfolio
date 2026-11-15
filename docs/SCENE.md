@@ -4,21 +4,28 @@ The 3D world and the scroll story. Contract files win on any conflict: `DESIGN.m
 
 ## Concept
 
-A portfolio is a deck of finished work, so the hero object is a deck: one glossy card per featured project. Each card carries its project's generative relief in its own finish (obsidian, porcelain, vermilion, graphite, pearl). The same relief and finish appear on that project's stacking card and case-study cover, so a visitor meets one object three times and recognizes it each time.
+A portfolio is a deck of finished work, so the hero object is a deck: one glossy card per featured project, in its own finish (porcelain, vermilion, graphite, pearl, obsidian). Each face plays a motion graphic of what the project does and carries its name. The same graphic and finish appear on the case-study cover and the work-index preview.
 
-Reliefs and finishes are visual identity only. They make no claim about the projects.
+| Scene | Shows | Used by |
+| ----- | ----- | ------- |
+| editor | Two people typing in one document | Shocodoc |
+| ask | A document is searched; an answer points back at the passage | DocuChat AI |
+| languages | One source fans out into variants, one set right to left | Xiomara |
+| call | A call is checked, then routed to a person | Voice Transfer System |
+| book | Pages write themselves and turn | MagicalBook.Store |
+| product, phone, pipeline, spikes | Generic product kinds | The other projects |
+
+The graphics are diagrams, not screenshots. They show no metric and imply no result. Source: `src/engine/shaders/scenes.ts`.
 
 ## The home story, beat by beat
 
 | Scroll through the hero | Deck                                                | Page                                                   |
 | ----------------------- | --------------------------------------------------- | ------------------------------------------------------ |
 | Load (time, once)       | Cards fly up from below and settle into a stack     | The name rises letter by letter; lead and actions fade up |
-| 0 to 38 percent         | The stack opens into a fan facing the viewer        | Copy drifts up and fades                               |
-| 40 to 78 percent        | The fan lines up into a row; the camera pulls back  | Nothing competes with the row                          |
-| 72 to 100 percent       | The row holds                                       | The whole scene recedes into a framed window           |
+| 25 to 100 percent       | The deck stays a deck and recedes                   | The whole scene pulls back into a framed window        |
 | Next section rises      | The deck lifts out of the frame                     | The statement slides over; its words light up          |
 
-Then the work gallery, pinned for five screens: the deck rises back in as a wheel in depth. Scroll turns the wheel, and each card eases to a rest at the front while the next waits below and the last tips away above. The project's title, summary, and a giant index numeral change beside it. Then a sideways practice track, the about block, and the closing call to action.
+Then the work gallery, pinned for five screens. Cards come one at a time: each rises from below, eases to a rest facing the viewer, then leaves upward as the next arrives. The project's title, summary, and a giant index numeral change beside it. Then a sideways practice track, the about block, and the closing call to action.
 
 ## Liquid splash
 
@@ -43,7 +50,7 @@ No downloaded models, textures, or HDR files.
 | Asset          | Source                                            | Triangles        | Draw calls  |
 | -------------- | ------------------------------------------------- | ---------------- | ----------- |
 | Card           | `RoundedBoxGeometry(3.2, 2, 0.07, 5, 0.11)`       | about 2,500      | 1 each      |
-| Card face      | Render target from the pattern shader, 1024 x 640 | 0                | 0 per frame |
+| Card face      | Render target from the scene shader, 768 x 480, two faces refreshed per frame | 0 | 2 small passes per frame |
 | Reflections    | `RoomEnvironment` prefiltered by `PMREMGenerator` | 0                | 0 per frame |
 | Plate          | `PlaneGeometry(1, 1, 32, 24)`, shared             | 1,536 each       | 1 each      |
 | **Worst case** | 5 cards and 6 plates                              | **about 22,000** | **11**      |

@@ -19,7 +19,7 @@ The only source of facts about Ahmad for this site. Nothing outside this file ma
 | Stack     | Next.js, React, Node.js, TypeScript, Supabase, PostgreSQL, React Native, AWS, GCP, RAG pipelines, LLM APIs, multi-agent systems, n8n, Zapier.              | Draft only |              |
 | Interests | Deep learning engineering, ML foundations, formal methods (theorem proving, SAT solvers).                                                                  | Draft only |              |
 | Interests detail | Foundations in ML mathematics and formal methods: HOL theorem proving, SAT solvers. Direction: deep learning engineering. Supplied by Ahmad on 2026-11-15. | Draft only |              |
-| Positioning | An engineer who ships AI systems into production for paying clients. Supplied by Ahmad on 2026-11-15. | Draft only |              |
+| Positioning | A software engineer with an entrepreneurial mindset: builds products end to end and ships them for paying clients. Not to be framed as an AI or RAG specialist. Revised by Ahmad on 2026-11-16. | Draft only |              |
 | Builds | AI systems (RAG, LLM integrations, multi-agent systems, voice agents), full-stack SaaS, mobile apps (React Native), cloud infrastructure (AWS, GCP), workflow automation (n8n, Zapier). Supplied by Ahmad on 2026-11-15. | Draft only |              |
 | Freelance history | Started as an Upwork freelancer before co-founding the agency. Supplied by Ahmad on 2026-11-15. | Draft only |              |
 

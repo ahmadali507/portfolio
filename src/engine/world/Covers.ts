@@ -10,7 +10,7 @@ import {
   Vector3,
   type WebGLRenderer,
 } from 'three';
-import { PATTERNS_GLSL } from '../shaders/patterns';
+import { SCENES_GLSL } from '../shaders/scenes';
 import type { EngineContext, FrameInput, Tier, WorldPart } from '../types';
 
 const { damp, clamp } = MathUtils;
@@ -46,39 +46,22 @@ void main() {
 `;
 
 const fragmentShader = /* glsl */ `
-${PATTERNS_GLSL}
+${SCENES_GLSL}
 
 uniform float uPattern;
 uniform float uSeed;
 uniform vec2 uSize;
 uniform vec2 uPointer;
 uniform float uHover;
-uniform vec3 uRipple;
 uniform float uTime;
 uniform vec3 uBase;
 uniform vec3 uLine;
 uniform vec3 uAccent;
 uniform float uRadius;
 uniform float uAlpha;
-uniform float uDim;
-uniform float uCut;
-uniform vec2 uView;
 
 varying vec2 vUv;
 varying float vShade;
-
-float field(vec2 uv) {
-  vec2 p = uv * 2.0 - 1.0;
-  float h = pattern(uPattern, p, uSeed);
-  float age = uTime - uRipple.z;
-  if (age > 0.0 && age < 2.0) {
-    vec2 d = (uv - uRipple.xy) * vec2(uSize.x / uSize.y, 1.0);
-    float r = length(d);
-    float front = age * 0.7;
-    h += sin((r - front) * 40.0) * exp(-pow((r - front) * 9.0, 2.0)) * exp(-age * 2.0) * 0.12;
-  }
-  return h;
-}
 
 void main() {
   // Rounded corners, matching the CSS radius of the frame.
@@ -87,37 +70,19 @@ void main() {
   float dist = length(max(q, 0.0)) - uRadius;
   float mask = 1.0 - smoothstep(-1.0, 0.5, dist);
   if (mask <= 0.0) discard;
-  // A card stacked over this one hides everything below its top edge (CSS px from the top).
-  float yTop = uView.y - gl_FragCoord.y / uView.x;
-  if (yTop > uCut) discard;
 
-  vec2 e = 1.5 / uSize;
-  float h = field(vUv);
-  float hx = field(vUv + vec2(e.x, 0.0)) - h;
-  float hy = field(vUv + vec2(0.0, e.y)) - h;
-  vec3 n = normalize(vec3(-hx * uSize.x * 0.05, -hy * uSize.y * 0.05, 1.0));
-  float light = dot(n, normalize(vec3(-0.45, 0.55, 0.7))) * 0.5 + 0.5;
-  vec3 col = uBase * mix(0.88, 1.08, light);
-
-  float level = h / 0.07;
-  float w = fwidth(level);
-  float line = 1.0 - smoothstep(0.0, w * 1.2, abs(fract(level - 0.5) - 0.5));
-  // Where contours crowd closer than a few pixels, fade them out instead of letting them alias.
-  line *= 1.0 - smoothstep(0.18, 0.45, w);
-  col = mix(col, uLine, line * 0.8);
-
-  vec2 dp = (vUv - uPointer) * vec2(uSize.x / uSize.y, 1.0);
-  float near = exp(-dot(dp, dp) * 24.0) * uHover;
-  col = mix(col, uAccent, line * near);
+  // Scenes are drawn for a 1.6 : 1 frame; wider plates center the graphic.
+  float aspect = uSize.x / uSize.y;
+  vec2 p = vec2((vUv.x - 0.5) * aspect + 0.8, vUv.y);
+  vec3 col = scene(uPattern, p, uTime, uBase, uLine, uAccent, uSeed);
 
   // Gloss: a soft diagonal sheen that slides with the pointer, plus a fixed top-left glaze.
   vec2 dir = normalize(vec2(1.0, 0.55));
   float band = dot(vUv - mix(vec2(0.2, 0.8), uPointer, uHover), dir);
-  float sheen = exp(-band * band * 38.0) * (0.06 + 0.1 * uHover);
-  float glaze = smoothstep(1.2, 0.0, length(vUv - vec2(0.0, 1.0))) * 0.05;
+  float sheen = exp(-band * band * 38.0) * (0.05 + 0.09 * uHover);
+  float glaze = smoothstep(1.2, 0.0, length(vUv - vec2(0.0, 1.0))) * 0.04;
   col += vec3(sheen + glaze);
   col *= 1.0 - vShade * 0.05;
-  col = mix(col, vec3(0.004, 0.0045, 0.005), uDim);
 
   gl_FragColor = vec4(col, mask * uAlpha);
   #include <colorspace_fragment>
@@ -159,7 +124,6 @@ export class Covers implements WorldPart {
   private readonly scene = new Scene();
   private readonly camera = new OrthographicCamera(0, 1, 0, -1, -2000, 2000);
   private readonly geometry = new PlaneGeometry(1, 1, 32, 24);
-  private readonly accent = new Color('#e2401c');
   /** x: device pixel ratio, y: viewport height in CSS px. Shared by every plate. */
   private readonly view = new Vector2(1, 1);
   private plates: Plate[] = [];
@@ -208,14 +172,15 @@ export class Covers implements WorldPart {
 
   private syncData(p: Plate): void {
     const d = p.el.dataset;
-    const key = `${d.pattern}|${d.seed}|${d.base}|${d.line}`;
+    const key = `${d.pattern}|${d.seed}|${d.base}|${d.line}|${d.accent}`;
     if (key === p.key) return;
     p.key = key;
     const u = p.material.uniforms;
     u.uPattern!.value = Number(d.pattern ?? 0);
     u.uSeed!.value = Number(d.seed ?? 0);
     (u.uBase!.value as Color).set(d.base ?? '#e1e2df');
-    (u.uLine!.value as Color).set(d.line ?? '#8f9492');
+    (u.uLine!.value as Color).set(d.line ?? '#ededeb');
+    (u.uAccent!.value as Color).set(d.accent ?? '#e2401c');
   }
 
   private createPlate(el: HTMLElement): Plate {
@@ -240,7 +205,7 @@ export class Covers implements WorldPart {
         uTime: { value: 0 },
         uBase: { value: new Color() },
         uLine: { value: new Color() },
-        uAccent: { value: this.accent },
+        uAccent: { value: new Color() },
         uRadius: { value: parseFloat(getComputedStyle(frame).borderTopLeftRadius) || 0 },
         uAlpha: { value: 1 },
         uDim: { value: 0 },
@@ -360,6 +325,7 @@ export class Covers implements WorldPart {
       u.uHover!.value = p.hover;
       u.uBend!.value = p.bend;
       u.uTime!.value = input.time;
+      if (!rm) active = true;
 
       if (
         Math.abs(p.hover - ht) > 1e-3 ||

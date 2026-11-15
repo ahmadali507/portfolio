@@ -20,12 +20,12 @@ export const SITE = {
   url: { value: 'https://ahmad.example', placeholder: true },
   title: `${FULL_NAME}, software engineer`,
   description:
-    'Ahmad is a software engineer in Islamabad who ships AI systems into production for paying clients. Co-founder of OnePercent Technologies.',
+    'Ahmad is a software engineer and co-founder in Islamabad. He builds SaaS products, mobile apps, AI systems, and automation, and ships them for clients in the US, UK, and Middle East.',
   locale: 'en',
 } as const;
 
 export const PERSON = {
-  role: 'Software engineer',
+  role: 'Software engineer and co-founder',
   location: 'Islamabad, Pakistan',
   education: 'BS Software Engineering, NUST Islamabad, class of 2026',
   company: 'OnePercent Technologies',
@@ -33,7 +33,7 @@ export const PERSON = {
     'Co-founder of OnePercent Technologies, an AI and software agency serving clients in the US, UK, and Middle East.',
   companyRole: 'Leads AI automation and SaaS development.',
   freelance: 'Top Rated on Upwork, with 38+ clients. Started there as a freelancer before co-founding the agency.',
-  positioning: 'I ship AI systems into production for paying clients.',
+  positioning: 'I build software products end to end and ship them for paying clients.',
   direction: 'Moving toward deep learning engineering, on foundations in ML mathematics and formal methods.',
 } as const;
 
