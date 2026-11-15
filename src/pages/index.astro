@@ -24,7 +24,7 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
 ---
 
 <Base page="home">
-  <!-- 1. Hero: pinned by CSS sticky. The 3D stack fans, lines up, then the scene pulls back into a frame. -->
+  <!-- 1. Hero: one screen. Scrolling on, the deck opens into the gallery below. -->
   <section class="hero" aria-labelledby="hero-title" data-hero data-world-anchor="hero">
     <div class="hero-pin">
       <div class="hero-stage" data-hero-stage aria-hidden="true">
@@ -70,7 +70,10 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
     </div>
   </section>
 
-  <!-- 2. Statement: rises over the framed hero; words light up as the reader scrolls. -->
+  <!-- 2. Work: a pinned gallery. Scroll turns a spiral of glossy cards; each project swings to the front. -->
+  <WorkGallery projects={featured} total={all.length} />
+
+  <!-- 3. Statement: words light up as the reader scrolls. -->
   <section class="statement page" aria-label="Approach">
     <p class="label">Approach</p>
     <SplitWords
@@ -80,9 +83,6 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
       text="I started as a freelancer on Upwork and worked with 38+ clients. Then I co-founded an agency around the same work. I treat every build as if I own it: scope it, build all of it, ship it, and keep it running."
     />
   </section>
-
-  <!-- 3. Work: a pinned gallery. Scroll turns a spiral of glossy cards; each project swings to the front. -->
-  <WorkGallery projects={featured} total={all.length} />
 
   <!-- 4. Practice: a sticky track that scrolls sideways. Without JavaScript it is a plain list. -->
   <section class="practice" aria-labelledby="practice-title" data-hscroll>
@@ -150,26 +150,12 @@ const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) 
     position: relative;
   }
 
-  /* Tall only with JavaScript, where scroll drives the 3D story. */
-  :global(html.js) .hero {
-    height: 170svh;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    :global(html.js) .hero {
-      height: auto;
-    }
-  }
-
   .hero-pin {
-    position: sticky;
-    top: 0;
-    height: 100svh;
+    position: relative;
+    min-height: 100svh;
     display: grid;
     grid-template-rows: 1fr auto;
     overflow: hidden;
-    /* The mat revealed around the scene when it pulls back into a frame. */
-    background: var(--color-surface);
   }
 
   .hero-stage {

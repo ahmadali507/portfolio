@@ -90,3 +90,10 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Chemistry in the heading**, after Ahmad's second reference. Twelve procedural phenomena cycle through the letters with reaction-front transitions. Darken blending with output clamped to the ground color keeps the ground untouched and the DOM text real. A third small WebGL context per page; half-rate drawing keeps it cheap.
 - **Autonomous motion allowed for card graphics and the heading only.** This relaxes the earlier rule that nothing moves without input. Both stop under reduced motion and when off screen.
 - **Positioning revised by Ahmad:** a software engineer with an entrepreneurial mindset, not an AI or RAG specialist. Copy now leads with building products end to end and co-founding the agency; AI systems are one practice among five. Every statement comes from facts already in `docs/CONTENT.md`.
+
+## 2026-11-16 (hero hands over to the gallery)
+
+- **Hero zoom-out removed at Ahmad's instruction.** The hero is an ordinary first screen again, not pinned. The work gallery now follows it directly, and the statement moved after the gallery.
+- **The deck opens into the gallery.** As the gallery rises, each card blends from its place in the deck to its place in the one-by-one sequence, and the group grows from hero size to gallery size. The top card therefore zooms in to the center; the rest wait below and come up in turn.
+- **Adaptive quality made less trigger-happy.** Ahmad's overlay showed tier 2 at a 0.85 pixel ratio, which is visibly soft. The first 90 rendered frames are now ignored (shader compilation), a slow start drops one pixel-ratio step instead of two, and the ratio never goes below 1.
+- **Bug fixed:** `Quaternion.slerpQuaternions` copies its first argument into the target before interpolating, so using the target as the second argument returned the first unchanged. The blend now interpolates into a scratch quaternion.

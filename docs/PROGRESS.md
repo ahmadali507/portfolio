@@ -14,7 +14,7 @@ Resume point for a fresh session. Read CLAUDE.md and the contract files first, t
 
 ## Direction
 
-Glass Deck, dark, with the liquid splash (DESIGN.md section 1, docs/SCENE.md). Rejected by Ahmad, do not bring back: the seven-stage Request Path, the Kinetic Field pin field, the light theme, sticky stacking cards.
+Glass Deck, dark, with the liquid splash (DESIGN.md section 1, docs/SCENE.md). Rejected by Ahmad, do not bring back: the seven-stage Request Path, the Kinetic Field pin field, the light theme, sticky stacking cards, a row of cards, zooming the whole hero out into a frame.
 
 ## Where things are
 

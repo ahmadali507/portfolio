@@ -19,13 +19,13 @@ The graphics are diagrams, not screenshots. They show no metric and imply no res
 
 ## The home story, beat by beat
 
-| Scroll through the hero | Deck                                                | Page                                                   |
-| ----------------------- | --------------------------------------------------- | ------------------------------------------------------ |
-| Load (time, once)       | Cards fly up from below and settle into a stack     | The name rises letter by letter; lead and actions fade up |
-| 25 to 100 percent       | The deck stays a deck and recedes                   | The whole scene pulls back into a framed window        |
-| Next section rises      | The deck lifts out of the frame                     | The statement slides over; its words light up          |
+1. Load: the cards fly up and settle into a deck beside the name. The name rises letter by letter and its chemistry begins.
+2. Leaving the hero: the hero scrolls away as an ordinary first screen. The deck stays in place and opens: the top card comes forward, turns to face the viewer, and grows, while the others drop below.
+3. Work gallery, pinned for five screens: one card at a time rests at the center beside its title, summary, and a giant index numeral. Scrolling on sends it upward and brings the next one up from below.
+4. Statement: words light up as the reader scrolls through them.
+5. A sideways practice track, the about block, and the closing call to action.
 
-Then the work gallery, pinned for five screens. Cards come one at a time: each rises from below, eases to a rest facing the viewer, then leaves upward as the next arrives. The project's title, summary, and a giant index numeral change beside it. Then a sideways practice track, the about block, and the closing call to action.
+There is no hero zoom-out and no row of cards. Ahmad rejected both.
 
 ## Liquid splash
 

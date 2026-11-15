@@ -1,7 +1,7 @@
 import type { Tier } from './types';
 
 /** Pixel-ratio steps, from sharpest to cheapest. */
-const DPR_STEPS = [2, 1.75, 1.5, 1.25, 1, 0.85] as const;
+const DPR_STEPS = [2, 1.75, 1.5, 1.25, 1] as const;
 const WINDOW = 60;
 /** 16.6 ms is the 60 fps frame. A small allowance absorbs vsync jitter. */
 const BUDGET_MS = 16.6;
@@ -26,6 +26,7 @@ export class Quality {
   private startupMs = 0;
   private startupFrames = 0;
   private startupDone = false;
+  private warmup = 90;
   tier: Tier = 1;
   /** Set when the pixel ratio or tier changed and the Engine must apply it. */
   changed = false;
@@ -45,6 +46,12 @@ export class Quality {
   /** Feed the interval in ms between two consecutive rendered frames. */
   sample(ms: number): void {
     if (ms <= 0 || ms > 250) return; // tab switches and stalls are not frame cost
+    // Shader compilation and first uploads make the opening frames slow on any machine.
+    // Let them pass before judging the device.
+    if (this.warmup > 0) {
+      this.warmup--;
+      return;
+    }
     if (!this.startupDone) {
       this.startupMs += ms;
       this.startupFrames++;
@@ -52,7 +59,7 @@ export class Quality {
         this.startupDone = true;
         if (this.startupMs / this.startupFrames > TIER_DROP_MS && this.tier === 1) {
           this.tier = 2;
-          this.step = Math.min(this.step + 2, DPR_STEPS.length - 1);
+          this.step = Math.min(this.step + 1, DPR_STEPS.length - 1);
           this.changed = true;
           this.reset();
           return;

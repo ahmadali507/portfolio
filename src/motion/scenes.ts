@@ -25,68 +25,23 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   anchors(doc, core);
 }
 
-// ---------- Home hero: pinned by CSS sticky; scroll drives the 3D story and the zoom-out ----------
+// ---------- Home hero: an ordinary first screen. The deck hands over to the gallery below it ----------
 function heroScene(doc: Document): void {
-  const hero = doc.querySelector<HTMLElement>('[data-hero]');
   const world = doc.getElementById('world');
-  if (!world) return;
-  world.style.clipPath = '';
+  if (world) world.style.clipPath = '';
+  const hero = doc.querySelector<HTMLElement>('[data-hero]');
   if (!hero) return;
-
-  const stage = hero.querySelector<HTMLElement>('[data-hero-stage]');
-  const copy = hero.querySelector<HTMLElement>('[data-hero-copy]');
-  const meta = hero.querySelector<HTMLElement>('[data-hero-meta]');
-  const cue = hero.querySelector<HTMLElement>('[data-hero-cue]');
-
-  const applyClip = (p: number) => {
-    if (motion.heroCovered || motion.reduced) {
-      world.style.clipPath = '';
-      if (stage) stage.style.clipPath = '';
-      return;
-    }
-    // Cinematic zoom-out: the full-bleed scene pulls back into a framed window.
-    const t = gsap.utils.clamp(0, 1, (p - 0.25) / 0.75);
-    const e = t * t * (3 - 2 * t);
-    const clip = e > 0 ? `inset(${(e * 10).toFixed(2)}% ${(e * 8).toFixed(2)}% ${(e * 10).toFixed(2)}% ${(e * 8).toFixed(2)}% round ${(e * 28).toFixed(1)}px)` : '';
-    world.style.clipPath = clip;
-    if (stage) stage.style.clipPath = clip;
-  };
-
   ScrollTrigger.create({
     trigger: hero,
     start: 'top top',
-    end: 'bottom bottom',
-    onUpdate: (self) => {
-      motion.hero = self.progress;
-      applyClip(self.progress);
-    },
+    end: 'bottom top',
+    onUpdate: (self) => (motion.hero = self.progress),
   });
-
-  // The statement slides over the clipped hero. Once it covers the screen, the canvas is free again.
-  const next = hero.nextElementSibling as HTMLElement | null;
-  if (next) {
-    ScrollTrigger.create({
-      trigger: next,
-      start: 'top bottom',
-      end: 'top top',
-      onUpdate: (self) => {
-        motion.exit = self.progress;
-        const covered = self.progress >= 0.999;
-        if (covered !== motion.heroCovered) {
-          motion.heroCovered = covered;
-          applyClip(motion.hero);
-        }
-      },
-    });
-  }
-
   if (motion.reduced) return;
-  const tl = gsap.timeline({
-    scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom bottom', scrub: 0.6 },
-  });
-  if (copy) tl.to(copy, { yPercent: -10, scale: 0.9, transformOrigin: '0% 50%', ease: 'none', duration: 0.75 }, 0.25);
-  if (meta) tl.to(meta, { y: 40, opacity: 0, ease: 'none', duration: 0.25 }, 0.1);
-  if (cue) tl.to(cue, { opacity: 0, ease: 'none', duration: 0.1 }, 0);
+  const cue = hero.querySelector<HTMLElement>('[data-hero-cue]');
+  if (cue) {
+    gsap.to(cue, { opacity: 0, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: '12% top', scrub: true } });
+  }
 }
 
 // ---------- Headings: words rise out of a mask when they enter ----------

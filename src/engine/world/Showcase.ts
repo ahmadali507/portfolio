@@ -51,7 +51,6 @@ export class Showcase implements WorldPart {
   private tiltX = 0;
   private tiltY = 0;
   private hovered = -1;
-  private wasGallery = false;
   private artCursor = 0;
 
   // Scratch, allocated once.
@@ -175,11 +174,20 @@ export class Showcase implements WorldPart {
     const d = i - motion.workPos;
     // One at a time: each card rises from below, faces the viewer at the center, and leaves upward.
     const gap = portrait ? 5.6 : 4.3;
-    // Rises from below as the section arrives, lifts away as it leaves.
-    const travel = (1 - motion.workIn) * -9 + motion.workOut * 10;
-    this.pa.set(0, -d * gap + travel, -Math.abs(d) * 0.9);
+    this.pa.set(0, -d * gap + motion.workOut * 10, -Math.abs(d) * 0.9);
     this.ea.set(d * 0.32, -0.26, d * 0.05);
     this.qa.setFromEuler(this.ea);
+    // Leaving the hero: the deck opens. The top card comes forward to the center while the
+    // others drop below, ready to come up in turn.
+    const open = smoothstep(motion.workIn, 0, 1);
+    if (open < 1) {
+      this.pose('stack', i, this.pb, this.eb);
+      this.qb.setFromEuler(this.eb);
+      this.pa.lerpVectors(this.pb, this.pa, open);
+      // slerpQuaternions copies its first argument into the target first, so the target must not be an input.
+      this.qb.slerp(this.qa, open);
+      this.qa.copy(this.qb);
+    }
   }
 
   private blend(i: number, a: 'enter' | 'stack' | 'fan' | 'row' | 'away' | 'feature', b: typeof a, t: number): void {
@@ -205,24 +213,27 @@ export class Showcase implements WorldPart {
     let gx: number;
     let gy: number;
     let gs: number;
-    let camTarget = 11;
+    const camTarget = 11;
     let show: boolean;
-    const p = motion.hero;
-    // The deck stays a deck: it recedes as the scene pulls back into its frame.
 
     const gallery = motion.page === 'home' && motion.workIn > 0 && motion.workOut < 1;
     if (gallery) {
-      gx = portrait ? 0 : 2.5;
-      gy = portrait ? 1.5 : 0;
-      gs = portrait ? 0.5 : 1.05;
+      // The group grows from its hero size to gallery size as the deck opens: the zoom in.
+      const open = smoothstep(motion.workIn, 0, 1);
+      gx = portrait ? 0 : MathUtils.lerp(3.05, 2.5, open);
+      gy = portrait ? MathUtils.lerp(-1.75, 1.5, open) : MathUtils.lerp(-0.1, 0, open);
+      gs = portrait ? MathUtils.lerp(0.68, 0.5, open) : MathUtils.lerp(0.78, 1.05, open);
       show = true;
     } else if (motion.page === 'home') {
-      gx = portrait ? 0 : MathUtils.lerp(3.05, 2.2, smoothstep(p, 0.1, 1));
-      gy = (portrait ? -1.75 : -0.1) + motion.exit * 9;
+      gx = portrait ? 0 : 3.05;
+      gy = portrait ? -1.75 : -0.1;
       gs = portrait ? 0.68 : 0.78;
-      // The camera pulls back as the cards line up, so the whole row fits before the frame closes in.
-      camTarget = 11 + 4 * smoothstep(p, 0.15, 1);
-      show = !motion.heroCovered;
+      show = motion.workOut < 1;
+      if (rm) {
+        // No gallery choreography under reduced motion: the deck simply scrolls away with the hero.
+        gy += input.scroll * worldPerPx;
+        show = input.scroll < this.viewH * 1.1;
+      }
     } else {
       // Banner pages: the group sits in the head band and scrolls away with it.
       const feature = motion.page === 'case' && motion.focus >= 0;
@@ -281,14 +292,12 @@ export class Showcase implements WorldPart {
       this.pa.z += card.lift * 0.45;
       this.pa.y += card.lift * 0.12;
 
-      if (gallery !== this.wasGallery) mesh.position.copy(this.pa);
       mesh.position.lerp(this.pa, k);
       mesh.quaternion.slerp(this.qa, k);
       if (mesh.position.distanceToSquared(this.pa) > 1e-6 || mesh.quaternion.angleTo(this.qa) > 1e-3) this.moving = true;
       if (Math.abs(card.lift - (isHover ? 1 : 0)) > 1e-3) this.moving = true;
     }
 
-    this.wasGallery = gallery;
     const g = this.group;
     const gk = rm ? 1 : 1 - Math.exp(-5 * dt);
     g.position.x += (gx - g.position.x) * gk;
