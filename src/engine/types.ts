@@ -15,6 +15,10 @@ export interface FrameInput {
   pointerY: number;
   /** True when the pointer moved since the previous tick. */
   pointerMoved: boolean;
+  /** True for one tick after a touch tap; pointerX and pointerY hold its position. */
+  tapped: boolean;
+  /** False when the pointer left the window. */
+  pointerInside: boolean;
   /** Viewport size in CSS pixels. */
   width: number;
   height: number;
@@ -45,8 +49,8 @@ export interface WorldPart {
   /** Release page bindings. Runs on astro:before-swap. */
   unmount(): void;
   setTier(tier: Tier): void;
+  /** Optional second pass drawn after the main scene without clearing (DOM-mapped planes). */
+  renderOverlay?(renderer: WebGLRenderer): void;
   /** Free GPU resources. */
   dispose(): void;
-  /** Draw-call and triangle report for budgets. */
-  readonly stats?: { meshes: number };
 }

@@ -92,6 +92,8 @@ export class Engine implements EngineContext {
       pointerX: 0,
       pointerY: 0,
       pointerMoved: false,
+      tapped: false,
+      pointerInside: false,
       width: this.nextWidth,
       height: this.nextHeight,
       reducedMotion: this.motionQuery.matches,
@@ -126,6 +128,11 @@ export class Engine implements EngineContext {
     this.listen(this.canvas, 'webglcontextrestored', () => this.onContextRestored());
     this.listen(document, 'visibilitychange', () => this.onVisibility());
     this.listen(window, 'pointermove', (e) => this.onPointer(e as PointerEvent));
+    this.listen(window, 'pointerdown', (e) => this.onPointerDown(e as PointerEvent));
+    this.listen(document.documentElement, 'pointerleave', () => {
+      this.input.pointerInside = false;
+      this.input.pointerMoved = true;
+    });
     this.listen(this.motionQuery, 'change', () => {
       this.input.reducedMotion = this.motionQuery.matches;
       this.dirty = true;
@@ -145,7 +152,8 @@ export class Engine implements EngineContext {
       preserveDrawingBuffer: false,
     });
     renderer.setPixelRatio(pixelRatio);
-    renderer.info.autoReset = true;
+    // Two passes per frame (field, then covers): counters are reset once per frame by the Engine.
+    renderer.info.autoReset = false;
     return renderer;
   }
 
@@ -230,6 +238,7 @@ export class Engine implements EngineContext {
         if (part && part.update(input)) changed = true;
       }
       input.pointerMoved = false;
+      input.tapped = false;
       this.info.frames++;
 
       // 5. Render only when something changed and the canvas is on screen.
@@ -237,7 +246,11 @@ export class Engine implements EngineContext {
         this.lastRenderTime = -1;
         return;
       }
+      this.renderer.info.reset();
       this.renderer.render(this.scene, this.camera);
+      this.renderer.autoClear = false;
+      for (let i = 0; i < this.parts.length; i++) this.parts[i]?.renderOverlay?.(this.renderer);
+      this.renderer.autoClear = true;
       this.dirty = false;
       this.info.renders++;
       this.info.calls = this.renderer.info.render.calls;
@@ -275,6 +288,8 @@ export class Engine implements EngineContext {
     this.renderer.setPixelRatio(this.quality.pixelRatio);
     this.renderer.setSize(this.input.width, this.input.height, false);
     for (const part of this.parts) part.setTier(this.quality.tier);
+    // Parts that depend on the drawing-buffer size re-measure through the one resize path.
+    this.pendingResize = true;
     this.info.pixelRatio = this.quality.pixelRatio;
     this.info.tier = this.quality.tier;
     this.dirty = true;
@@ -298,13 +313,24 @@ export class Engine implements EngineContext {
     this.handlers.push([target, type, fn]);
   }
 
-  private onPointer(e: PointerEvent): void {
-    if (e.pointerType === 'touch') return;
+  private setPointer(e: PointerEvent): void {
     const w = this.input.width || 1;
     const h = this.input.height || 1;
     this.input.pointerX = (e.clientX / w) * 2 - 1;
     this.input.pointerY = -(e.clientY / h) * 2 + 1;
+  }
+
+  private onPointer(e: PointerEvent): void {
+    if (e.pointerType === 'touch') return;
+    this.setPointer(e);
+    this.input.pointerInside = true;
     this.input.pointerMoved = true;
+  }
+
+  private onPointerDown(e: PointerEvent): void {
+    if (e.pointerType !== 'touch') return;
+    this.setPointer(e);
+    this.input.tapped = true;
   }
 
   private onVisibility(): void {

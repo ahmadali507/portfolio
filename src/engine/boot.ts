@@ -30,7 +30,8 @@ export async function boot(host: HTMLElement): Promise<void> {
     const e = engine;
     window.__world = { info: () => e.readInfo(), engine: e };
 
-    if (import.meta.env.DEV) {
+    // Hidden under automation (screenshots) unless ?stats is set.
+    if (import.meta.env.DEV && (!navigator.webdriver || location.search.includes('stats'))) {
       const { StatsOverlay } = await import('./StatsOverlay');
       new StatsOverlay(e);
     }
@@ -45,6 +46,10 @@ export async function boot(host: HTMLElement): Promise<void> {
 
 /** Scene parts. Kept in one place so the engine shell does not depend on any one world. */
 async function loadParts(e: Engine): Promise<WorldPart[]> {
-  const { RequestPath } = await import('./world/RequestPath');
-  return [new RequestPath(e)];
+  const [{ Field }, { Covers }] = await Promise.all([import('./world/Field'), import('./world/Covers')]);
+  // Tier 2 from the start on coarse pointers and small screens (ARCHITECTURE.md section 8).
+  const weak = window.matchMedia('(pointer: coarse)').matches || Math.min(window.innerWidth, window.innerHeight) < 600;
+  const tier = weak ? 2 : 1;
+  if (weak) e.quality.tier = 2;
+  return [new Field(e, tier), new Covers(e, tier)];
 }
