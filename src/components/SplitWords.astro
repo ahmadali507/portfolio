@@ -1,0 +1,57 @@
+---
+// Splits text into masked words for scroll reveals ([data-reveal]) or scrubbed statements.
+// The words stay in reading order with real spaces, so assistive tech reads the sentence normally.
+// Content is fully visible without JavaScript; motion/scenes.ts adds the reveal.
+interface Props {
+  text: string;
+  as?: 'h1' | 'h2' | 'h3' | 'p' | 'span';
+  mode?: 'reveal' | 'statement';
+  class?: string;
+  id?: string;
+}
+const { text, as: Tag = 'h2', mode = 'reveal', class: className, id } = Astro.props;
+const words = text.split(/\s+/).filter(Boolean);
+---
+
+{
+  mode === 'reveal' ? (
+    <Tag class:list={['split', className]} id={id} data-reveal>
+      {words.map((w, i) => (
+        <>
+          <span class="rw">
+            <span>{w}</span>
+          </span>
+          {i < words.length - 1 ? ' ' : ''}
+        </>
+      ))}
+    </Tag>
+  ) : (
+    <Tag class:list={['split', className]} id={id} data-statement>
+      {words.map((w, i) => (
+        <>
+          <span class="sw">{w}</span>
+          {i < words.length - 1 ? ' ' : ''}
+        </>
+      ))}
+    </Tag>
+  )
+}
+
+<style>
+  .rw {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    /* Room for descenders inside the mask. */
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+
+  .rw > span {
+    display: inline-block;
+  }
+
+  .sw {
+    display: inline;
+  }
+</style>

@@ -1,140 +1,247 @@
 ---
 import Base from '@/layouts/Base.astro';
-import FeaturedWork from '@/components/FeaturedWork.astro';
+import StackCards from '@/components/StackCards.astro';
+import SplitWords from '@/components/SplitWords.astro';
+import Relief from '@/components/Relief.astro';
 import Todo from '@/components/Todo.astro';
-import { CONTACT, FULL_NAME, PERSON } from '@/config/site';
-import { visibleProjects } from '@/lib/projects';
+import { CONTACT, FIRST_NAME, FULL_NAME, PERSON, SURNAME } from '@/config/site';
+import { patternFor, seedFor, toneFor, visibleProjects } from '@/lib/projects';
 
 const { featured, all } = await visibleProjects();
 const email = CONTACT.find((c) => c.label === 'Email');
+const chars = (s: string, offset = 0) => [...s].map((c, i) => ({ c, i: i + offset }));
+const first = chars(FIRST_NAME);
+const last = chars(SURNAME, FIRST_NAME.length + 2);
 
-const builds = [
-  {
-    area: 'AI systems',
-    items: 'RAG pipelines, LLM integrations, multi-agent systems, voice agents',
-  },
-  { area: 'Full-stack SaaS', items: 'Next.js, React, Node.js, TypeScript, Supabase, PostgreSQL' },
-  { area: 'Mobile apps', items: 'React Native' },
-  { area: 'Cloud', items: 'AWS, GCP' },
-  { area: 'Automation', items: 'n8n, Zapier' },
+const practice = [
+  { area: 'AI systems', items: ['RAG pipelines', 'LLM integrations', 'Multi-agent systems', 'Voice agents'] },
+  { area: 'Full-stack SaaS', items: ['Next.js', 'React', 'Node.js', 'TypeScript', 'Supabase', 'PostgreSQL'] },
+  { area: 'Mobile apps', items: ['React Native'] },
+  { area: 'Cloud', items: ['AWS', 'GCP'] },
+  { area: 'Automation', items: ['n8n', 'Zapier'] },
 ];
+const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) }));
 ---
 
-<Base page="home" pattern={0}>
-  <section class="hero page" aria-labelledby="hero-title" data-world-anchor="hero" data-world-stage>
-    <div class="hero-text" data-world-zone>
-      <p class="label">
-        {PERSON.role} / {PERSON.location}
-      </p>
-      <h1 id="hero-title">{FULL_NAME}</h1>
-      <p class="lead">{PERSON.positioning}</p>
-      <p class="intro">
-        {PERSON.companyLine} {PERSON.companyRole}
-      </p>
-    </div>
+<Base page="home">
+  <!-- 1. Hero: pinned by CSS sticky. The 3D stack fans, lines up, then the scene pulls back into a frame. -->
+  <section class="hero" aria-labelledby="hero-title" data-hero data-world-anchor="hero">
+    <div class="hero-pin">
+      <div class="hero-stage" data-hero-stage aria-hidden="true">
+        <div class="fallback">
+          {
+            fallbackCards.map(({ p, tone }, i) => (
+              <div class="fb-card" style={`--k:${i};--relief-bg:${tone.base};--relief-ink:${tone.line}`}>
+                <Relief pattern={patternFor(p)} seed={seedFor(p)} width={640} height={400} lines={18} />
+              </div>
+            ))
+          }
+        </div>
+      </div>
 
-    <div class="hero-foot">
-      <p class="hint label" aria-hidden="true" data-hint>
-        Move the pointer across the field
-      </p>
-      <dl class="titleblock ground" aria-label="Summary">
-        <div>
-          <dt class="label">Agency</dt>
-          <dd>{PERSON.company}, co-founder</dd>
+      <div class="hero-copy page" data-hero-copy>
+        <p class="label enter" style="--d:120ms">{PERSON.role} / {PERSON.location}</p>
+        <h1 id="hero-title" aria-label={FULL_NAME}>
+          <span class="line" aria-hidden="true">
+            {first.map(({ c, i }) => <span class="ch" style={`--i:${i}`}>{c}</span>)}
+          </span>
+          <span class="line" aria-hidden="true">
+            {last.map(({ c, i }) => <span class="ch" style={`--i:${i}`}>{c === ' ' ? ' ' : c}</span>)}
+          </span>
+        </h1>
+        <p class="lead enter" style="--d:620ms">{PERSON.positioning}</p>
+        <div class="actions enter" style="--d:780ms">
+          <a class="btn" href="#work" data-magnetic="0.25">See the work <span class="arrow" aria-hidden="true">↓</span></a>
+          <a class="text-link mono" href="/contact/">Start a project</a>
         </div>
+      </div>
+
+      <dl class="hero-meta page enter" style="--d:900ms" data-hero-meta aria-label="Summary">
+        <div><dt class="label">Agency</dt><dd>{PERSON.company}, co-founder</dd></div>
         <div>
-          <dt class="label">Freelance</dt>
-          <dd>
-            Top Rated on Upwork, 38+ clients <Todo text="Verify wording" />
-          </dd>
+          <dt class="label">Freelance</dt><dd>Top Rated on Upwork, 38+ clients <Todo text="Verify" /></dd>
         </div>
-        <div>
-          <dt class="label">Study</dt>
-          <dd>BS Software Engineering, NUST, 2026</dd>
-        </div>
-        <div>
-          <dt class="label">Direction</dt>
-          <dd>Deep learning engineering</dd>
-        </div>
+        <div><dt class="label">Study</dt><dd>BS Software Engineering, NUST, 2026</dd></div>
       </dl>
-    </div>
-  </section>
 
-  <section class="work page" aria-labelledby="work-title" data-world-anchor="work">
-    <div class="section-head ground">
-      <p class="label">Selected work</p>
-      <h2 id="work-title">Systems that went out to clients</h2>
-      <a class="mono all" href="/work/">
-        All {all.length} projects <span aria-hidden="true">→</span>
-      </a>
-    </div>
-    <FeaturedWork projects={featured} />
-  </section>
-
-  <section class="builds page ground" aria-labelledby="builds-title">
-    <div>
-      <p class="label">Practice</p>
-      <h2 id="builds-title">What I build</h2>
-    </div>
-    <dl class="build-list">
-      {builds.map((b, i) => (
-        <div>
-          <dt>
-            <span class="label n">{String(i + 1).padStart(2, '0')}</span>
-            {b.area}
-          </dt>
-          <dd class="mono">{b.items}</dd>
-        </div>
-      ))}
-    </dl>
-  </section>
-
-  <section class="split page ground" aria-labelledby="about-title">
-    <h2 id="about-title">About</h2>
-    <div class="split-body">
-      <p class="measure">
-        I am a software engineer in Islamabad and a co-founder of {PERSON.company}. I started on
-        Upwork as a freelancer, then helped build an agency around the same work. {PERSON.direction}
-      </p>
-      <p>
-        <a href="/about/">More about my background</a>
+      <p class="cue label enter" style="--d:1100ms" data-hero-cue aria-hidden="true">
+        <span class="cue-line"></span> Scroll
       </p>
     </div>
   </section>
 
-  <section class="split page ground" aria-labelledby="contact-title">
-    <h2 id="contact-title">Contact</h2>
-    <div class="split-body">
-      <p class="measure">
-        If you have a system that needs to reach production, send a short note about it.
-      </p>
-      {email && (
-        <p class="mail">
-          <a href={email.href}>{email.handle}</a> <Todo when={email.placeholder} />
+  <!-- 2. Statement: rises over the framed hero; words light up as the reader scrolls. -->
+  <section class="statement page" aria-label="Approach">
+    <p class="label">Approach</p>
+    <SplitWords
+      as="p"
+      mode="statement"
+      class="statement-text"
+      text="Most AI work stops at the demo. I build the rest: the retrieval, the agents, the APIs, and the product around them, for clients who need it running on Monday."
+    />
+  </section>
+
+  <!-- 3. Work: the night chapter. Full-width cards stack as you scroll. -->
+  <section id="work" class="work theme-night" aria-labelledby="work-title">
+    <header class="page work-head">
+      <p class="label">Selected work / {String(featured.length).padStart(2, '0')}</p>
+      <SplitWords as="h2" id="work-title" text="Systems that shipped" class="giant-h" />
+      <a class="mono all" href="/work/" data-magnetic="0.2">All {all.length} projects <span aria-hidden="true">→</span></a>
+    </header>
+    <div class="page">
+      <StackCards projects={featured} />
+    </div>
+  </section>
+
+  <!-- 4. Practice: a sticky track that scrolls sideways. Without JavaScript it is a plain list. -->
+  <section class="practice" aria-labelledby="practice-title" data-hscroll>
+    <div class="practice-pin">
+      <header class="page practice-head">
+        <p class="label">Practice</p>
+        <SplitWords as="h2" id="practice-title" text="What I build" class="giant-h" />
+      </header>
+      <ol class="track" role="list" data-hscroll-track>
+        {
+          practice.map((b, i) => (
+            <li class="panel">
+              <span class="n mono">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{b.area}</h3>
+              <ul role="list" class="items">
+                {b.items.map((it) => (
+                  <li class="mono">{it}</li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="progress page" aria-hidden="true"><span data-hscroll-bar></span></div>
+    </div>
+  </section>
+
+  <!-- 5. About and the closing call to action. -->
+  <section class="about page" aria-labelledby="about-title">
+    <p class="label">About</p>
+    <div class="about-grid">
+      <SplitWords as="h2" id="about-title" text="From Upwork freelancer to agency co-founder" />
+      <div class="about-body" data-rise>
+        <p>
+          I am a software engineer in Islamabad and a co-founder of {PERSON.company}. I started on Upwork as a freelancer,
+          then helped build an agency around the same work. {PERSON.direction}
         </p>
-      )}
+        <a class="text-link mono" href="/about/">More about my background <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta" aria-labelledby="cta-title">
+    <div class="page">
+      <p class="label">Contact</p>
+      <a class="giant-link" href="/contact/" data-magnetic="0.06">
+        <SplitWords as="span" id="cta-title" text="Start a project" />
+        <span class="giant-arrow" aria-hidden="true">→</span>
+      </a>
+      {
+        email && (
+          <p class="mail" data-rise>
+            Or write to <a href={email.href}>{email.handle}</a> <Todo when={email.placeholder} />
+          </p>
+        )
+      }
     </div>
   </section>
 </Base>
 
 <style>
-  /* ---------- hero: the text sits over open space; the field fills the lower part ---------- */
+  /* ---------- hero ---------- */
   .hero {
-    display: grid;
-    grid-template-rows: auto minmax(16rem, 1fr) auto;
-    min-height: calc(100svh - var(--header-h));
-    padding-block: clamp(var(--space-6), 8vh, var(--space-8)) var(--space-5);
+    position: relative;
   }
 
-  .hero-text {
-    max-width: 46rem;
+  /* Tall only with JavaScript, where scroll drives the 3D story. */
+  :global(html.js) .hero {
+    height: 330svh;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.js) .hero {
+      height: auto;
+    }
+  }
+
+  .hero-pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+  }
+
+  .hero-stage {
+    position: absolute;
+    inset: 0;
+    background: var(--color-surface);
+  }
+
+  /* Static stack for browsers without WebGL: the same cards, posed in CSS 3D. */
+  .fallback {
+    position: absolute;
+    right: 4vw;
+    top: 50%;
+    width: min(33vw, 28rem);
+    aspect-ratio: 16 / 10;
+    perspective: 1600px;
+    transform: translateY(-50%);
+  }
+
+  .fb-card {
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--relief-bg);
+    box-shadow: 0 30px 50px -28px rgb(0 0 0 / 0.45);
+    transform: rotateX(56deg) rotateZ(-24deg) translateZ(calc((2 - var(--k)) * 26px));
+  }
+
+  :global(html:has(#world[data-state='live'])) .fallback {
+    opacity: 0;
+    transition: opacity 600ms var(--ease-out);
+  }
+
+  @media (max-width: 56rem) {
+    .fallback {
+      right: 50%;
+      top: auto;
+      bottom: 16svh;
+      width: 70vw;
+      transform: translateX(50%);
+    }
+  }
+
+  .hero-copy {
+    position: relative;
+    align-self: center;
+    padding-top: var(--header-h);
   }
 
   h1 {
-    font-size: var(--text-display);
+    font-size: var(--text-giant);
     font-weight: 700;
-    line-height: var(--leading-display);
+    line-height: 0.86;
+    letter-spacing: -0.035em;
     margin-block: var(--space-4) var(--space-5);
+  }
+
+  .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+
+  .ch {
+    display: inline-block;
   }
 
   .lead {
@@ -143,95 +250,139 @@ const builds = [
     font-weight: 600;
     line-height: 1.15;
     letter-spacing: -0.01em;
-    max-width: 24ch;
+    max-width: 22ch;
   }
 
-  .intro {
-    margin-top: var(--space-4);
-    color: var(--color-ink-muted);
-    max-width: 46ch;
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
   }
 
-  .hero-foot {
-    grid-row: 3;
-    display: grid;
-    gap: var(--space-3);
+  .text-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 
-  .hint {
-    justify-self: end;
-    padding: var(--space-1) var(--space-2);
-    background: var(--color-bg);
+  .hero-meta {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-7);
+    padding-bottom: var(--space-6);
   }
 
-  @media (hover: none) {
-    .hint {
-      display: none;
-    }
-  }
-
-  /* Title block: the corner table of an engineering drawing. */
-  .titleblock {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: var(--rule-strong);
-  }
-
-  .titleblock div {
-    padding: var(--space-3) var(--space-3) var(--space-3) 0;
-    border-bottom: var(--hairline);
-  }
-
-  .titleblock div:nth-child(odd) {
-    border-right: var(--hairline);
-  }
-
-  .titleblock div:nth-child(even) {
-    padding-left: var(--space-3);
-  }
-
-  .titleblock dd {
+  .hero-meta dd {
     margin-top: var(--space-1);
     font-size: var(--text-small);
     display: flex;
-    flex-wrap: wrap;
     gap: var(--space-2);
     align-items: baseline;
   }
 
-  @media (min-width: 56rem) {
-    .titleblock {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+  .cue {
+    position: absolute;
+    right: var(--page-gutter);
+    bottom: var(--space-6);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .cue-line {
+    display: block;
+    width: 1px;
+    height: 3rem;
+    background: var(--color-ink);
+    transform-origin: top;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cue-line {
+      animation: cue 2.4s var(--ease-expo) infinite;
+    }
+  }
+
+  @keyframes cue {
+    0% {
+      transform: scaleY(0);
     }
 
-    .titleblock div {
-      border-right: var(--hairline);
-      padding-left: var(--space-3);
+    50% {
+      transform: scaleY(1);
+      transform-origin: top;
     }
 
-    .titleblock div:first-child {
-      padding-left: 0;
+    51% {
+      transform-origin: bottom;
     }
 
-    .titleblock div:last-child {
-      border-right: 0;
+    100% {
+      transform: scaleY(0);
+      transform-origin: bottom;
     }
+  }
+
+  @media (max-width: 56rem) {
+    .hero-copy {
+      align-self: start;
+      padding-top: calc(var(--header-h) + var(--space-6));
+    }
+
+    .hero-meta {
+      display: none;
+    }
+
+    .cue {
+      left: var(--page-gutter);
+      right: auto;
+    }
+  }
+
+  /* ---------- statement ---------- */
+  .statement {
+    position: relative;
+    z-index: 2;
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    gap: var(--space-5);
+    background: var(--color-bg);
+    padding-block: var(--space-9);
+  }
+
+  .statement :global(.statement-text) {
+    font-family: var(--font-display);
+    font-size: var(--text-statement);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    max-width: 24ch;
   }
 
   /* ---------- work ---------- */
   .work {
-    padding-block: var(--space-9) var(--space-8);
+    position: relative;
+    z-index: 2;
+    padding-top: var(--space-9);
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
   }
 
-  .section-head {
+  .work-head {
     display: grid;
-    gap: var(--space-3);
-    margin-bottom: var(--space-7);
-    max-width: 52rem;
+    gap: var(--space-4);
+    padding-bottom: var(--space-8);
   }
 
-  h2 {
-    font-size: var(--text-h2);
+  :global(.giant-h) {
+    font-size: clamp(3rem, 9vw, 9rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.035em;
   }
 
   .all {
@@ -242,83 +393,178 @@ const builds = [
     gap: var(--space-2);
   }
 
-  /* ---------- builds ---------- */
-  .builds {
+  /* ---------- practice ---------- */
+  .practice {
+    position: relative;
+    z-index: 2;
+    background: var(--color-bg);
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  .practice-head {
+    padding-bottom: var(--space-7);
+  }
+
+  .track {
     display: grid;
-    gap: var(--space-5);
-    padding-block: var(--space-8);
-    border-top: var(--hairline);
+    gap: var(--space-4);
+    padding-inline: var(--page-gutter);
   }
 
-  .builds h2 {
-    margin-top: var(--space-3);
-  }
-
-  .build-list {
-    border-top: var(--rule-strong);
-  }
-
-  .build-list div {
+  .panel {
     display: grid;
-    gap: var(--space-1) var(--space-5);
-    padding-block: var(--space-4);
-    border-bottom: var(--hairline);
+    align-content: space-between;
+    gap: var(--space-6);
+    min-height: 20rem;
+    padding: var(--space-6);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7);
   }
 
-  .build-list dt {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--text-h3);
-    line-height: 1.1;
-    display: flex;
-    gap: var(--space-3);
-    align-items: baseline;
+  .panel h3 {
+    font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
   }
 
-  .build-list dd {
-    margin: 0;
+  .n {
     color: var(--color-ink-muted);
   }
 
-  @media (min-width: 56rem) {
-    .builds {
-      grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-      gap: clamp(var(--space-6), 4vw, var(--space-8));
-    }
-
-    .build-list div {
-      grid-template-columns: minmax(14rem, 1fr) minmax(0, 1.4fr);
-      align-items: baseline;
-    }
+  .items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    color: var(--color-ink-muted);
   }
 
-  /* ---------- about, contact ---------- */
-  .split {
+  .progress {
+    display: none;
+  }
+
+  /* With JavaScript and motion, the panels become a sideways track inside a sticky frame. */
+  .practice:global(.is-horizontal) {
+    padding: 0;
+  }
+
+  .practice:global(.is-horizontal) .practice-pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
     display: grid;
-    gap: var(--space-4);
-    padding-block: var(--space-7);
+    grid-template-rows: auto 1fr auto;
+    align-content: center;
+    padding-block: calc(var(--header-h) + var(--space-6)) var(--space-6);
+    overflow: hidden;
+  }
+
+  .practice:global(.is-horizontal) .practice-head {
+    padding-bottom: var(--space-6);
+  }
+
+  .practice:global(.is-horizontal) .track {
+    display: flex;
+    width: max-content;
+    gap: var(--space-5);
+  }
+
+  .practice:global(.is-horizontal) .panel {
+    width: min(68vw, 40rem);
+    min-height: 0;
+    height: 100%;
+  }
+
+  .practice:global(.is-horizontal) .progress {
+    display: block;
+    padding-top: var(--space-5);
+  }
+
+  .progress span {
+    display: block;
+    height: 2px;
+    background: var(--color-ink);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  /* ---------- about ---------- */
+  .about {
+    position: relative;
+    z-index: 2;
+    background: var(--color-bg);
+    padding-block: var(--space-9);
     border-top: var(--hairline);
   }
 
-  .split-body {
+  .about-grid {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-6);
+    margin-top: var(--space-4);
   }
 
-  .mail {
-    font-family: var(--font-display);
-    font-size: var(--text-h3);
+  .about h2 {
+    font-size: var(--text-statement);
     font-weight: 600;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--space-3);
+    line-height: 1.05;
+    max-width: 18ch;
+  }
+
+  .about-body {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    max-width: 40rem;
   }
 
   @media (min-width: 56rem) {
-    .split {
-      grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
-      gap: clamp(var(--space-6), 4vw, var(--space-8));
+    .about-grid {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: var(--space-8);
     }
+  }
+
+  /* ---------- call to action ---------- */
+  .cta {
+    position: relative;
+    z-index: 2;
+    background: var(--color-bg);
+    padding-block: var(--space-9);
+    border-top: var(--hairline);
+  }
+
+  .giant-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    font-family: var(--font-display);
+    font-size: var(--text-giant);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    text-decoration: none;
+  }
+
+  .giant-arrow {
+    display: inline-block;
+    color: var(--color-trace);
+    transition: transform var(--dur-med) var(--ease-expo);
+  }
+
+  @media (hover: hover) {
+    .giant-link:hover .giant-arrow {
+      transform: translateX(0.12em) rotate(-45deg);
+    }
+  }
+
+  .mail {
+    margin-top: var(--space-6);
+    font-size: var(--text-lead);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
   }
 </style>

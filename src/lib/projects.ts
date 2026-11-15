@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { DRAFT_PREVIEW } from '@/config/site';
+import { toneFor, TONES, type Tone } from './tones';
 
 export type Project = CollectionEntry<'projects'>;
 
@@ -91,3 +92,13 @@ export const seedFor = (p: Project): number => {
   for (const ch of p.id) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
   return (h % 1000) / 1000;
 };
+
+
+/** Card finish: featured projects take the fixed sequence; the rest alternate the light finishes. */
+export const toneForProject = (p: Project, featured: Project[]): Tone => {
+  const i = featured.findIndex((f) => f.id === p.id);
+  if (i >= 0) return toneFor(i);
+  return seedFor(p) > 0.5 ? TONES[1]! : TONES[4]!;
+};
+
+export { toneFor };

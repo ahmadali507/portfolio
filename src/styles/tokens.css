@@ -2,13 +2,20 @@
 
 :root {
   /* Color */
-  --color-bg: #e3e4e2;
-  --color-surface: #d2d4d1;
+  --color-bg: #ededeb;
+  --color-surface: #e1e2df;
   --color-ink: #1b1d1e;
   --color-ink-muted: #4f5456;
-  --color-rule: #9da2a0;
+  --color-rule: #a3a7a5;
   --color-trace: #e2401c;
   --color-trace-ink: #b02e0e;
+
+  /* Night theme for the work chapter. Contrast on --night: ink 16.5:1, muted 7.2:1, accent 4.6:1. */
+  --night: #0d0e0f;
+  --night-raised: #17191a;
+  --night-ink: #ededeb;
+  --night-muted: #9a9fa2;
+  --night-rule: #2c2f31;
 
   /* Type families. Fallback faces are metric-matched in fonts.css to limit layout shift. */
   --font-display: 'Familjen Grotesk', 'Familjen Fallback', sans-serif;
@@ -24,6 +31,8 @@
   --text-h3: clamp(1.375rem, 1.2rem + 0.8vw, 1.875rem);
   --text-h2: clamp(1.875rem, 1.4rem + 2vw, 3.25rem);
   --text-display: clamp(2.5rem, 7vw, 6.5rem);
+  --text-giant: clamp(3.5rem, 12.5vw, 13rem);
+  --text-statement: clamp(1.75rem, 4.2vw, 4.25rem);
 
   --tracking-display: -0.02em;
   --tracking-label: 0.06em;
@@ -56,6 +65,8 @@
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --radius-card: clamp(1rem, 2vw, 1.75rem);
   --dur-fast: 140ms;
   --dur-med: 260ms;
 }

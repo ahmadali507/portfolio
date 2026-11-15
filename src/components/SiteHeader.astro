@@ -11,11 +11,11 @@ const isCurrent = (href: string) =>
   (href === '/contact/' && current === 'contact');
 ---
 
-<header class="site-header">
+<header class="site-header" transition:name="site-header" transition:animate="none">
   <div class="page bar">
     <a class="wordmark" href="/" aria-current={current === 'home' ? 'page' : undefined}>
       <span class="name">{FULL_NAME}</span>
-      <span class="label path">Software engineer</span>
+      <span class="label path">Software engineer, Islamabad</span>
     </a>
     <nav aria-label="Primary">
       <ul role="list">

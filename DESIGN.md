@@ -4,22 +4,22 @@ This file binds every human and agent working on the site. If a skill, a tutoria
 
 ## 1. Aesthetic direction
 
-Direction replaced on 2026-11-15 by Ahmad's instruction: **Kinetic Field.** Direction A (Request Path) and its seven-stage concept are retired. See `docs/DECISIONS.md`.
+Direction replaced on 2026-11-15 by Ahmad's instruction: **Glass Deck.** Request Path and Kinetic Field are retired. See `docs/DECISIONS.md`.
 
-- **Visual persona:** a machined kinetic sculpture under studio light. Matte surfaces, shading computed from a fixed key light, hairline type and rules around it. Restraint in color, craft in motion.
-- **The 3D world and why it exists:** one field of machined square pins, the kind used in a pin-art screen, rendered as a single instanced mesh. Its heights come from generative relief patterns evaluated on the GPU. The home page has its own pattern; every project has its own pattern. Because the canvas persists across navigation, moving between pages morphs the field from one relief to the next. The site is a front-end engineering piece, so the world shows that craft directly: real-time shading, interaction, and continuity across pages.
-- **Signature interaction:** the pointer lifts the pins beneath it, and they take the accent color. Moving it sends ripples outward that decay in about two seconds. Scrolling dollies the camera and lowers the field into the page.
-- **Project covers:** each project cover is a WebGL plane mapped exactly onto its DOM box. It draws that project's relief as shaded terrain with contour lines. It tilts in perspective toward the pointer, ripples on hover, and bends with scroll speed. Without WebGL, the same pattern is drawn as an SVG line relief.
-- **What the world must never become:** a glowing particle cloud, a neon wireframe, floating spinning primitives, or motion that runs with no input. The field holds still until someone points, scrolls, or navigates.
-- **Honesty rule:** patterns are visual identity only. They never encode a metric or imply a claim about a project.
+- **Visual persona:** clean, glossy, and minimal. Giant grotesk type on a pale ground, one night chapter for the work, and a single hero object finished like lacquer and porcelain. Every motion is staged as a beat: entrance, hold, exit.
+- **The hero object:** a deck of glossy cards, one per featured project, each carrying that project's generative relief. The deck flies in on load, fans out, lines up while the camera pulls back, then the whole scene recedes into a framed window as the next section rises over it.
+- **Continuity:** the canvas persists across navigation. On a case study, that project's card takes the banner; on the work index the deck fans beside the heading. Moving between pages, the cards fly to their new poses.
+- **Work chapter:** full-width night cards stack as the reader scrolls; each settles back, tilts, and dims as the next slides over it. Each card's art is a live WebGL plate in the same finish as its 3D card, with a sheen that follows the pointer.
+- **What the world must never become:** a particle cloud, a neon wireframe, glowing outlines, or motion that runs with no input. Apart from the load entrance, the scene moves only with scroll, pointer, or navigation.
+- **Honesty rule:** reliefs and finishes are visual identity only. They never encode a metric or imply a claim about a project.
 
 ### Banned UI patterns (immediate reject)
 
 - No `Inter`, `Roboto`, `Arial`, or `system-ui` as a primary font.
 - No purple, indigo, or violet gradients or primaries (`from-purple-500`, `to-indigo-600`, `#6366f1`, `#7c3aed`, and similar).
-- No generic three-column symmetrical feature or project cards with `rounded-xl` plus `shadow-lg`.
-- No glowing neon borders. No unprompted glassmorphism (`backdrop-blur`) on cards.
-- No decorative floating 3D primitives. No aimlessly spinning torus knots, icosahedrons, or wireframe spheres.
+- No generic three-column symmetrical feature or project cards with `rounded-xl` plus `shadow-lg`. Full-width stacking cards are the only card pattern.
+- No glowing neon borders. No glassmorphism (`backdrop-blur`) on cards. Gloss comes from real reflections in WebGL and one-pixel highlights in CSS, never from blur.
+- No decorative floating 3D primitives. No aimlessly spinning torus knots, icosahedrons, or wireframe spheres. The only 3D object is the project deck.
 - No pill badges with sparkle glyphs or emoji above section headings. No emoji used as icons.
 - No gradient-filled heading text.
 - No centered hero with two pill buttons as the opening composition.
@@ -47,16 +47,19 @@ Direction replaced on 2026-11-15 by Ahmad's instruction: **Kinetic Field.** Dire
 
 | Token               | Value     | Use                                                                                             | Contrast                                                |
 | ------------------- | --------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `--color-bg`        | `#E3E4E2` | Page and canvas clear color (machined gray)                                                     | Base                                                    |
-| `--color-surface`   | `#D2D4D1` | Trace panel, raised areas                                                                       | 1.17:1 against bg                                       |
-| `--color-ink`       | `#1B1D1E` | Primary text, linework                                                                          | 13.26:1 on bg, 11.34:1 on surface                       |
-| `--color-ink-muted` | `#4F5456` | Secondary text, captions                                                                        | 6.02:1 on bg, 5.15:1 on surface                         |
-| `--color-rule`      | `#9DA2A0` | Hairlines and grid only, never text                                                             | 2.03:1 on bg (decorative)                               |
-| `--color-trace`     | `#E2401C` | The accent: pins under the pointer, active marks, focus rings. Non-text marks and text 24px and larger only | 3.30:1 on bg, 4.02:1 on ink                             |
-| `--color-trace-ink` | `#B02E0E` | Small accent text on `--color-bg` only                                                          | 5.08:1 on bg (fails on surface, so do not use it there) |
+| `--color-bg`        | `#EDEDEB` | Page ground                                                                                     | Base                                                    |
+| `--color-surface`   | `#E1E2DF` | Hero stage, practice panels                                                                     | 1.1:1 against bg                                        |
+| `--color-ink`       | `#1B1D1E` | Primary text, linework                                                                          | 14.4:1 on bg, 13.0:1 on surface                         |
+| `--color-ink-muted` | `#4F5456` | Secondary text, captions                                                                        | 6.6:1 on bg, 5.9:1 on surface                           |
+| `--color-rule`      | `#A3A7A5` | Hairlines only, never text                                                                      | decorative                                              |
+| `--color-trace`     | `#E2401C` | The accent: the vermilion card, active marks, focus rings. Non-text marks and text 24px and larger only on light ground | 3.30:1 on bg, 4.02:1 on ink                             |
+| `--color-trace-ink` | `#B02E0E` | Small accent text on light ground; button hover fill with `--night-ink` text (5.5:1)            | 5.5:1 on bg                                             |
+| `--night`           | `#0D0E0F` | Night chapter ground (work)                                                                     | Base                                                    |
+| `--night-ink`       | `#EDEDEB` | Text on night                                                                                   | 16.5:1                                                  |
+| `--night-muted`     | `#9A9FA2` | Secondary text on night                                                                         | 7.2:1                                                   |
 
 - The trace accent covers under 5 percent of any viewport. It marks the one thing that is live right now and nothing else.
-- No gradients on UI surfaces. Depth in the 3D world comes from baked lighting, not from CSS shadows.
+- No gradients on UI surfaces. Depth comes from real reflections in the 3D scene and restrained shadows under the stacking cards.
 - A dark variant is not in scope. If added later, it needs its own contrast table and a decision log entry.
 
 ### Rules

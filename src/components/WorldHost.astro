@@ -1,9 +1,7 @@
 ---
-import Poster from './Poster.astro';
+// The persistent WebGL layer. It sits above page content (below the header), transparent, and
+// ignores the pointer, so cards and plates draw exactly over their DOM boxes whatever paints beneath.
+// Without WebGL it stays empty; pages carry their own static fallbacks.
 ---
 
-<div id="world" class="world" transition:persist="world" aria-hidden="true" data-state="poster">
-  <div class="world-poster">
-    <Poster />
-  </div>
-</div>
+<div id="world" class="world" transition:persist="world" aria-hidden="true" data-state="idle"></div>

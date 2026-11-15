@@ -7,6 +7,7 @@ import SiteHeader from '@/components/SiteHeader.astro';
 import SiteFooter from '@/components/SiteFooter.astro';
 import WorldHost from '@/components/WorldHost.astro';
 import { FULL_NAME, PERSON, SITE, CONTACT } from '@/config/site';
+import { patternFor, seedFor, toneFor, visibleProjects } from '@/lib/projects';
 
 interface Props {
   title?: string;
@@ -15,13 +16,21 @@ interface Props {
   page: 'home' | 'work' | 'case' | 'about' | 'contact' | 'missing';
   /** Project slug on case-study pages. */
   slug?: string;
-  /** Generative pattern the 3D field morphs to on this page (src/lib/patterns.ts). */
-  pattern?: number;
-  seed?: number;
+  /** Featured card index this page is about (case studies), or -1. */
+  focus?: number;
   ogImage?: string;
 }
 
-const { title, description = SITE.description, page, slug, pattern = 0, seed = 0, ogImage = '/og.png' } = Astro.props;
+const { title, description = SITE.description, page, slug, focus = -1, ogImage = '/og.png' } = Astro.props;
+
+// The 3D cards: one per featured project, the same finish and relief as its DOM card.
+const { featured } = await visibleProjects();
+const worldData = {
+  cards: featured.map((p, i) => {
+    const tone = toneFor(i);
+    return { slug: p.id, pattern: patternFor(p), seed: seedFor(p), base: tone.base, line: tone.line };
+  }),
+};
 const fullTitle = title ? `${title} | ${FULL_NAME}` : SITE.title;
 const origin = SITE.url.value;
 const canonical = new URL(Astro.url.pathname, origin).href;
@@ -65,7 +74,7 @@ const personLd = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#e3e4e2" />
+    <meta name="theme-color" content="#ededeb" />
     <meta name="color-scheme" content="light" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
@@ -90,12 +99,23 @@ const personLd = {
     <meta name="twitter:image" content={ogUrl} />
 
     <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
+    <script is:inline>
+      (function () {
+        document.documentElement.classList.add('js');
+        if (window.__jsClass) return;
+        window.__jsClass = true;
+        document.addEventListener('astro:after-swap', function () {
+          document.documentElement.classList.add('js');
+        });
+      })();
+    </script>
 
     <ClientRouter />
   </head>
-  <body data-slug={slug} data-pattern={pattern} data-seed={seed.toFixed(3)}>
+  <body data-slug={slug} data-focus={focus}>
     <a class="skip-link" href="#main">Skip to content</a>
     <WorldHost />
+    <script type="application/json" id="world-data" set:html={JSON.stringify(worldData)} />
     <SiteHeader current={page} />
     <main id="main" tabindex="-1" transition:name="main">
       <slot />

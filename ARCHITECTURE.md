@@ -29,9 +29,9 @@ Technical contract for the site. Every decision here has a reason and a cost. Ch
 
 ## 2. Engine, loop, scroll, resize
 
-- **One Engine class** owns the renderer, scene, camera, clock, resize, visibility, and context-loss handling. Subsystems (`Field`, `Covers`) are plain classes implementing `WorldPart` that the Engine composes.
-- **One loop.** `gsap.ticker` is the only `requestAnimationFrame` source. The Engine registers one callback with `gsap.ticker.add`. No other code calls `requestAnimationFrame`.
-- **Lenis inside the ticker.** Lenis is created with `autoRaf: false`. The ticker callback calls `lenis.raf(time * 1000)`, then updates scroll-driven state, then renders. `gsap.ticker.lagSmoothing(0)` keeps scroll and render in step after a long frame. If ScrollTrigger is added later, `lenis.on('scroll', ScrollTrigger.update)` wires it in; ScrollTrigger is not installed yet.
+- **One Engine class** owns the renderer, scene, camera, resize, visibility, and context-loss handling. Subsystems (`Showcase`, `Covers`) are plain classes implementing `WorldPart` that the Engine composes.
+- **One loop.** `gsap.ticker` is the only `requestAnimationFrame` source. `src/motion/core.ts` registers the one callback; the Engine subscribes to it. No other code calls `requestAnimationFrame`.
+- **Lenis inside the ticker.** Lenis is created in `motion/core.ts` with `autoRaf: false`. The ticker callback calls `lenis.raf(time * 1000)`, mirrors scroll into `motion` state, then runs subscribers (the Engine last). `gsap.ticker.lagSmoothing(0)` keeps scroll and render in step. `lenis.on('scroll', ScrollTrigger.update)` wires ScrollTrigger in.
 - **Frame order:** Lenis step, read scroll and pointer, damp state toward targets with frame delta, update uniforms and camera, render (only if something changed or an animation is active).
 - **One resize path.** A single `ResizeObserver` on the canvas host feeds the Engine. The Engine updates renderer size, pixel ratio, camera aspect, and DOM-anchor measurements in that one place. Nothing else listens to `resize`.
 - **Visibility.** On `visibilitychange` to hidden, the Engine stops rendering and pauses Lenis. An `IntersectionObserver` pauses rendering when the canvas host is off screen.
@@ -47,15 +47,15 @@ Technical contract for the site. Every decision here has a reason and a cost. Ch
 ## 4. Progressive enhancement and failure handling
 
 - **No WebGL, no JavaScript:** every page is complete, readable, and indexable as HTML. Project text, links, and navigation never depend on the canvas.
-- **Static poster fallback:** the canvas host contains a static poster image (AVIF or WebP with a JPEG fallback, sized for mobile and desktop) as its initial content. The Engine replaces it only after the first frame renders. If WebGL2 is unavailable, initialization throws, or the device is judged too weak, the poster stays.
+- **Static fallback:** pages carry their own static versions: CSS 3D cards with SVG reliefs in the home hero, and SVG reliefs inside every plate. The canvas fades in after its first frame; if WebGL2 is unavailable or initialization throws, the fallbacks stay.
 - **Capability gate:** before loading the 3D bundle, check WebGL2 support, `navigator.connection.saveData`, and reduced-motion. Device tiering beyond this (for example `detect-gpu`) is deferred until a real device test shows the need.
-- **Context loss:** listen for `webglcontextlost` (call `preventDefault`, stop the loop, show the poster) and `webglcontextrestored` (re-upload assets from the in-memory cache, resume). After a second loss within a short window, stay on the poster for the session.
+- **Context loss:** listen for `webglcontextlost` (call `preventDefault`, stop the loop, hide the canvas) and `webglcontextrestored` (re-upload assets from the in-memory cache, resume). After a second loss within a short window, stay on the poster for the session.
 - **Errors:** any exception during Engine init or a frame stops the loop, restores the poster, and logs once. The page must keep working.
 
 ## 5. Loading strategy and budgets
 
 - The HTML, CSS, and fonts render the first paint. No 3D code is in the critical path.
-- The 3D bundle is a dynamic `import()` triggered after first paint, inside `requestIdleCallback` with a timeout fallback, and only if the capability gate passes.
+- After first paint, inside `requestIdleCallback`, the motion bundle (Lenis, GSAP, ScrollTrigger) loads for every visitor with JavaScript; the 3D bundle loads after it only if the capability gate passes.
 - Models and textures load after the Engine starts, in priority order, with the poster visible until the first meaningful frame.
 
 | Budget                            | Target                 | Measured on                                   |
@@ -87,33 +87,29 @@ These are starting targets. They are measured, not assumed, at the first milesto
 - `scripts/`: verification tooling (`slop-check`, `asset-budget`, `shot`).
 - `.claude/skills/`: vendored agent skills, pinned in `.claude/skills.lock.json`.
 
-## 8. Kinetic Field: technical shape
+## 8. Glass Deck: technical shape
 
-Adopted on 2026-11-15, replacing Direction A (Request Path). See `DESIGN.md` section 1 and `docs/SCENE.md`.
+Adopted on 2026-11-15, replacing Kinetic Field. See `DESIGN.md` section 1 and `docs/SCENE.md`.
 
-**Scene structure.**
+**Layers.**
 
-- `Field` (`src/engine/world/Field.ts`): one `InstancedMesh` of square pins on a regular grid, one `ShaderMaterial`. Pin height is computed in the vertex shader from the pattern functions in `src/engine/shaders/patterns.ts` (the GLSL twin of `src/lib/patterns.ts`). Two pattern slots (`uFrom`, `uTo`) and a damped `uMix` morph between pages. Per-instance data is one static `vec2` grid coordinate; nothing is uploaded per frame except uniforms.
-- Ripples: a fixed ring buffer of 6 impulses (`vec4` position, start time, strength) in a uniform array. The pointer is intersected analytically with the field plane (no raycast over instances). A new impulse is added after the pointer travels a set distance on the plane.
-- Shading: a fixed key direction and a hemisphere fill computed in the shader, plus a height-based occlusion term and distance fog toward `--color-bg`. No light objects, no shadow maps. Colors are clamped so muted text keeps 4.5:1 if it overlaps the field.
-- `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]` element, drawn in a second pass with an orthographic camera in CSS pixels after the field, without clearing. Rectangles are measured on mount and resize only; each frame places planes from the cached rectangles and the Lenis scroll value. Hover and pointer position come from DOM `pointerenter`, `pointermove`, and `pointerleave` on the figure.
-- Planes share one geometry and one shader program; per-plane uniforms differ. Planes outside the viewport are skipped by frustum culling.
+- The DOM is the page. The WebGL canvas (`#world`) is a fixed, transparent layer above content and below the header, with `pointer-events: none`. It draws only the deck and the plates, so dark or opaque page sections never hide WebGL art.
+- `src/motion/core.ts` owns Lenis, the one `gsap.ticker` callback, and ScrollTrigger (from the installed `gsap` package). The Engine subscribes its frame function to that loop. `src/motion/state.ts` is a plain object both sides read: DOM choreography writes progress values from ScrollTrigger callbacks; the engine reads them each frame. No layout reads are needed for the story.
+- `src/motion/scenes.ts` holds the page choreography inside one `gsap.context` per page, reverted on `astro:before-swap`.
+
+**Scene parts.**
+
+- `Showcase` (`src/engine/world/Showcase.ts`): one `RoundedBoxGeometry` shared by up to 5 meshes with `MeshPhysicalMaterial` (clear coat). Each card face is rendered once into a render target from the pattern shader (`cardArt.ts`). Reflections come from `RoomEnvironment` through `PMREMGenerator`, so no HDR file is downloaded. Poses (enter, stack, fan, row, feature, away) are pure functions; each frame damps meshes toward them.
+- `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]`, drawn in an orthographic pass in CSS pixels after the deck. Static plates use cached rectangles. Plates marked `data-plate-track` (stacking cards, the cursor preview) read their rectangle each frame; at most 6 exist on a page. A stacked plate discards fragments below the top edge of the next card.
 
 **Budget plan (fits the DESIGN.md limits).**
 
-| Part                                 | Draw calls | Triangles             |
-| ------------------------------------ | ---------- | --------------------- |
-| Field, tier 1 (104 x 64 pins)        | 1          | 79,872 (12 per pin)   |
-| Field, tier 2 (64 x 40 pins)         | 1          | 30,720                |
-| Covers visible at once (8 at most)   | 8          | 8 x 1,536 = 12,288    |
-| Headroom                             | 71         | over 57,000           |
-| **Total, tier 1**                    | **9**      | **about 92,000**      |
+| Part                                   | Draw calls | Triangles                 |
+| -------------------------------------- | ---------- | ------------------------- |
+| Deck, 5 cards, tier 1 (bevel 5)        | 5          | about 5 x 2,500 = 12,500  |
+| Plates visible at once (6 at most)     | 6          | 6 x 1,536 = 9,216         |
+| **Worst case**                         | **11**     | **about 22,000**          |
 
-**Scroll and page sync.**
+**Reduced motion.** No scroll scrubbing, no tilt, bend, or magnetic pull, no hero pin (the hero is one screen tall). The deck holds its rest pose, and page changes are instant.
 
-- Scroll progress for the camera comes from the `[data-world-anchor="hero"]` rectangle, not from page height. Past the hero, the field flattens and the camera tilts down, so content below sits on near-plain ground.
-- On `astro:page-load` the Field reads `data-pattern` and `data-seed` from `<body>` and starts a morph from the current relief. Reduced motion makes the morph instant.
-
-**Reduced motion.** No ripples, no cover tilt or bend, no camera dolly. Morphs are instant. The field renders once per state change.
-
-**Weak devices.** Tier 1: full grid, pixel ratio up to 2. Tier 2 (coarse pointer, small screen, or a slow first two seconds): 64 x 40 grid, no cover bend. Tier 3 (gate fails or context lost twice): SVG poster and SVG covers.
+**Weak devices.** Tier 2 (coarse pointer or small screen): bevel 3, card art at 512 x 320, no plate bend. Without WebGL: CSS 3D fallback cards in the hero and SVG reliefs for every plate.

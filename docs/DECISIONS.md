@@ -53,3 +53,21 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Measured font fallbacks** (`scripts/font-fallback.mjs`): Familjen Grotesk 91.27 percent of Arial, Public Sans 103.66 percent of Arial, Commit Mono 99.98 percent of Courier New.
 - **Shot script options added:** `--scroll`, `--full`, and `--hover` (sweeps the mouse before the capture so pointer effects show).
 - **unslop-ui scanner:** clean. **unslop-text scanner:** clean on all built page copy (3,683 words) and on new docs. It does not read `.astro` files, so copy is checked from the built HTML.
+
+## 2026-11-15 (redesign: Glass Deck)
+
+- **Kinetic Field retired at Ahmad's instruction.** Feedback: nothing revealed, nothing orchestrated. Asked for a clean, glossy, minimal site with cinematic scroll (stacking cards, a zoom-out of the screen), modeled on leading 3D developer portfolios. Research pointed to one hero object with real material response, a camera that travels in depth, sections staged as entrance, hold, and exit, and one scroll chapter per project.
+- **New direction: Glass Deck.** A deck of glossy cards, one per featured project, choreographed by scroll: load entrance, fan, row with camera pull-back, zoom-out into a framed window, then exit as the statement rises. The work chapter is a night section of stacking cards. See `DESIGN.md` section 1 and `docs/SCENE.md`. This reverses the earlier "matte, nothing glossy" persona; DESIGN.md is updated.
+- **ScrollTrigger adopted.** It ships inside the installed `gsap` 3.15.1 package, so no dependency was added. Registered once in `src/motion/core.ts`, wired to Lenis with `lenis.on('scroll', ScrollTrigger.update)`.
+- **Loop ownership moved to `src/motion/core.ts`.** Lenis, the single `gsap.ticker` callback, and ScrollTrigger now load for every visitor with JavaScript, not only when WebGL runs, so scroll choreography works without 3D. The Engine subscribes to that loop. Still one `requestAnimationFrame` source.
+- **Shared motion state (`src/motion/state.ts`).** ScrollTrigger callbacks write progress; the engine reads it each frame. The 3D story needs no layout reads.
+- **The WebGL canvas moved above the content** (transparent, `pointer-events: none`, below the header). Reason: plates must show inside dark, opaque sections and inside sticky cards. Stacked plates discard pixels below the next card's top edge, and read the card's dim value as a uniform.
+- **Tracked plates read layout per frame.** Plates in sticky, scaled, or pointer-following containers (`data-plate-track`, at most 6 per page) call `getBoundingClientRect` each frame. This relaxes ARCHITECTURE.md section 3 for those plates only; everything else still uses cached rectangles.
+- **Reflections from `RoomEnvironment` through `PMREMGenerator`**, rendered once at startup. No HDR download. Neutral tone mapping on the renderer; plates opt out of tone mapping to match CSS colors.
+- **Card faces are rendered once into render targets** from the same pattern shader as the plates, then mapped onto clear-coated `MeshPhysicalMaterial`.
+- **The poster image is replaced by page-level fallbacks:** CSS 3D cards with SVG reliefs in the home hero, and SVG reliefs inside every plate.
+- **Palette lightened for a cleaner ground:** bg `#EDEDEB`, surface `#E1E2DF`, rule `#A3A7A5`, plus a night theme (`#0D0E0F`, ink `#EDEDEB`, muted `#9A9FA2`). All contrast pairs were recomputed (ink 14.4:1, muted 6.6:1, night ink 16.5:1, night muted 7.2:1, button hover 5.5:1).
+- **CSS-only entrance on first paint** (letters rise, blocks fade up), so the hero never waits for JavaScript and LCP is not held back. Scroll reveals below the fold are added by JavaScript only.
+- **Page transitions:** the old page settles back to 94 percent and dims while the new one wipes up with a clip-path; the header has its own transition name and does not animate. Under reduced motion Astro drops the animation.
+- **Removed:** the pin field (`Field.ts`), the Kinetic Field text zones and stage bands, the line-relief poster, `FeaturedWork` and `WorkLedger`.
+- **New tooling:** `scripts/film.mjs` captures a sequence of frames at scroll positions to review choreography.

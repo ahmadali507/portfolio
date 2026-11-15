@@ -2,26 +2,28 @@
 import { render } from 'astro:content';
 import Base from '@/layouts/Base.astro';
 import Cover from '@/components/Cover.astro';
+import SplitWords from '@/components/SplitWords.astro';
 import Todo from '@/components/Todo.astro';
 import {
   hasPlaceholders,
   patternFor,
   seedFor,
   STATUS_LABEL,
+  toneForProject,
   visibleProjects,
   type Project,
 } from '@/lib/projects';
 
 export async function getStaticPaths() {
-  const { all } = await visibleProjects();
+  const { all, featured } = await visibleProjects();
   return all.map((project, index) => ({
     params: { slug: project.id },
     props: {
       project,
       index,
-      prev: all[index - 1] ?? null,
-      next: all[index + 1] ?? null,
+      next: all[index + 1] ?? all[0] ?? null,
       total: all.length,
+      featured,
     },
   }));
 }
@@ -29,136 +31,123 @@ export async function getStaticPaths() {
 interface Props {
   project: Project;
   index: number;
-  prev: Project | null;
   next: Project | null;
   total: number;
+  featured: Project[];
 }
 
-const { project, index, prev, next, total } = Astro.props;
+const { project, index, next, total, featured } = Astro.props;
 const d = project.data;
 const { Content } = await render(project);
 const pattern = patternFor(project);
 const seed = seedFor(project);
+const tone = toneForProject(project, featured);
+const focus = featured.findIndex((f) => f.id === project.id);
 const pad = (n: number) => String(n).padStart(2, '0');
 const draft = hasPlaceholders(project);
+const titleChars = [...d.title];
 ---
 
-<Base
-  page="case"
-  slug={project.id}
-  pattern={pattern}
-  seed={seed}
-  title={d.title}
-  description={`${d.title}: ${d.summary.value}`}
->
-  <article class="page case" aria-labelledby="case-title">
-    <header class="head" data-world-stage>
-      <div class="head-text" data-world-zone>
-        <p class="label">
-          <a href="/work/">Work</a> / Case study {pad(index + 1)} of {pad(total)}
-        </p>
-        <h1 id="case-title">{d.title}</h1>
-        <p class="lead">
-          {d.summary.value} <Todo when={d.summary.placeholder} />
-        </p>
-        {draft && (
-          <p class="draft">
-            <span class="placeholder-flag">Draft</span> Fields marked TODO hold placeholder text.
-            They are not facts about this project yet.
+<Base page="case" slug={project.id} focus={focus} title={d.title} description={`${d.title}: ${d.summary.value}`}>
+  <article class="case" aria-labelledby="case-title">
+    <header class="head page">
+      <p class="label enter" style="--d:100ms">
+        <a href="/work/">Work</a> / Case study {pad(index + 1)} of {pad(total)}
+      </p>
+      <h1 id="case-title" aria-label={d.title}>
+        <span class="line" aria-hidden="true">
+          {titleChars.map((c, i) => <span class="ch" style={`--i:${i}`}>{c === ' ' ? ' ' : c}</span>)}
+        </span>
+      </h1>
+      <p class="lead enter" style="--d:520ms">
+        {d.summary.value} <Todo when={d.summary.placeholder} />
+      </p>
+      {
+        draft && (
+          <p class="draft enter" style="--d:680ms">
+            <span class="placeholder-flag">Draft</span> Fields marked TODO hold placeholder text. They are not facts about
+            this project yet.
           </p>
-        )}
-      </div>
+        )
+      }
     </header>
 
-    <dl class="spec ground">
-      <div>
-        <dt class="label">Role</dt>
-        <dd>
-          {d.role.value} <Todo when={d.role.placeholder} />
-        </dd>
-      </div>
-      <div>
-        <dt class="label">Year</dt>
-        <dd class="mono">
-          {d.year.value} <Todo when={d.year.placeholder} />
-        </dd>
-      </div>
-      <div>
-        <dt class="label">Status</dt>
-        <dd>
-          {STATUS_LABEL[d.status.value]} <Todo when={d.status.placeholder} />
-        </dd>
-      </div>
-      <div class="wide">
-        <dt class="label">Stack</dt>
-        <dd class="mono">
-          {d.stack.value.join(' / ')} <Todo when={d.stack.placeholder} />
-        </dd>
-      </div>
-    </dl>
+    <div class="page">
+      <Cover title={d.title} pattern={pattern} seed={seed} tone={tone} size="hero">
+        <figcaption class="label caption">
+          Generative cover, drawn from code for this page. <Todo when={d.media.placeholder} text="Placeholder media" />
+        </figcaption>
+      </Cover>
 
-    <Cover title={d.title} pattern={pattern} seed={seed} size="hero">
-      <figcaption class="label caption">
-        Generative cover, drawn from code for this page.{' '}
-        <Todo when={d.media.placeholder} text="Placeholder media" />
-      </figcaption>
-    </Cover>
-
-    <div class="body ground">
-      <section aria-labelledby="problem-title">
-        <h2 id="problem-title">Problem</h2>
-        <p>
-          {d.problem.value} <Todo when={d.problem.placeholder} />
-        </p>
-      </section>
-      <section aria-labelledby="approach-title">
-        <h2 id="approach-title">Approach</h2>
-        <div class="prose">
-          <Content />
+      <dl class="spec" data-rise>
+        <div>
+          <dt class="label">Role</dt>
+          <dd>{d.role.value} <Todo when={d.role.placeholder} /></dd>
         </div>
-        <Todo when={d.placeholder} text="Placeholder narrative" />
-      </section>
-      <section aria-labelledby="outcome-title">
-        <h2 id="outcome-title">Outcome</h2>
-        <p>
-          {d.outcome.value} <Todo when={d.outcome.placeholder} />
-        </p>
-      </section>
-      {d.links.length > 0 && (
-        <section aria-labelledby="links-title">
-          <h2 id="links-title">Links</h2>
-          <ul role="list" class="links">
-            {d.links.map((l) => (
-              <li>
-                <a href={l.url}>{l.label}</a> <Todo when={l.placeholder} />
-              </li>
-            ))}
-          </ul>
+        <div>
+          <dt class="label">Year</dt>
+          <dd class="mono">{d.year.value} <Todo when={d.year.placeholder} /></dd>
+        </div>
+        <div>
+          <dt class="label">Status</dt>
+          <dd>{STATUS_LABEL[d.status.value]} <Todo when={d.status.placeholder} /></dd>
+        </div>
+        <div>
+          <dt class="label">Stack</dt>
+          <dd class="mono">{d.stack.value.join(' / ')} <Todo when={d.stack.placeholder} /></dd>
+        </div>
+      </dl>
+
+      <div class="body">
+        <section class="chapter" aria-labelledby="problem-title">
+          <p class="label n">01</p>
+          <SplitWords as="h2" id="problem-title" text="Problem" />
+          <p class="text" data-rise>{d.problem.value} <Todo when={d.problem.placeholder} /></p>
         </section>
-      )}
+        <section class="chapter" aria-labelledby="approach-title">
+          <p class="label n">02</p>
+          <SplitWords as="h2" id="approach-title" text="Approach" />
+          <div class="text prose" data-rise>
+            <Content />
+            <Todo when={d.placeholder} text="Placeholder narrative" />
+          </div>
+        </section>
+        <section class="chapter" aria-labelledby="outcome-title">
+          <p class="label n">03</p>
+          <SplitWords as="h2" id="outcome-title" text="Outcome" />
+          <p class="text" data-rise>{d.outcome.value} <Todo when={d.outcome.placeholder} /></p>
+        </section>
+        {
+          d.links.length > 0 && (
+            <section class="chapter" aria-labelledby="links-title">
+              <p class="label n">04</p>
+              <SplitWords as="h2" id="links-title" text="Links" />
+              <ul role="list" class="links text" data-rise>
+                {d.links.map((l) => (
+                  <li>
+                    <a href={l.url}>{l.label}</a> <Todo when={l.placeholder} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+      </div>
     </div>
 
-    <nav class="pager ground" aria-label="More case studies">
-      {prev ? (
-        <a href={`/work/${prev.id}/`} rel="prev">
-          <span class="label">Previous</span>
-          <span class="t">{prev.data.title}</span>
-        </a>
-      ) : (
-        <span />
-      )}
-      {next ? (
-        <a href={`/work/${next.id}/`} rel="next" class="next">
-          <span class="label">Next</span>
-          <span class="t">{next.data.title}</span>
-        </a>
-      ) : (
-        <a href="/work/" class="next">
-          <span class="label">Back to</span>
-          <span class="t">All work</span>
-        </a>
-      )}
-    </nav>
+    {
+      next && (
+        <nav class="next theme-night" aria-label="Next case study">
+          <a class="next-link page" href={`/work/${next.id}/`} data-magnetic="0.04">
+            <span class="label">Next project</span>
+            <span class="next-title">{next.data.title}</span>
+            <span class="next-arrow mono" aria-hidden="true">
+              Open case study <span class="arrow">→</span>
+            </span>
+          </a>
+        </nav>
+      )
+    }
   </article>
 </Base>
 
@@ -166,23 +155,36 @@ const draft = hasPlaceholders(project);
   .head {
     display: grid;
     align-content: end;
-    min-height: clamp(20rem, 52svh, 32rem);
-    padding-block: var(--space-8) var(--space-6);
-  }
-
-  .head-text {
-    max-width: 52rem;
+    min-height: clamp(26rem, 72svh, 48rem);
+    padding-block: calc(var(--header-h) + var(--space-6)) var(--space-7);
   }
 
   h1 {
-    font-size: var(--text-display);
+    font-size: clamp(3rem, 10vw, 10.5rem);
     font-weight: 700;
-    line-height: var(--leading-display);
+    line-height: 0.88;
+    letter-spacing: -0.04em;
     margin-block: var(--space-4) var(--space-5);
+    max-width: 12ch;
+  }
+
+  .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+
+  .ch {
+    display: inline-block;
   }
 
   .lead {
-    max-width: 40ch;
+    max-width: 34ch;
+    font-size: var(--text-lead);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
   }
 
   .draft {
@@ -194,73 +196,77 @@ const draft = hasPlaceholders(project);
     color: var(--color-ink-muted);
   }
 
-  .spec {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: var(--rule-strong);
-    margin-bottom: var(--space-7);
-  }
-
-  .spec div {
-    padding: var(--space-3) var(--space-3) var(--space-3) 0;
-    border-bottom: var(--hairline);
-  }
-
-  .spec .wide {
-    grid-column: 1 / -1;
-  }
-
-  .spec dd {
-    margin-top: var(--space-1);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-3);
-  }
-
   .caption {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
     padding-block: var(--space-3);
+  }
+
+  .spec {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+    padding-block: var(--space-7);
     border-bottom: var(--hairline);
+  }
+
+  .spec dd {
+    margin-top: var(--space-2);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2);
   }
 
   @media (min-width: 56rem) {
     .spec {
-      grid-template-columns: 2fr 1fr 1fr;
-    }
-
-    .spec div {
-      padding-left: var(--space-3);
-      border-right: var(--hairline);
-    }
-
-    .spec div:first-child,
-    .spec .wide {
-      padding-left: 0;
-    }
-
-    .spec div:nth-child(3),
-    .spec .wide {
-      border-right: 0;
+      grid-template-columns: 1.4fr 0.6fr 0.8fr 1.6fr;
     }
   }
 
   .body {
     display: grid;
-    gap: var(--space-7);
-    padding-block: var(--space-7) var(--space-8);
-    max-width: 44rem;
+    gap: var(--space-9);
+    padding-block: var(--space-9);
   }
 
-  .body h2 {
-    font-size: var(--text-h3);
-    margin-bottom: var(--space-3);
+  .chapter {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .chapter :global(h2) {
+    font-size: clamp(2.5rem, 6vw, 6rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+  }
+
+  .n {
+    color: var(--color-ink-muted);
+  }
+
+  .text {
+    font-size: var(--text-lead);
+    line-height: 1.45;
+    max-width: 36ch;
   }
 
   .prose :global(p + p) {
     margin-top: var(--space-4);
+  }
+
+  @media (min-width: 56rem) {
+    .chapter {
+      grid-template-columns: 4rem minmax(0, 1fr) minmax(0, 1.1fr);
+      align-items: start;
+      gap: var(--space-6);
+    }
+
+    .text {
+      padding-top: 0.6em;
+    }
   }
 
   .links {
@@ -274,38 +280,47 @@ const draft = hasPlaceholders(project);
     align-items: center;
   }
 
-  .pager {
+  /* ---------- next project: a full-width night panel ---------- */
+  .next {
+    position: relative;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+  }
+
+  .next-link {
     display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: var(--space-4);
-    border-top: var(--rule-strong);
-    padding-block: var(--space-5) var(--space-8);
-  }
-
-  .pager a {
-    display: grid;
-    gap: var(--space-1);
+    padding-block: var(--space-9);
     text-decoration: none;
-    min-height: 44px;
   }
 
-  .pager .next {
-    text-align: right;
-  }
-
-  .pager .t {
+  .next-title {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--text-h3);
-    line-height: 1.1;
+    font-size: var(--text-giant);
+    font-weight: 700;
+    line-height: 0.88;
+    letter-spacing: -0.04em;
+    transition: transform 700ms var(--ease-expo);
+  }
+
+  .next-arrow {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    color: var(--color-ink-muted);
+  }
+
+  .arrow {
+    display: inline-block;
+    transition: transform var(--dur-med) var(--ease-out);
   }
 
   @media (hover: hover) {
-    .pager a:hover .t {
-      text-decoration: underline;
-      text-decoration-color: var(--color-trace);
-      text-decoration-thickness: 2px;
-      text-underline-offset: 0.2em;
+    .next-link:hover .next-title {
+      transform: translateX(0.06em);
+    }
+
+    .next-link:hover .arrow {
+      transform: translateX(6px);
     }
   }
 </style>

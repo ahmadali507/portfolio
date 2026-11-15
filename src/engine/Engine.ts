@@ -1,11 +1,11 @@
-import { Color, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
-import { gsap } from 'gsap';
-import Lenis from 'lenis';
+import { Color, NeutralToneMapping, PerspectiveCamera, Scene, WebGLRenderer } from 'three';
+import type { MotionCore } from '../motion/core';
+import { motion } from '../motion/state';
 import { Quality } from './Quality';
 import type { EngineContext, FrameInput, WorldPart } from './types';
 
-/** Clear color matches --color-bg so the canvas and the page read as one surface. */
-const CLEAR = '#e3e4e2';
+/** Clear color (alpha 0). Kept equal to --color-bg so antialiased edges blend toward the page. */
+const CLEAR = '#ededeb';
 /** A second context loss inside this window keeps the poster for the rest of the session. */
 const LOSS_WINDOW_MS = 60_000;
 const MAX_DT = 1 / 15;
@@ -23,7 +23,7 @@ export interface EngineInfo {
 }
 
 /**
- * The single Engine. Owns the renderer, scene, camera, the one gsap.ticker loop with Lenis
+ * The single Engine. Owns the renderer, scene, camera, and its frame inside the one loop in motion/core
  * inside it, the one resize path, visibility, context loss, and disposal.
  * Created once per session (module singleton in boot.ts), never per page.
  */
@@ -31,7 +31,7 @@ export class Engine implements EngineContext {
   readonly renderer: WebGLRenderer;
   readonly scene = new Scene();
   readonly camera: PerspectiveCamera;
-  readonly lenis: Lenis | null;
+  private readonly core: MotionCore;
   readonly quality: Quality;
   readonly info: EngineInfo = {
     calls: 0,
@@ -67,8 +67,9 @@ export class Engine implements EngineContext {
   /** Registered once so removal works; never recreated per frame. */
   private readonly handlers: Array<[EventTarget, string, EventListener]> = [];
 
-  constructor(host: HTMLElement) {
+  constructor(host: HTMLElement, core: MotionCore) {
     this.host = host;
+    this.core = core;
     this.canvas = document.createElement('canvas');
     this.canvas.setAttribute('aria-hidden', 'true');
     this.canvas.tabIndex = -1;
@@ -78,7 +79,8 @@ export class Engine implements EngineContext {
     this.quality = new Quality(window.devicePixelRatio || 1, coarse);
 
     this.renderer = Engine.createRenderer(this.canvas, this.quality.pixelRatio);
-    this.renderer.setClearColor(new Color(CLEAR), 1);
+    // Transparent: the layer floats over the page and draws only cards and plates.
+    this.renderer.setClearColor(new Color(CLEAR), 0);
 
     this.nextWidth = host.clientWidth || window.innerWidth;
     this.nextHeight = host.clientHeight || window.innerHeight;
@@ -99,15 +101,6 @@ export class Engine implements EngineContext {
       reducedMotion: this.motionQuery.matches,
     };
 
-    // Lenis runs inside the one ticker (autoRaf: false). It honors reduced motion itself.
-    this.lenis = new Lenis({
-      autoRaf: false,
-      lerp: 0.11,
-      smoothWheel: true,
-      syncTouch: false,
-      respectReducedMotion: true,
-      anchors: false,
-    });
 
     this.tickFn = (time, deltaMs) => this.tick(time, deltaMs);
 
@@ -146,12 +139,14 @@ export class Engine implements EngineContext {
     const renderer = new WebGLRenderer({
       canvas,
       antialias: pixelRatio < 2,
-      alpha: false,
+      alpha: true,
       stencil: false,
       powerPreference: 'high-performance',
       preserveDrawingBuffer: false,
     });
     renderer.setPixelRatio(pixelRatio);
+    // Neutral tone mapping keeps glossy highlights from clipping; DOM-matched passes opt out (toneMapped: false).
+    renderer.toneMapping = NeutralToneMapping;
     // Two passes per frame (field, then covers): counters are reset once per frame by the Engine.
     renderer.info.autoReset = false;
     return renderer;
@@ -168,14 +163,13 @@ export class Engine implements EngineContext {
     this.running = true;
     this.resizeObserver.observe(this.host);
     this.intersectionObserver.observe(this.host);
-    gsap.ticker.lagSmoothing(0);
-    gsap.ticker.add(this.tickFn);
+    this.core.addFrame(this.tickFn);
   }
 
   stop(): void {
     if (!this.running) return;
     this.running = false;
-    gsap.ticker.remove(this.tickFn);
+    this.core.removeFrame(this.tickFn);
   }
 
   invalidate(): void {
@@ -183,22 +177,10 @@ export class Engine implements EngineContext {
   }
 
   scrollTo(target: number | HTMLElement, immediate = false): void {
-    if (this.lenis) {
-      this.lenis.scrollTo(target, { immediate: immediate || this.input.reducedMotion, force: true });
-    } else if (typeof target === 'number') {
-      window.scrollTo({ top: target, behavior: immediate ? 'instant' : 'smooth' });
-    } else {
-      target.scrollIntoView({ behavior: immediate ? 'instant' : 'smooth' });
-    }
+    this.core.scrollTo(target, immediate);
   }
 
   mount(doc: Document): void {
-    // The router replaced the document body: resync Lenis to the native position and new height.
-    if (this.lenis) {
-      this.lenis.resize();
-      this.lenis.scrollTo(window.scrollY, { immediate: true, force: true });
-      this.lenis.start();
-    }
     for (const part of this.parts) part.mount(doc);
     this.pendingResize = true;
     this.dirty = true;
@@ -206,7 +188,6 @@ export class Engine implements EngineContext {
 
   unmount(): void {
     for (const part of this.parts) part.unmount();
-    this.lenis?.stop();
   }
 
   // ---------- the frame ----------
@@ -218,14 +199,12 @@ export class Engine implements EngineContext {
       input.dt = Math.min(deltaMs / 1000, MAX_DT);
       input.time = time;
 
-      // 1. Lenis step.
-      if (this.lenis && !this.hidden) this.lenis.raf(time * 1000);
-
+      // 1. Lenis already stepped in motion/core before this subscriber runs.
       if (this.hidden) return;
 
       // 2. Read scroll and pointer (values only, no layout reads).
-      input.scroll = this.lenis ? this.lenis.scroll : window.scrollY;
-      input.velocity = this.lenis && !input.reducedMotion ? this.lenis.velocity : 0;
+      input.scroll = motion.scroll;
+      input.velocity = input.reducedMotion ? 0 : motion.velocity;
 
       // 3. The one resize path.
       if (this.pendingResize) this.applyResize();
@@ -278,7 +257,6 @@ export class Engine implements EngineContext {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
-    this.lenis?.resize();
     for (const part of this.parts) part.resize(w, h);
     this.dirty = true;
   }
@@ -335,10 +313,7 @@ export class Engine implements EngineContext {
 
   private onVisibility(): void {
     this.hidden = document.visibilityState === 'hidden';
-    if (this.hidden) {
-      this.lenis?.stop();
-    } else {
-      this.lenis?.start();
+    if (!this.hidden) {
       this.lastRenderTime = -1;
       this.dirty = true;
     }
@@ -381,7 +356,6 @@ export class Engine implements EngineContext {
     this.handlers.length = 0;
     for (const part of this.parts) part.dispose();
     this.parts = [];
-    this.lenis?.destroy();
     this.renderer.dispose();
     this.canvas.remove();
   }

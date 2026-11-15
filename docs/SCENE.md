@@ -1,78 +1,56 @@
-# SCENE.md: Kinetic Field
+# SCENE.md: Glass Deck
 
-The 3D world for the site. Contract files win on any conflict: `DESIGN.md` (look, bans, budgets) and `ARCHITECTURE.md` section 8 (technical shape).
+The 3D world and the scroll story. Contract files win on any conflict: `DESIGN.md` (look, bans, budgets) and `ARCHITECTURE.md` section 8 (technical shape).
 
 ## Concept
 
-Ahmad is an engineer who ships working systems, and this site is front-end engineering work in its own right. So the world is an instrument rather than an illustration: a field of machined pins that holds a relief, like a pin-art screen. People can touch it, and it changes shape as they move through the site.
+A portfolio is a deck of finished work, so the hero object is a deck: one glossy card per featured project. Each card carries its project's generative relief in its own finish (obsidian, porcelain, vermilion, graphite, pearl). The same relief and finish appear on that project's stacking card and case-study cover, so a visitor meets one object three times and recognizes it each time.
 
-- The home page relief is a calm swell.
-- Each featured project has its own relief, and the case-study page morphs the field into it. The same relief appears on that project's cover, so a visitor connects the cover, the page, and the field.
-- The canvas persists across navigation (`transition:persist`), so the morph between reliefs is the page transition.
+Reliefs and finishes are visual identity only. They make no claim about the projects.
 
-The patterns are visual identity only. They make no claim about the projects.
+## The home story, beat by beat
 
-| Id | Name     | Where                 | Shape                                                        |
-| -- | -------- | --------------------- | ------------------------------------------------------------ |
-| 0  | swell    | Home                  | Long dunes with a fine ridge across them                     |
-| 1  | merge    | Shocodoc              | Two wave trains crossing into one lattice                    |
-| 2  | query    | DocuChat AI           | One sharp peak with rings fading outward                     |
-| 3  | sources  | Xiomara               | Three ripple origins overlapping                             |
-| 4  | waveform | Voice Transfer System | A signal band that steps to a new line partway across        |
-| 5  | strata   | MagicalBook.Store     | A dome cut into flat terraces, like stacked pages            |
-| 6  | terrace  | Contact, other work   | Seeded noise in stepped levels                               |
-| 7  | drift    | About, 404            | Seeded noise stretched into long drifts                      |
-| 8  | lattice  | Work index            | A soft grid of cells                                         |
+| Scroll through the hero | Deck                                                | Page                                                   |
+| ----------------------- | --------------------------------------------------- | ------------------------------------------------------ |
+| Load (time, once)       | Cards fly up from below and settle into a stack     | The name rises letter by letter; lead and actions fade up |
+| 0 to 38 percent         | The stack opens into a fan facing the viewer        | Copy drifts up and fades                               |
+| 40 to 78 percent        | The fan lines up into a row; the camera pulls back  | Nothing competes with the row                          |
+| 72 to 100 percent       | The row holds                                       | The whole scene recedes into a framed window           |
+| Next section rises      | The deck lifts out of the frame                     | The statement slides over; its words light up          |
 
-## Camera path
+Then the night chapter: full-width cards stack, each settling back, tilting, and dimming as the next slides over. Then a sideways practice track, the about block, and the closing call to action.
 
-- Perspective camera, 32 degree vertical field of view, looking down at the field at about 34 degrees.
-- On the home hero the field fills the lower 60 percent of the viewport. On wide screens the field mesh shifts right, so its mass sits beside the heading.
-- Scrolling through the hero dollies the camera forward and tilts it down while field heights scale toward zero. By the end of the hero the field reads as a faint floor under the content.
-- A small damped parallax follows the pointer. It is off under reduced motion.
-- Other pages use the same rig with their own pattern, inside a stage band at the top of the page.
+## Camera
 
-## Signature interaction
+Perspective, 30 degree vertical field of view, looking at the origin from the positive z axis. Distance 11 at rest, up to 23 when the row forms (22 on portrait screens). The group tilts up to about 7 degrees toward the pointer, damped.
 
-The pointer ray hits the field plane analytically. Every 0.35 world units of pointer travel adds a ripple impulse to a ring buffer of 6. Each impulse is a ring wave that travels out and decays over about 2 seconds. Pins inside a small radius around the pointer lift and take the accent color on their top faces, which is the only accent in the scene. (Lifting, not pressing: pressed tops hide behind their neighbors at this camera angle.) Touch devices get one impulse per tap instead of hover.
+## Interaction
 
-## Covers
-
-Each `[data-plate]` figure gets a plane in an orthographic overlay pass, sized in CSS pixels to its DOM box.
-
-- The fragment shader evaluates the project's height function. It shades the relief from gradients taken by finite differences, and draws hairline contours every 0.08 of height.
-- Hover: a ripple from the pointer position inside the cover, and a perspective tilt of up to 6 degrees toward the pointer.
-- Scroll: the plane bends along its height in proportion to Lenis velocity, clamped, and damped back to flat.
+- The pointer over a card lifts it toward the viewer (raycast on pointer move only, against 5 meshes).
+- Plates tilt in perspective toward the pointer, carry a sheen band that follows it, and ripple where pressed.
+- Static plates bend with scroll velocity on tier 1.
+- Magnetic pull on the primary button, the giant call to action, and the next-project link.
+- Work index: a live plate follows the pointer and takes the relief and finish of the row under it.
 
 ## Assets
 
-No downloaded models or textures. Everything is procedural.
+No downloaded models, textures, or HDR files.
 
-| Asset                    | Source                               | Triangles                | Draw calls |
-| ------------------------ | ------------------------------------ | ------------------------ | ---------- |
-| Pin                      | `BoxGeometry`, base moved to y = 0   | 12                       |            |
-| Field, tier 1            | 104 x 64 = 6,656 instances           | 79,872                   | 1          |
-| Field, tier 2            | 64 x 40 = 2,560 instances            | 30,720                   | 1          |
-| Cover plane              | `PlaneGeometry(1, 1, 32, 24)` shared | 1,536 each               | 1 each     |
-| Covers on screen, worst  | 8                                    | 12,288                   | 8          |
-| **Worst case, tier 1**   |                                      | **about 92,000**         | **9**      |
+| Asset          | Source                                            | Triangles        | Draw calls  |
+| -------------- | ------------------------------------------------- | ---------------- | ----------- |
+| Card           | `RoundedBoxGeometry(3.2, 2, 0.07, 5, 0.11)`       | about 2,500      | 1 each      |
+| Card face      | Render target from the pattern shader, 1024 x 640 | 0                | 0 per frame |
+| Reflections    | `RoomEnvironment` prefiltered by `PMREMGenerator` | 0                | 0 per frame |
+| Plate          | `PlaneGeometry(1, 1, 32, 24)`, shared             | 1,536 each       | 1 each      |
+| **Worst case** | 5 cards and 6 plates                              | **about 22,000** | **11**      |
 
-Budget: under 150,000 triangles and under 80 draw calls.
+## Lighting and finish
 
-## Lighting
-
-There are no light objects and no shadow maps. The field shader computes:
-
-- Key light from the upper left (fixed direction), Lambert term, wrapped so faces in shadow keep detail.
-- Hemisphere fill: tops lighter than sides.
-- Occlusion by height: the low parts of a pin read darker, so valleys gain depth.
-- Distance fog toward `#E3E4E2`, so the field dissolves into the page instead of ending on a hard edge.
-
-Output colors stay between `#E8E9E7` and `#B9BDBA`. Content text sits on solid ground where it could overlap the field.
+`MeshPhysicalMaterial` with a clear coat (roughness 0.14) over a body with roughness 0.32, lit only by the prefiltered studio environment. Neutral tone mapping keeps highlights from clipping. DOM-matched plates opt out of tone mapping, so their colors match CSS exactly.
 
 ## Mobile and weak devices
 
-- Coarse pointer or narrow screen: tier 2 grid, pixel ratio capped at 1.5, cover bend off, and one tap ripple instead of hover ripples.
-- Slow first two seconds (median frame over 22 ms): drop to tier 2. Sustained frames over the budget lower the pixel ratio step by step.
-- Reduced motion: a static relief per page, instant morphs, no ripples, tilt, or bend.
-- No WebGL2, save-data, `?world=off`, or a second context loss: SVG line reliefs for the poster and covers.
+- Portrait: the deck sits below the copy, smaller. The row becomes a vertical cascade with a deeper pull-back.
+- Tier 2: bevel 3, card art at 512 x 320, no plate bend.
+- Reduced motion: one-screen hero, deck at rest, no scrubbing, tilt, bend, or magnetic pull.
+- No WebGL: CSS 3D fallback cards with SVG reliefs in the hero, and SVG reliefs in every plate.

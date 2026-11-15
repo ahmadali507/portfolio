@@ -1,80 +1,111 @@
 ---
 import Base from '@/layouts/Base.astro';
-import WorkLedger from '@/components/WorkLedger.astro';
-import FeaturedWork from '@/components/FeaturedWork.astro';
+import SplitWords from '@/components/SplitWords.astro';
+import Todo from '@/components/Todo.astro';
 import { DRAFT_PREVIEW } from '@/config/site';
-import { visibleProjects } from '@/lib/projects';
+import { patternFor, seedFor, STATUS_LABEL, toneForProject, visibleProjects } from '@/lib/projects';
 
-const { featured, others, all } = await visibleProjects();
+const { featured, all } = await visibleProjects();
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <Base
   page="work"
-  pattern={8}
-  seed={0.2}
   title="Work"
   description="Projects by Ahmad: AI systems, full-stack SaaS, mobile apps, and automation work for clients."
 >
   <div class="page">
-    <header class="head" data-world-stage>
-      <div class="head-text" data-world-zone>
-        <p class="label">Index / {all.length} projects</p>
-        <h1>Work</h1>
-        <p class="lead">
-          AI systems, SaaS products, mobile apps, and automation, built for clients and for
-          research.
-        </p>
-        {DRAFT_PREVIEW && (
-          <p class="note label">
-            <span class="placeholder-flag">Draft preview</span> Project names are real. Anything
-            marked TODO is a placeholder until it is confirmed.
+    <header class="head">
+      <p class="label enter" style="--d:100ms">Index / {pad(all.length)} projects</p>
+      <h1 class="giant" aria-label="Work">
+        <span class="line" aria-hidden="true">
+          {[...'Work'].map((c, i) => <span class="ch" style={`--i:${i}`}>{c}</span>)}
+        </span>
+      </h1>
+      <p class="lead enter" style="--d:500ms">
+        AI systems, SaaS products, mobile apps, and automation, built for clients and for research.
+      </p>
+      {
+        DRAFT_PREVIEW && (
+          <p class="note enter" style="--d:650ms">
+            <span class="placeholder-flag">Draft preview</span> Project names are real. Anything marked TODO is a
+            placeholder until it is confirmed.
           </p>
-        )}
-      </div>
+        )
+      }
     </header>
 
-    {all.length === 0 ? (
-      <p class="empty ground">No projects are approved for publication yet.</p>
-    ) : (
-      <>
-        {featured.length > 0 && (
-          <section class="group" aria-labelledby="featured-title">
-            <h2 id="featured-title" class="label">
-              Featured
-            </h2>
-            <FeaturedWork projects={featured} />
-          </section>
-        )}
-        {others.length > 0 && (
-          <section class="group ground" aria-labelledby="others-title">
-            <h2 id="others-title" class="label">
-              More projects
-            </h2>
-            <WorkLedger projects={others} start={featured.length + 1} />
-          </section>
-        )}
-      </>
-    )}
+    {
+      all.length === 0 ? (
+        <p class="empty">No projects are approved for publication yet.</p>
+      ) : (
+        <section aria-labelledby="index-title" class="index">
+          <SplitWords as="h2" id="index-title" text="All projects" class="label index-title" />
+          <ol class="rows" role="list" data-peek-list>
+            {all.map((p, i) => {
+              const d = p.data;
+              const tone = toneForProject(p, featured);
+              return (
+                <li
+                  data-peek-row
+                  data-pattern={patternFor(p)}
+                  data-seed={seedFor(p).toFixed(3)}
+                  data-base={tone.base}
+                  data-line={tone.line}
+                >
+                  <a class="row" href={`/work/${p.id}/`}>
+                    <span class="idx mono">{pad(i + 1)}</span>
+                    <h3 class="title">{d.title}</h3>
+                    <span class="summary">
+                      {d.summary.value} <Todo when={d.summary.placeholder} />
+                    </span>
+                    <span class="meta mono">
+                      {STATUS_LABEL[d.status.value]} · {d.year.value} <Todo when={d.year.placeholder} />
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      )
+    }
   </div>
+
+  <!-- Live preview that follows the pointer over the rows. WebGL only; hidden otherwise. -->
+  <figure class="peek" data-plate data-plate-track data-peek aria-hidden="true">
+    <div class="frame"></div>
+  </figure>
 </Base>
 
 <style>
   .head {
     display: grid;
     align-content: end;
-    min-height: clamp(20rem, 52svh, 32rem);
-    padding-block: var(--space-8) var(--space-6);
+    min-height: clamp(26rem, 70svh, 46rem);
+    padding-block: calc(var(--header-h) + var(--space-6)) var(--space-7);
   }
 
-  .head-text {
-    max-width: 48rem;
-  }
-
-  h1 {
-    font-size: var(--text-display);
+  .giant {
+    font-size: var(--text-giant);
     font-weight: 700;
-    line-height: var(--leading-display);
+    line-height: 0.86;
+    letter-spacing: -0.04em;
     margin-block: var(--space-4) var(--space-5);
+  }
+
+  .line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+
+  .ch {
+    display: inline-block;
+  }
+
+  .lead {
+    max-width: 34ch;
   }
 
   .note {
@@ -82,24 +113,148 @@ const { featured, others, all } = await visibleProjects();
     flex-wrap: wrap;
     gap: var(--space-2);
     margin-top: var(--space-5);
-    text-transform: none;
-    letter-spacing: 0;
     font-size: var(--text-small);
-    font-family: var(--font-body);
+    color: var(--color-ink-muted);
   }
 
-  .group {
-    padding-bottom: var(--space-8);
+  .index {
+    padding-bottom: var(--space-9);
   }
 
-  .group h2 {
-    margin-bottom: var(--space-3);
+  .index :global(.index-title) {
     font-family: var(--font-mono);
     font-weight: 400;
     letter-spacing: var(--tracking-label);
+    margin-bottom: var(--space-4);
   }
 
-  .empty {
-    padding-bottom: var(--space-9);
+  .rows {
+    border-top: var(--rule-strong);
+  }
+
+  .rows li {
+    border-bottom: var(--hairline);
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-1) var(--space-4);
+    padding-block: var(--space-5);
+    text-decoration: none;
+  }
+
+  .idx,
+  .meta {
+    color: var(--color-ink-muted);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+  }
+
+  .idx {
+    padding-top: 0.6em;
+  }
+
+  .title {
+    font-size: clamp(2rem, 5.5vw, 5rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    transition:
+      transform 600ms var(--ease-expo),
+      color var(--dur-med) var(--ease-out);
+  }
+
+  .summary,
+  .meta {
+    grid-column: 2;
+  }
+
+  .summary {
+    color: var(--color-ink-muted);
+    max-width: 44ch;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
+  }
+
+  .meta {
+    display: flex;
+    gap: var(--space-2);
+    align-items: baseline;
+    white-space: nowrap;
+  }
+
+  /* The underline grows from the left on hover and focus. */
+  .row::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--color-ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 700ms var(--ease-expo);
+  }
+
+  @media (hover: hover) {
+    .row:hover .title {
+      transform: translateX(0.18em);
+    }
+
+    .row:hover::after {
+      transform: scaleX(1);
+    }
+
+    /* The other titles step back so the hovered one leads. */
+    .rows:hover .row:not(:hover) .title {
+      color: var(--color-ink-muted);
+    }
+  }
+
+  .row:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  @media (min-width: 56rem) {
+    .row {
+      grid-template-columns: 3.5rem minmax(0, 1.4fr) minmax(0, 1fr) 12rem;
+      align-items: baseline;
+      gap: var(--space-5);
+    }
+
+    .summary,
+    .meta {
+      grid-column: auto;
+    }
+
+    .meta {
+      justify-content: flex-end;
+    }
+  }
+
+  /* ---------- live preview ---------- */
+  .peek {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 14;
+    width: min(26vw, 22rem);
+    margin: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .peek .frame {
+    aspect-ratio: 16 / 10;
+    border-radius: 1rem;
+  }
+
+  :global(html:not([data-plates='live'])) .peek {
+    display: none;
   }
 </style>

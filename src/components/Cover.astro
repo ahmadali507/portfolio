@@ -1,25 +1,29 @@
 ---
-// Project cover. With WebGL, the engine draws a shaded relief plane exactly over this box
-// (data-plate) that tilts toward the pointer, ripples on hover, and bends with scroll speed.
+// Project cover. With WebGL, the overlay layer draws a glossy relief plate exactly over this box
+// (data-plate): it tilts toward the pointer, ripples on press, and bends with scroll speed.
 // Without WebGL, the SVG relief inside is the cover. Generated, never stock or AI imagery.
 import Relief from './Relief.astro';
+import type { Tone } from '@/lib/tones';
 
 interface Props {
   title: string;
   pattern: number;
   seed: number;
+  tone: Tone;
   size?: 'feature' | 'hero';
-  eager?: boolean;
 }
-const { title, pattern, seed, size = 'feature' } = Astro.props;
+const { title, pattern, seed, tone, size = 'feature' } = Astro.props;
 ---
 
 <figure
   class:list={['cover', size]}
   data-plate
+  data-plate-host
   data-pattern={pattern}
   data-seed={seed.toFixed(3)}
-  data-world-anchor={`cover-${pattern}`}
+  data-base={tone.base}
+  data-line={tone.line}
+  style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}
 >
   <div class="frame">
     <Relief pattern={pattern} seed={seed} label={`Generative relief cover for ${title}. Not a screenshot.`} />
@@ -37,20 +41,15 @@ const { title, pattern, seed, size = 'feature' } = Astro.props;
     position: relative;
     aspect-ratio: 16 / 10;
     overflow: hidden;
-    background: var(--color-surface);
-    --relief-bg: var(--color-surface);
-    transition: opacity 500ms var(--ease-out);
+    border-radius: var(--radius-card);
+    background: var(--relief-bg);
   }
 
   .hero .frame {
     aspect-ratio: 21 / 9;
   }
 
-  /* Live: the WebGL plane draws here, so the box turns into a clear window onto the canvas. */
-  :global(html[data-plates='live']) .frame {
-    background: transparent;
-  }
-
+  /* Live: the WebGL plate draws over this box, so the SVG steps aside. */
   :global(html[data-plates='live']) .frame :global(.relief) {
     opacity: 0;
   }
