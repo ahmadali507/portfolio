@@ -1,0 +1,135 @@
+---
+// Featured projects: a large generative cover beside the text, alternating sides down the page.
+import Cover from './Cover.astro';
+import Todo from './Todo.astro';
+import { patternFor, seedFor, STATUS_LABEL, type Project } from '@/lib/projects';
+
+interface Props {
+  projects: Project[];
+}
+const { projects } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<ol class="featured" role="list">
+  {
+    projects.map((p, i) => {
+      const d = p.data;
+      const href = `/work/${p.id}/`;
+      const headingId = `feat-${p.id}`;
+      return (
+        <li class:list={['item', { flip: i % 2 === 1 }]}>
+          <a class="cover-link" href={href} tabindex="-1" aria-hidden="true">
+            <Cover title={d.title} pattern={patternFor(p)} seed={seedFor(p)} />
+          </a>
+          <div class="text ground">
+            <p class="label">
+              {pad(i + 1)} / {STATUS_LABEL[d.status.value]} <Todo when={d.status.placeholder} />
+            </p>
+            <h3 id={headingId}>
+              <a href={href}>{d.title}</a>
+            </h3>
+            <p class="summary">
+              {d.summary.value} <Todo when={d.summary.placeholder} />
+            </p>
+            <p class="meta mono">
+              {d.stack.value.slice(0, 4).join(' / ')} <Todo when={d.stack.placeholder} />
+            </p>
+            <a class="more mono" href={href} aria-hidden="true" tabindex="-1">
+              Case study <span class="arrow">→</span>
+            </a>
+          </div>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .featured {
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .item {
+    display: grid;
+    gap: var(--space-4);
+    align-items: center;
+  }
+
+  .cover-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  .text {
+    padding-top: var(--space-4);
+    border-top: var(--rule-strong);
+  }
+
+  h3 {
+    font-size: var(--text-h2);
+    line-height: var(--leading-display);
+    margin-block: var(--space-3);
+  }
+
+  h3 a {
+    text-decoration: none;
+    background-image: linear-gradient(var(--color-trace), var(--color-trace));
+    background-size: 0 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--dur-med) var(--ease-out);
+  }
+
+  /* Hovering anywhere on the item underlines the title, the same cue as the cover's tilt. */
+  @media (hover: hover) {
+    .item:hover h3 a {
+      background-size: 100% 2px;
+    }
+
+    .item:hover .arrow {
+      transform: translateX(4px);
+    }
+  }
+
+  h3 a:focus-visible {
+    background-size: 100% 2px;
+  }
+
+  .summary {
+    max-width: 38ch;
+    font-size: var(--text-lead);
+    line-height: 1.35;
+  }
+
+  .meta {
+    margin-top: var(--space-4);
+    color: var(--color-ink-muted);
+  }
+
+  .more {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    min-height: 44px;
+    margin-top: var(--space-2);
+    text-decoration: none;
+  }
+
+  .arrow {
+    display: inline-block;
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+
+  @media (min-width: 56rem) {
+    .item {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: clamp(var(--space-6), 5vw, var(--space-9));
+    }
+
+    .item.flip .cover-link {
+      order: 2;
+    }
+  }
+</style>

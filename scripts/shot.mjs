@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 // shot: desktop (1440x900) and mobile (390x844) screenshots of a URL into .shots/.
-// Usage: node scripts/shot.mjs [url] [--name <prefix>] [--wait <ms>]
+// Usage: node scripts/shot.mjs [url] [--name <prefix>] [--wait <ms>] [--scroll <px|selector>] [--full]
+//   --scroll  scroll to a pixel offset or bring a CSS selector to the top before the shot.
+//   --full    capture the full page instead of the viewport.
+//   --hover   "x,y" as viewport fractions: sweep the mouse to that point just before the shot.
 // Headless Chromium with SwiftShader so WebGL works on machines without a GPU.
 
 import { mkdirSync } from 'node:fs';
@@ -17,6 +20,11 @@ const flag = (name, fallback) => {
 };
 const name = flag('--name', 'page');
 const waitMs = Number(flag('--wait', '800'));
+const scrollTo = flag('--scroll', '');
+const hover = flag('--hover', '');
+const fullIdx = argv.indexOf('--full');
+const fullPage = fullIdx >= 0;
+if (fullPage) argv.splice(fullIdx, 1);
 const url = argv[0] ?? 'http://localhost:4321/';
 const outDir = join(process.cwd(), '.shots');
 mkdirSync(outDir, { recursive: true });
@@ -68,7 +76,22 @@ try {
       console.error(`shot: ${v.label} got HTTP ${response?.status() ?? 'no response'} from ${url}`);
       failed = true;
     }
+    if (scrollTo) {
+      await page.evaluate((target) => {
+        const y = Number(target);
+        if (Number.isFinite(y)) window.scrollTo(0, y);
+        else document.querySelector(target)?.scrollIntoView({ block: 'start' });
+      }, scrollTo);
+    }
     await page.waitForTimeout(waitMs);
+    if (hover && !v.isMobile) {
+      const [fx, fy] = hover.split(',').map(Number);
+      const tx = fx * v.viewport.width;
+      const ty = fy * v.viewport.height;
+      await page.mouse.move(tx - 260, ty + 40);
+      await page.mouse.move(tx, ty, { steps: 14 });
+      await page.waitForTimeout(450);
+    }
 
     const gl = await page.evaluate(() => {
       const canvas = document.createElement('canvas');
@@ -84,7 +107,7 @@ try {
     });
 
     const file = join(outDir, `${name}-${v.label}.png`);
-    await page.screenshot({ path: file, fullPage: false });
+    await page.screenshot({ path: file, fullPage });
     console.log(`shot: ${v.label} ${v.viewport.width}x${v.viewport.height} -> ${file}`);
     console.log(`      webgl2=${gl.webgl2} renderer=${gl.renderer ?? 'n/a'}`);
     if (consoleErrors.length)

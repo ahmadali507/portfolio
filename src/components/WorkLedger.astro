@@ -1,0 +1,137 @@
+---
+// Projects as ledger rows, not cards.
+import Todo from './Todo.astro';
+import type { Project } from '@/lib/projects';
+
+interface Props {
+  projects: Project[];
+  start?: number;
+  headingLevel?: 'h3' | 'h4';
+}
+const { projects, start = 1, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<ol class="ledger" role="list">
+  {
+    projects.map((p, i) => {
+      const d = p.data;
+      return (
+        <li>
+          <a class="row" href={`/work/${p.id}/`}>
+            <span class="idx">{pad(start + i)}</span>
+            <Heading class="title">{d.title}</Heading>
+            <span class="summary">
+              {d.summary.value} <Todo when={d.summary.placeholder} />
+            </span>
+            <span class="year">
+              {d.year.value}
+              <Todo when={d.year.placeholder} />
+            </span>
+          </a>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .ledger {
+    border-top: var(--rule-strong);
+  }
+
+  li {
+    border-bottom: var(--hairline);
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-1) var(--space-3);
+    padding-block: var(--space-4);
+    text-decoration: none;
+    background: var(--color-bg);
+    transition: background-color var(--dur-fast) var(--ease-out);
+  }
+
+  /* The live mark: a trace-colored rule that grows on the active row. */
+  .row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -1px;
+    bottom: -1px;
+    width: 3px;
+    background: var(--color-trace);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+
+  .idx,
+  .year {
+    font-family: var(--font-mono);
+    font-size: var(--text-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--color-ink-muted);
+    font-variant-numeric: tabular-nums;
+    padding-top: 0.35em;
+  }
+
+  .title {
+    font-size: var(--text-h3);
+    line-height: 1.1;
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+
+  .summary {
+    grid-column: 2;
+    color: var(--color-ink-muted);
+    max-width: 48ch;
+  }
+
+  .year {
+    grid-column: 2;
+  }
+
+  .year {
+    display: flex;
+    gap: var(--space-2);
+    padding-top: 0;
+  }
+
+  @media (hover: hover) {
+    .row:hover {
+      background: var(--color-surface);
+    }
+
+    .row:hover::before {
+      transform: scaleY(1);
+    }
+  }
+
+  .row:focus-visible::before {
+    transform: scaleY(1);
+  }
+
+  @media (min-width: 56rem) {
+    .row {
+      grid-template-columns: 3rem minmax(14rem, 18rem) minmax(0, 1fr) 6.5rem;
+      align-items: baseline;
+      gap: var(--space-5);
+      padding-inline: var(--space-3);
+    }
+
+    .summary,
+    .year {
+      grid-column: auto;
+    }
+
+    .year {
+      justify-content: flex-end;
+    }
+  }
+</style>

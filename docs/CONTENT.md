@@ -18,6 +18,10 @@ The only source of facts about Ahmad for this site. Nothing outside this file ma
 | Freelance | Freelancer, Top Rated on Upwork, 38+ clients. Wording must be verified before publishing.                                                                  | Draft only |              |
 | Stack     | Next.js, React, Node.js, TypeScript, Supabase, PostgreSQL, React Native, AWS, GCP, RAG pipelines, LLM APIs, multi-agent systems, n8n, Zapier.              | Draft only |              |
 | Interests | Deep learning engineering, ML foundations, formal methods (theorem proving, SAT solvers).                                                                  | Draft only |              |
+| Interests detail | Foundations in ML mathematics and formal methods: HOL theorem proving, SAT solvers. Direction: deep learning engineering. Supplied by Ahmad on 2026-11-15. | Draft only |              |
+| Positioning | An engineer who ships AI systems into production for paying clients. Supplied by Ahmad on 2026-11-15. | Draft only |              |
+| Builds | AI systems (RAG, LLM integrations, multi-agent systems, voice agents), full-stack SaaS, mobile apps (React Native), cloud infrastructure (AWS, GCP), workflow automation (n8n, Zapier). Supplied by Ahmad on 2026-11-15. | Draft only |              |
+| Freelance history | Started as an Upwork freelancer before co-founding the agency. Supplied by Ahmad on 2026-11-15. | Draft only |              |
 
 ## Never publish
 
@@ -33,11 +37,26 @@ All candidates are unconfirmed for public display. NDA status is unknown for eve
 | Project                                                      | Public or NDA | May show name | May show screenshots | Ahmad's approval |
 | ------------------------------------------------------------ | ------------- | ------------- | -------------------- | ---------------- |
 | PRMEDIA                                                      |               |               |                      |                  |
-| MagicalBook.Store                                            |               |               |                      |                  |
-| CricPing                                                     |               |               |                      |                  |
+| MagicalBook.Store (featured): AI personalized storybooks     |               |               |                      |                  |
+| CricPing: cricket alerts                                     |               |               |                      |                  |
 | SpatioArchitect                                              |               |               |                      |                  |
-| Spiking Mamba (research proposal)                            |               |               |                      |                  |
+| Spiking Mamba (research proposal): spiking state space models for streaming intrusion detection |               |               |                      |                  |
 | Membership signup and Cloudflare Worker integration (client) |               |               |                      |                  |
+| Shocodoc (featured): CRDT collaborative editor |               |               |                      |                  |
+| DocuChat AI (featured): RAG document Q&A |               |               |                      |                  |
+| Xiomara (featured): multilingual AI content platform |               |               |                      |                  |
+| Voice Transfer System (featured): live call transfer with answering-machine detection on Telnyx |               |               |                      |                  |
+| Prepify: AI mock interviews |               |               |                      |                  |
+| Scrape-Stripe: GCP ETL pipeline |               |               |                      |                  |
+| AI Interviewer: React Native app |               |               |                      |                  |
+| EAPO: React Native app |               |               |                      |                  |
+| OrderlyFlow: React Native app |               |               |                      |                  |
+| Tax-Lens: no summary supplied |               |               |                      |                  |
+| CARTX: no summary supplied |               |               |                      |                  |
+| SearchX: no summary supplied |               |               |                      |                  |
+| Waynna: no summary supplied |               |               |                      |                  |
+
+Project names and one-line summaries above were supplied by Ahmad on 2026-11-15. Every other project detail on the site (role, year, problem, outcome, stack, links, imagery) is dummy data marked `placeholder: true` in `src/content/projects/`. Approve a project by writing "Approved" and a date in its last column.
 
 ## Open TODOs
 
@@ -45,3 +64,6 @@ All candidates are unconfirmed for public display. NDA status is unknown for eve
 - TODO: exact Upwork wording and whether the client count may be shown.
 - TODO: public links (GitHub, LinkedIn, Upwork, email) and which of them may appear.
 - TODO: NDA status for every candidate project.
+- TODO: real role, year, problem, outcome, stack, and links for every project.
+- TODO: one-line summaries for Tax-Lens, CARTX, SearchX, and Waynna.
+- TODO: production domain.

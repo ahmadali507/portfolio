@@ -1,20 +1,20 @@
 ---
 // Static poster for the world: shown first, kept when WebGL is unavailable or fails.
-// Step 1 shell: a hairline plan drawing of the request path. Decorative, so it carries no text.
+// The home relief drawn as lines over the lower part of the screen. Decorative.
+import Relief from './Relief.astro';
 ---
 
-<svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="presentation" focusable="false">
-  <g fill="none" stroke="var(--color-rule)" stroke-width="1">
-    <path d="M820 120 C1010 150 1180 230 1150 360 C1120 490 900 470 900 590 C900 700 1120 720 1300 800"></path>
-    <path d="M832 108 C1025 140 1196 222 1164 362 C1132 502 914 482 914 590 C914 690 1130 708 1310 786"></path>
-  </g>
-  <g fill="var(--color-surface)" stroke="var(--color-ink-muted)" stroke-width="1">
-    <rect x="808" y="96" width="40" height="40"></rect>
-    <rect x="1040" y="178" width="40" height="40"></rect>
-    <rect x="1140" y="300" width="40" height="40"></rect>
-    <rect x="1010" y="440" width="40" height="40"></rect>
-    <rect x="886" y="560" width="40" height="40"></rect>
-    <rect x="1050" y="690" width="40" height="40"></rect>
-    <rect x="1270" y="770" width="40" height="40"></rect>
-  </g>
-</svg>
+<div class="poster-relief">
+  <Relief pattern={0} width={1440} height={620} lines={34} />
+</div>
+
+<style>
+  .poster-relief {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 62%;
+    --relief-ink: var(--color-rule);
+  }
+</style>

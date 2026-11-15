@@ -1,0 +1,10 @@
+---
+// Visible marker next to dummy or unconfirmed content. `npm run prelaunch` fails while any remain.
+interface Props {
+  when?: boolean;
+  text?: string;
+}
+const { when = true, text = 'TODO' } = Astro.props;
+---
+
+{when && <span class="placeholder-flag" title="Placeholder content, to be replaced before launch">{text}</span>}

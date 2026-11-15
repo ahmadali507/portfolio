@@ -1,11 +1,324 @@
 ---
 import Base from '@/layouts/Base.astro';
-import { FULL_NAME, PERSON } from '@/config/site';
+import FeaturedWork from '@/components/FeaturedWork.astro';
+import Todo from '@/components/Todo.astro';
+import { CONTACT, FULL_NAME, PERSON } from '@/config/site';
+import { visibleProjects } from '@/lib/projects';
+
+const { featured, all } = await visibleProjects();
+const email = CONTACT.find((c) => c.label === 'Email');
+
+const builds = [
+  {
+    area: 'AI systems',
+    items: 'RAG pipelines, LLM integrations, multi-agent systems, voice agents',
+  },
+  { area: 'Full-stack SaaS', items: 'Next.js, React, Node.js, TypeScript, Supabase, PostgreSQL' },
+  { area: 'Mobile apps', items: 'React Native' },
+  { area: 'Cloud', items: 'AWS, GCP' },
+  { area: 'Automation', items: 'n8n, Zapier' },
+];
 ---
 
-<Base page="home">
-  <section class="page">
-    <h1>{FULL_NAME}</h1>
-    <p class="lead">{PERSON.positioning}</p>
+<Base page="home" pattern={0}>
+  <section class="hero page" aria-labelledby="hero-title" data-world-anchor="hero" data-world-stage>
+    <div class="hero-text" data-world-zone>
+      <p class="label">
+        {PERSON.role} / {PERSON.location}
+      </p>
+      <h1 id="hero-title">{FULL_NAME}</h1>
+      <p class="lead">{PERSON.positioning}</p>
+      <p class="intro">
+        {PERSON.companyLine} {PERSON.companyRole}
+      </p>
+    </div>
+
+    <div class="hero-foot">
+      <p class="hint label" aria-hidden="true" data-hint>
+        Move the pointer across the field
+      </p>
+      <dl class="titleblock ground" aria-label="Summary">
+        <div>
+          <dt class="label">Agency</dt>
+          <dd>{PERSON.company}, co-founder</dd>
+        </div>
+        <div>
+          <dt class="label">Freelance</dt>
+          <dd>
+            Top Rated on Upwork, 38+ clients <Todo text="Verify wording" />
+          </dd>
+        </div>
+        <div>
+          <dt class="label">Study</dt>
+          <dd>BS Software Engineering, NUST, 2026</dd>
+        </div>
+        <div>
+          <dt class="label">Direction</dt>
+          <dd>Deep learning engineering</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="work page" aria-labelledby="work-title" data-world-anchor="work">
+    <div class="section-head ground">
+      <p class="label">Selected work</p>
+      <h2 id="work-title">Systems that went out to clients</h2>
+      <a class="mono all" href="/work/">
+        All {all.length} projects <span aria-hidden="true">→</span>
+      </a>
+    </div>
+    <FeaturedWork projects={featured} />
+  </section>
+
+  <section class="builds page ground" aria-labelledby="builds-title">
+    <div>
+      <p class="label">Practice</p>
+      <h2 id="builds-title">What I build</h2>
+    </div>
+    <dl class="build-list">
+      {builds.map((b, i) => (
+        <div>
+          <dt>
+            <span class="label n">{String(i + 1).padStart(2, '0')}</span>
+            {b.area}
+          </dt>
+          <dd class="mono">{b.items}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="split page ground" aria-labelledby="about-title">
+    <h2 id="about-title">About</h2>
+    <div class="split-body">
+      <p class="measure">
+        I am a software engineer in Islamabad and a co-founder of {PERSON.company}. I started on
+        Upwork as a freelancer, then helped build an agency around the same work. {PERSON.direction}
+      </p>
+      <p>
+        <a href="/about/">More about my background</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="split page ground" aria-labelledby="contact-title">
+    <h2 id="contact-title">Contact</h2>
+    <div class="split-body">
+      <p class="measure">
+        If you have a system that needs to reach production, send a short note about it.
+      </p>
+      {email && (
+        <p class="mail">
+          <a href={email.href}>{email.handle}</a> <Todo when={email.placeholder} />
+        </p>
+      )}
+    </div>
   </section>
 </Base>
+
+<style>
+  /* ---------- hero: the text sits over open space; the field fills the lower part ---------- */
+  .hero {
+    display: grid;
+    grid-template-rows: auto minmax(16rem, 1fr) auto;
+    min-height: calc(100svh - var(--header-h));
+    padding-block: clamp(var(--space-6), 8vh, var(--space-8)) var(--space-5);
+  }
+
+  .hero-text {
+    max-width: 46rem;
+  }
+
+  h1 {
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: var(--leading-display);
+    margin-block: var(--space-4) var(--space-5);
+  }
+
+  .lead {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    max-width: 24ch;
+  }
+
+  .intro {
+    margin-top: var(--space-4);
+    color: var(--color-ink-muted);
+    max-width: 46ch;
+  }
+
+  .hero-foot {
+    grid-row: 3;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .hint {
+    justify-self: end;
+    padding: var(--space-1) var(--space-2);
+    background: var(--color-bg);
+  }
+
+  @media (hover: none) {
+    .hint {
+      display: none;
+    }
+  }
+
+  /* Title block: the corner table of an engineering drawing. */
+  .titleblock {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: var(--rule-strong);
+  }
+
+  .titleblock div {
+    padding: var(--space-3) var(--space-3) var(--space-3) 0;
+    border-bottom: var(--hairline);
+  }
+
+  .titleblock div:nth-child(odd) {
+    border-right: var(--hairline);
+  }
+
+  .titleblock div:nth-child(even) {
+    padding-left: var(--space-3);
+  }
+
+  .titleblock dd {
+    margin-top: var(--space-1);
+    font-size: var(--text-small);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
+  }
+
+  @media (min-width: 56rem) {
+    .titleblock {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .titleblock div {
+      border-right: var(--hairline);
+      padding-left: var(--space-3);
+    }
+
+    .titleblock div:first-child {
+      padding-left: 0;
+    }
+
+    .titleblock div:last-child {
+      border-right: 0;
+    }
+  }
+
+  /* ---------- work ---------- */
+  .work {
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  .section-head {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-7);
+    max-width: 52rem;
+  }
+
+  h2 {
+    font-size: var(--text-h2);
+  }
+
+  .all {
+    justify-self: start;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* ---------- builds ---------- */
+  .builds {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-8);
+    border-top: var(--hairline);
+  }
+
+  .builds h2 {
+    margin-top: var(--space-3);
+  }
+
+  .build-list {
+    border-top: var(--rule-strong);
+  }
+
+  .build-list div {
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    padding-block: var(--space-4);
+    border-bottom: var(--hairline);
+  }
+
+  .build-list dt {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    line-height: 1.1;
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+  }
+
+  .build-list dd {
+    margin: 0;
+    color: var(--color-ink-muted);
+  }
+
+  @media (min-width: 56rem) {
+    .builds {
+      grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+      gap: clamp(var(--space-6), 4vw, var(--space-8));
+    }
+
+    .build-list div {
+      grid-template-columns: minmax(14rem, 1fr) minmax(0, 1.4fr);
+      align-items: baseline;
+    }
+  }
+
+  /* ---------- about, contact ---------- */
+  .split {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-7);
+    border-top: var(--hairline);
+  }
+
+  .split-body {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .mail {
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 600;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 56rem) {
+    .split {
+      grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+      gap: clamp(var(--space-6), 4vw, var(--space-8));
+    }
+  }
+</style>

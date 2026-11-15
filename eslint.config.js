@@ -17,6 +17,7 @@ export default [
         URL: 'readonly',
         Buffer: 'readonly',
         document: 'readonly',
+        window: 'readonly',
       },
     },
   },

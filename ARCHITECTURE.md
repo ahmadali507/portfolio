@@ -29,7 +29,7 @@ Technical contract for the site. Every decision here has a reason and a cost. Ch
 
 ## 2. Engine, loop, scroll, resize
 
-- **One Engine class** owns the renderer, scene, camera, clock, resize, visibility, and context-loss handling. Subsystems (`World`, `CameraRig`, `ScrollSync`, `Assets`) are plain classes the Engine composes.
+- **One Engine class** owns the renderer, scene, camera, clock, resize, visibility, and context-loss handling. Subsystems (`Field`, `Covers`) are plain classes implementing `WorldPart` that the Engine composes.
 - **One loop.** `gsap.ticker` is the only `requestAnimationFrame` source. The Engine registers one callback with `gsap.ticker.add`. No other code calls `requestAnimationFrame`.
 - **Lenis inside the ticker.** Lenis is created with `autoRaf: false`. The ticker callback calls `lenis.raf(time * 1000)`, then updates scroll-driven state, then renders. `gsap.ticker.lagSmoothing(0)` keeps scroll and render in step after a long frame. If ScrollTrigger is added later, `lenis.on('scroll', ScrollTrigger.update)` wires it in; ScrollTrigger is not installed yet.
 - **Frame order:** Lenis step, read scroll and pointer, damp state toward targets with frame delta, update uniforms and camera, render (only if something changed or an animation is active).
@@ -87,38 +87,33 @@ These are starting targets. They are measured, not assumed, at the first milesto
 - `scripts/`: verification tooling (`slop-check`, `asset-budget`, `shot`).
 - `.claude/skills/`: vendored agent skills, pinned in `.claude/skills.lock.json`.
 
-## 8. Direction A (Request Path): technical shape
+## 8. Kinetic Field: technical shape
 
-Chosen at Gate 2 on 2026-11-15. See `DESIGN.md` section 1.
+Adopted on 2026-11-15, replacing Direction A (Request Path). See `DESIGN.md` section 1 and `docs/SCENE.md`.
 
 **Scene structure.**
 
-- `Track`: one `CatmullRomCurve3` path baked at build time into a sampled lookup table (positions, tangents, cumulative length). The track mesh is a single extruded, merged geometry with a baked lightmap.
-- `Station` (one per stage, at most 8 on the main track): a compressed GLB with baked lighting on `MeshBasicMaterial`. Repeated details (bolts, rails, rib supports) are `InstancedMesh`.
-- `Packet`: one small mesh plus a short trail drawn as a single `Line2` or a ribbon in a custom shader. Position comes from the lookup table, never from per-frame curve evaluation.
-- `Branch` (side track per approved case study): loaded only when its case study page or its hover target is reached.
-- No WebGL text. Every label is DOM, positioned through the anchor system in section 3.
+- `Field` (`src/engine/world/Field.ts`): one `InstancedMesh` of square pins on a regular grid, one `ShaderMaterial`. Pin height is computed in the vertex shader from the pattern functions in `src/engine/shaders/patterns.ts` (the GLSL twin of `src/lib/patterns.ts`). Two pattern slots (`uFrom`, `uTo`) and a damped `uMix` morph between pages. Per-instance data is one static `vec2` grid coordinate; nothing is uploaded per frame except uniforms.
+- Ripples: a fixed ring buffer of 6 impulses (`vec4` position, start time, strength) in a uniform array. The pointer is intersected analytically with the field plane (no raycast over instances). A new impulse is added after the pointer travels a set distance on the plane.
+- Shading: a fixed key direction and a hemisphere fill computed in the shader, plus a height-based occlusion term and distance fog toward `--color-bg`. No light objects, no shadow maps. Colors are clamped so muted text keeps 4.5:1 if it overlaps the field.
+- `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]` element, drawn in a second pass with an orthographic camera in CSS pixels after the field, without clearing. Rectangles are measured on mount and resize only; each frame places planes from the cached rectangles and the Lenis scroll value. Hover and pointer position come from DOM `pointerenter`, `pointermove`, and `pointerleave` on the figure.
+- Planes share one geometry and one shader program; per-plane uniforms differ. Planes outside the viewport are skipped by frustum culling.
 
 **Budget plan (fits the DESIGN.md limits).**
 
-| Part                                       | Draw calls | Triangles                    |
-| ------------------------------------------ | ---------- | ---------------------------- |
-| Track                                      | 2          | 15,000                       |
-| Stations (8 at most, 6 calls each at most) | 48         | 96,000 (12,000 each at most) |
-| Packet and trail                           | 2          | 1,000                        |
-| Branches visible at once (2 at most)       | 12         | 24,000                       |
-| Headroom                                   | 16         | 14,000                       |
-| **Total**                                  | **80**     | **150,000**                  |
+| Part                                 | Draw calls | Triangles             |
+| ------------------------------------ | ---------- | --------------------- |
+| Field, tier 1 (104 x 64 pins)        | 1          | 79,872 (12 per pin)   |
+| Field, tier 2 (64 x 40 pins)         | 1          | 30,720                |
+| Covers visible at once (8 at most)   | 8          | 8 x 1,536 = 12,288    |
+| Headroom                             | 71         | over 57,000           |
+| **Total, tier 1**                    | **9**      | **about 92,000**      |
 
-**Scroll and trace sync.**
+**Scroll and page sync.**
 
-- The trace panel is an ordered list in the DOM (`<ol>` of spans). Each span element carries `data-world-anchor` and `data-station`. It is the source of truth for order and for scroll ranges.
-- Section anchors map scroll position to a track parameter `t` in the range 0 to 1. The packet follows `t` with `THREE.MathUtils.damp` using frame delta. The active span is the one whose range contains the damped `t`, so the panel and the packet can never disagree.
-- Hover and focus on a span set a highlight target on its station; pointer raycasting on stations sets the matching span state. Both paths share one state object, and the DOM state is applied through attributes (`aria-current`, `data-active`), not through inline style writes each frame.
-- Keyboard: spans are focusable links to the matching section. Focus moves the scroll target, so keyboard users drive the packet the same way scroll users do.
+- Scroll progress for the camera comes from the `[data-world-anchor="hero"]` rectangle, not from page height. Past the hero, the field flattens and the camera tilts down, so content below sits on near-plain ground.
+- On `astro:page-load` the Field reads `data-pattern` and `data-seed` from `<body>` and starts a morph from the current relief. Reduced motion makes the morph instant.
 
-**Reduced motion.** The packet jumps to the active station without a trail. The camera holds a fixed framing per section instead of following the track. The trace panel still updates.
+**Reduced motion.** No ripples, no cover tilt or bend, no camera dolly. Morphs are instant. The field renders once per state change.
 
-**Weak devices.** Tier 1 (full): every station, trail, pixel ratio up to 2. Tier 2 (weak mobile): a shortened loop of at most 4 stations, no trail, pixel ratio 1, branches disabled. Tier 3 (gate fails or context lost twice): static cutaway poster plus the trace panel as plain HTML. Tier choice starts from the capability gate in section 4 and drops one tier if the median frame time over the first two seconds exceeds 22 ms.
-
-**Content dependency.** Station names come from the approved stack list in `docs/CONTENT.md`. A station for a client integration exists only when that project is approved there.
+**Weak devices.** Tier 1: full grid, pixel ratio up to 2. Tier 2 (coarse pointer, small screen, or a slow first two seconds): 64 x 40 grid, no cover bend. Tier 3 (gate fails or context lost twice): SVG poster and SVG covers.

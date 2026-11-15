@@ -1,0 +1,80 @@
+---
+import Base from '@/layouts/Base.astro';
+---
+
+<Base
+  page="missing"
+  pattern={7}
+  seed={0.4}
+  title="Not found"
+  description="This address does not exist on the site."
+>
+  <article class="page" aria-labelledby="missing-title">
+    <header class="head" data-world-stage>
+      <div class="head-text" data-world-zone>
+        <p class="label">Error 404</p>
+        <h1 id="missing-title">Nothing at this address</h1>
+        <p class="lead">The page may have moved, or the link may be mistyped.</p>
+      </div>
+    </header>
+    <ul role="list" class="routes ground">
+      <li>
+        <a href="/">Home</a>
+      </li>
+      <li>
+        <a href="/work/">Work</a>
+      </li>
+      <li>
+        <a href="/about/">About</a>
+      </li>
+      <li>
+        <a href="/contact/">Contact</a>
+      </li>
+    </ul>
+  </article>
+</Base>
+
+<style>
+  .head {
+    display: grid;
+    align-content: end;
+    min-height: clamp(20rem, 52svh, 32rem);
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  .head-text {
+    max-width: 52rem;
+  }
+
+  h1 {
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: var(--leading-display);
+    margin-block: var(--space-4) var(--space-5);
+  }
+
+  .routes {
+    border-top: var(--rule-strong);
+    max-width: 52rem;
+    margin-bottom: var(--space-9);
+  }
+
+  .routes li {
+    border-bottom: var(--hairline);
+  }
+
+  .routes a {
+    display: flex;
+    align-items: center;
+    min-height: 3.25rem;
+    font-family: var(--font-mono);
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .routes a:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--color-trace);
+    }
+  }
+</style>

@@ -15,12 +15,13 @@ interface Props {
   page: 'home' | 'work' | 'case' | 'about' | 'contact' | 'missing';
   /** Project slug on case-study pages. */
   slug?: string;
-  /** Comma-separated stations a case study passes through. */
-  stations?: string;
+  /** Generative pattern the 3D field morphs to on this page (src/lib/patterns.ts). */
+  pattern?: number;
+  seed?: number;
   ogImage?: string;
 }
 
-const { title, description = SITE.description, page, slug, stations, ogImage = '/og.png' } = Astro.props;
+const { title, description = SITE.description, page, slug, pattern = 0, seed = 0, ogImage = '/og.png' } = Astro.props;
 const fullTitle = title ? `${title} | ${FULL_NAME}` : SITE.title;
 const origin = SITE.url.value;
 const canonical = new URL(Astro.url.pathname, origin).href;
@@ -81,7 +82,7 @@ const personLd = {
     <meta property="og:image" content={ogUrl} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="A machined scale model of a request path: one track running through seven stations." />
+    <meta property="og:image:alt" content="A field of machined pins shaped into a generative relief, beside the name Ahmad." />
     <meta property="og:locale" content="en_US" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
@@ -92,7 +93,7 @@ const personLd = {
 
     <ClientRouter />
   </head>
-  <body data-slug={slug} data-stations={stations}>
+  <body data-slug={slug} data-pattern={pattern} data-seed={seed.toFixed(3)}>
     <a class="skip-link" href="#main">Skip to content</a>
     <WorldHost />
     <SiteHeader current={page} />

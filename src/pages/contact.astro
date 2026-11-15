@@ -1,0 +1,95 @@
+---
+import Base from '@/layouts/Base.astro';
+import Todo from '@/components/Todo.astro';
+import { CONTACT } from '@/config/site';
+---
+
+<Base
+  page="contact"
+  pattern={6}
+  seed={0.9}
+  title="Contact"
+  description="How to reach Ahmad about building an AI system or a SaaS product."
+>
+  <article class="page" aria-labelledby="contact-title">
+    <header class="head" data-world-stage>
+      <div class="head-text" data-world-zone>
+        <p class="label">Contact</p>
+        <h1 id="contact-title">Send a short note</h1>
+        <p class="lead">
+          Say what the system should do, who will use it, and when it needs to ship.
+        </p>
+      </div>
+    </header>
+
+    <ul role="list" class="handles ground">
+      {CONTACT.map((c) => (
+        <li>
+          <span class="label">{c.label}</span>
+          <a href={c.href}>{c.handle}</a>
+          <Todo when={c.placeholder} />
+        </li>
+      ))}
+    </ul>
+  </article>
+</Base>
+
+<style>
+  .head {
+    display: grid;
+    align-content: end;
+    min-height: clamp(20rem, 52svh, 32rem);
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  .head-text {
+    max-width: 52rem;
+  }
+
+  h1 {
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: var(--leading-display);
+    margin-block: var(--space-4) var(--space-5);
+  }
+
+  .handles {
+    border-top: var(--rule-strong);
+    margin-bottom: var(--space-9);
+    max-width: 52rem;
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-1) var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline);
+  }
+
+  li a {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-h3);
+    line-height: 1.15;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    overflow-wrap: anywhere;
+  }
+
+  li :global(.placeholder-flag) {
+    grid-column: 2;
+  }
+
+  @media (min-width: 56rem) {
+    li {
+      grid-template-columns: 8rem minmax(0, 1fr) auto;
+    }
+
+    li :global(.placeholder-flag) {
+      grid-column: auto;
+    }
+  }
+</style>

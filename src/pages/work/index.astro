@@ -1,0 +1,105 @@
+---
+import Base from '@/layouts/Base.astro';
+import WorkLedger from '@/components/WorkLedger.astro';
+import FeaturedWork from '@/components/FeaturedWork.astro';
+import { DRAFT_PREVIEW } from '@/config/site';
+import { visibleProjects } from '@/lib/projects';
+
+const { featured, others, all } = await visibleProjects();
+---
+
+<Base
+  page="work"
+  pattern={8}
+  seed={0.2}
+  title="Work"
+  description="Projects by Ahmad: AI systems, full-stack SaaS, mobile apps, and automation work for clients."
+>
+  <div class="page">
+    <header class="head" data-world-stage>
+      <div class="head-text" data-world-zone>
+        <p class="label">Index / {all.length} projects</p>
+        <h1>Work</h1>
+        <p class="lead">
+          AI systems, SaaS products, mobile apps, and automation, built for clients and for
+          research.
+        </p>
+        {DRAFT_PREVIEW && (
+          <p class="note label">
+            <span class="placeholder-flag">Draft preview</span> Project names are real. Anything
+            marked TODO is a placeholder until it is confirmed.
+          </p>
+        )}
+      </div>
+    </header>
+
+    {all.length === 0 ? (
+      <p class="empty ground">No projects are approved for publication yet.</p>
+    ) : (
+      <>
+        {featured.length > 0 && (
+          <section class="group" aria-labelledby="featured-title">
+            <h2 id="featured-title" class="label">
+              Featured
+            </h2>
+            <FeaturedWork projects={featured} />
+          </section>
+        )}
+        {others.length > 0 && (
+          <section class="group ground" aria-labelledby="others-title">
+            <h2 id="others-title" class="label">
+              More projects
+            </h2>
+            <WorkLedger projects={others} start={featured.length + 1} />
+          </section>
+        )}
+      </>
+    )}
+  </div>
+</Base>
+
+<style>
+  .head {
+    display: grid;
+    align-content: end;
+    min-height: clamp(20rem, 52svh, 32rem);
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  .head-text {
+    max-width: 48rem;
+  }
+
+  h1 {
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: var(--leading-display);
+    margin-block: var(--space-4) var(--space-5);
+  }
+
+  .note {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: var(--text-small);
+    font-family: var(--font-body);
+  }
+
+  .group {
+    padding-bottom: var(--space-8);
+  }
+
+  .group h2 {
+    margin-bottom: var(--space-3);
+    font-family: var(--font-mono);
+    font-weight: 400;
+    letter-spacing: var(--tracking-label);
+  }
+
+  .empty {
+    padding-bottom: var(--space-9);
+  }
+</style>

@@ -7,22 +7,23 @@
 @import '@fontsource/commit-mono/latin-400.css';
 
 /* Metric-matched fallbacks. Ascent and descent come from each font's hhea table.
-   size-adjust was measured in Chromium against the local fallback (scripts/font-fallback.mjs). */
+   size-adjust is measured in Chromium against the local fallback (scripts/font-fallback.mjs);
+   the overrides are divided by size-adjust because Chromium scales them by it. */
 @font-face {
   font-family: 'Familjen Fallback';
   src: local('Arial'), local('Helvetica'), local('Liberation Sans');
-  size-adjust: 95%;
-  ascent-override: 107.89%;
-  descent-override: 23.68%;
+  size-adjust: 91.27%;
+  ascent-override: 112.3%;
+  descent-override: 24.65%;
   line-gap-override: 0%;
 }
 
 @font-face {
   font-family: 'Public Sans Fallback';
   src: local('Arial'), local('Helvetica'), local('Liberation Sans');
-  size-adjust: 104%;
-  ascent-override: 91.35%;
-  descent-override: 21.63%;
+  size-adjust: 103.66%;
+  ascent-override: 91.65%;
+  descent-override: 21.71%;
   line-gap-override: 0%;
 }
 

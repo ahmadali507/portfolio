@@ -1,0 +1,177 @@
+---
+import Base from '@/layouts/Base.astro';
+import Todo from '@/components/Todo.astro';
+import { PERSON } from '@/config/site';
+
+const builds = [
+  {
+    area: 'AI systems',
+    items: 'RAG pipelines, LLM integrations, multi-agent systems, voice agents',
+  },
+  { area: 'Full-stack SaaS', items: 'Next.js, React, Node.js, TypeScript, Supabase, PostgreSQL' },
+  { area: 'Mobile', items: 'React Native' },
+  { area: 'Cloud', items: 'AWS, GCP' },
+  { area: 'Automation', items: 'n8n, Zapier' },
+];
+---
+
+<Base
+  page="about"
+  pattern={7}
+  seed={0.7}
+  title="About"
+  description="Ahmad is a software engineer in Islamabad, a co-founder of OnePercent Technologies, and a NUST software engineering student moving toward deep learning engineering."
+>
+  <article class="page" aria-labelledby="about-title">
+    <header class="head" data-world-stage>
+      <div class="head-text" data-world-zone>
+        <p class="label">About</p>
+        <h1 id="about-title">Built for clients, first on Upwork, now through an agency</h1>
+      </div>
+    </header>
+
+    <div class="cols">
+      <div class="prose ground">
+        <p class="lead">
+          I am a software engineer in Islamabad. I build AI systems and the products around them,
+          and I ship them for clients who pay for them.
+        </p>
+        <p>
+          I started as a freelancer on Upwork, where I reached Top Rated status and worked with 38+
+          clients. <Todo text="Verify wording" />
+        </p>
+        <p>
+          That work grew into {PERSON.company}, an AI and software agency I co-founded. It serves
+          clients in the US, the UK, and the Middle East. I lead AI automation and SaaS development
+          there.
+        </p>
+        <p>I study for a BS in Software Engineering at NUST in Islamabad, class of 2026.</p>
+
+        <h2>Where I am heading</h2>
+        <p>
+          My next step is deep learning engineering. The groundwork is the mathematics behind
+          machine learning and formal methods: proofs in HOL, a higher-order logic theorem prover,
+          and SAT solvers.
+        </p>
+        <p>
+          <a href="/work/spiking-mamba/">Spiking Mamba</a>, a research proposal on spiking state
+          space models for streaming intrusion detection, sits in that direction.
+        </p>
+      </div>
+
+      <aside class="facts ground" aria-labelledby="facts-title">
+        <h2 id="facts-title" class="label">
+          Facts
+        </h2>
+        <dl>
+          <div>
+            <dt class="label">Location</dt>
+            <dd>{PERSON.location}</dd>
+          </div>
+          <div>
+            <dt class="label">Education</dt>
+            <dd>{PERSON.education}</dd>
+          </div>
+          <div>
+            <dt class="label">Company</dt>
+            <dd>{PERSON.company}, co-founder</dd>
+          </div>
+          <div>
+            <dt class="label">Freelance</dt>
+            <dd>
+              Top Rated on Upwork <Todo text="Verify wording" />
+            </dd>
+          </div>
+        </dl>
+
+        <h2 class="label builds-title">What I build</h2>
+        <dl>
+          {builds.map((b) => (
+            <div>
+              <dt class="label">{b.area}</dt>
+              <dd>{b.items}</dd>
+            </div>
+          ))}
+        </dl>
+      </aside>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .head {
+    display: grid;
+    align-content: end;
+    min-height: clamp(20rem, 52svh, 32rem);
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  .head-text {
+    max-width: 52rem;
+  }
+
+  h1 {
+    font-size: var(--text-h2);
+    margin-top: var(--space-4);
+    max-width: 20ch;
+  }
+
+  .cols {
+    display: grid;
+    gap: var(--space-7);
+    padding-bottom: var(--space-8);
+    border-top: var(--rule-strong);
+    padding-top: var(--space-6);
+  }
+
+  .prose {
+    max-width: 40rem;
+  }
+
+  .prose p + p,
+  .prose h2 + p {
+    margin-top: var(--space-4);
+  }
+
+  .prose h2 {
+    font-size: var(--text-h3);
+    margin-top: var(--space-7);
+  }
+
+  .facts h2 {
+    font-family: var(--font-mono);
+    font-weight: 400;
+    letter-spacing: var(--tracking-label);
+  }
+
+  .builds-title {
+    margin-top: var(--space-6);
+  }
+
+  .facts dl {
+    margin-top: var(--space-3);
+    border-top: var(--hairline);
+  }
+
+  .facts dl div {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline);
+  }
+
+  .facts dd {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
+  }
+
+  @media (min-width: 56rem) {
+    .cols {
+      grid-template-columns: minmax(0, 40rem) minmax(16rem, 24rem);
+      justify-content: space-between;
+    }
+  }
+</style>
