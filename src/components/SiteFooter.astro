@@ -1,0 +1,67 @@
+---
+import { CONTACT, DRAFT_PREVIEW, FULL_NAME } from '@/config/site';
+---
+
+<footer class="site-footer ground">
+  <div class="page grid">
+    <p class="label">{FULL_NAME}. Islamabad, Pakistan.</p>
+    <ul role="list" class="links">
+      {
+        CONTACT.map((c) => (
+          <li>
+            <a class="mono" href={c.href}>
+              {c.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="label colophon">
+      Built with Astro and Three.js. Every page reads in full without JavaScript.
+      {DRAFT_PREVIEW && <span class="placeholder-flag">Draft preview, facts not yet confirmed</span>}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    border-top: var(--hairline);
+    padding-block: var(--space-6) var(--space-7);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-5);
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .colophon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+  }
+
+  @media (min-width: 56rem) {
+    .grid {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    .colophon {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

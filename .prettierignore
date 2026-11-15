@@ -6,3 +6,4 @@ package-lock.json
 docs/reference/
 .claude/skills/
 .claude/skills.lock.json
+portfolio/

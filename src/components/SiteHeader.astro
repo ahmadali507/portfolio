@@ -1,0 +1,118 @@
+---
+import { FULL_NAME, NAV } from '@/config/site';
+
+interface Props {
+  current: string;
+}
+const { current } = Astro.props;
+const isCurrent = (href: string) =>
+  (href === '/work/' && (current === 'work' || current === 'case')) ||
+  (href === '/about/' && current === 'about') ||
+  (href === '/contact/' && current === 'contact');
+---
+
+<header class="site-header">
+  <div class="page bar">
+    <a class="wordmark" href="/" aria-current={current === 'home' ? 'page' : undefined}>
+      <span class="name">{FULL_NAME}</span>
+      <span class="label path">Request path</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul role="list">
+        {
+          NAV.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--color-bg);
+    border-bottom: var(--hairline);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--header-h);
+  }
+
+  .wordmark {
+    display: inline-flex;
+    gap: var(--space-3);
+    text-decoration: none;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    letter-spacing: -0.01em;
+  }
+
+  .path {
+    display: none;
+  }
+
+  @media (min-width: 40rem) {
+    .path {
+      display: inline;
+    }
+  }
+
+  ul {
+    display: flex;
+    gap: clamp(var(--space-2), 2vw, var(--space-5));
+  }
+
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: var(--text-mono);
+    text-decoration: none;
+    position: relative;
+  }
+
+  /* Current page: a short trace-colored bar under the label, the same mark as an active span. */
+  nav a::after {
+    content: '';
+    position: absolute;
+    left: var(--space-1);
+    right: var(--space-1);
+    bottom: 10px;
+    height: 2px;
+    background: var(--color-ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-med) var(--ease-out);
+  }
+
+  nav a[aria-current='page']::after {
+    background: var(--color-trace);
+    transform: scaleX(1);
+  }
+
+  @media (hover: hover) {
+    nav a:hover::after {
+      transform: scaleX(1);
+    }
+  }
+</style>

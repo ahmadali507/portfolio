@@ -1,0 +1,286 @@
+@import './fonts.css';
+@import './tokens.css';
+
+/* ---------- reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  color-scheme: light;
+  scroll-padding-top: calc(var(--header-h) + var(--space-4));
+}
+
+/* Native smooth scroll only for in-page jumps without Lenis and without reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.lenis) {
+    scroll-behavior: smooth;
+  }
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  min-height: 100svh;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+}
+
+img,
+svg,
+picture,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+p,
+li,
+dd,
+h1,
+h2,
+h3 {
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-heading);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+  padding: 0;
+}
+
+/* ---------- links and focus ---------- */
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: var(--color-rule);
+  transition:
+    text-decoration-color var(--dur-fast) var(--ease-out),
+    text-decoration-thickness var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  a:hover {
+    text-decoration-color: var(--color-trace);
+    text-decoration-thickness: 2px;
+  }
+}
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::selection {
+  background: var(--color-ink);
+  color: var(--color-bg);
+}
+
+/* ---------- shared text roles ---------- */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--color-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.lead {
+  font-size: var(--text-lead);
+  line-height: 1.4;
+  max-width: 34ch;
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Visible TODO marker for unconfirmed or dummy content. Removed by `npm run prelaunch`. */
+.placeholder-flag {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--color-trace-ink);
+  white-space: nowrap;
+}
+
+/* ---------- skip link ---------- */
+.skip-link {
+  position: fixed;
+  left: var(--page-gutter);
+  top: var(--space-2);
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-ink);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+/* ---------- page frame ---------- */
+.page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+/* Content that sits over the canvas keeps a solid ground so text contrast never depends on WebGL. */
+.ground {
+  background: var(--color-bg);
+}
+
+/* ---------- world host ---------- */
+.world {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 100lvh;
+  z-index: 0;
+  pointer-events: none;
+  contain: strict;
+}
+
+.world canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+
+.world-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 600ms var(--ease-out);
+}
+
+.world-poster img,
+.world-poster svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.world[data-state='live'] canvas {
+  opacity: 1;
+}
+
+.world[data-state='live'] .world-poster {
+  opacity: 0;
+}
+
+/* Page-level view transition: a short fade with a small rise, none under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(main) {
+    animation: 180ms var(--ease-out) both page-out;
+  }
+
+  ::view-transition-new(main) {
+    animation: 320ms var(--ease-out) 60ms both page-in;
+  }
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

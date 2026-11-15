@@ -1,0 +1,107 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '@/styles/global.css';
+import displayFont from '@fontsource/familjen-grotesk/files/familjen-grotesk-latin-700-normal.woff2?url';
+import bodyFont from '@fontsource/public-sans/files/public-sans-latin-400-normal.woff2?url';
+import SiteHeader from '@/components/SiteHeader.astro';
+import SiteFooter from '@/components/SiteFooter.astro';
+import WorldHost from '@/components/WorldHost.astro';
+import { FULL_NAME, PERSON, SITE, CONTACT } from '@/config/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Page kind, read by the engine to pick a camera framing. */
+  page: 'home' | 'work' | 'case' | 'about' | 'contact' | 'missing';
+  /** Project slug on case-study pages. */
+  slug?: string;
+  /** Comma-separated stations a case study passes through. */
+  stations?: string;
+  ogImage?: string;
+}
+
+const { title, description = SITE.description, page, slug, stations, ogImage = '/og.png' } = Astro.props;
+const fullTitle = title ? `${title} | ${FULL_NAME}` : SITE.title;
+const origin = SITE.url.value;
+const canonical = new URL(Astro.url.pathname, origin).href;
+const ogUrl = new URL(ogImage, origin).href;
+
+const sameAs = CONTACT.filter((c) => !c.placeholder && c.href.startsWith('http')).map((c) => c.href);
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: FULL_NAME,
+  givenName: 'Ahmad',
+  jobTitle: PERSON.role,
+  description: SITE.description,
+  url: origin,
+  address: { '@type': 'PostalAddress', addressLocality: 'Islamabad', addressCountry: 'PK' },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'National University of Sciences and Technology (NUST)' },
+  worksFor: { '@type': 'Organization', name: PERSON.company },
+  knowsAbout: [
+    'Retrieval-augmented generation',
+    'LLM integration',
+    'Multi-agent systems',
+    'Voice agents',
+    'Next.js',
+    'React',
+    'Node.js',
+    'TypeScript',
+    'PostgreSQL',
+    'React Native',
+    'AWS',
+    'Google Cloud',
+  ],
+  ...(sameAs.length ? { sameAs } : {}),
+};
+---
+
+<!doctype html>
+<html lang={SITE.locale} data-page={page}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#e3e4e2" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:type" content={page === 'case' ? 'article' : 'website'} />
+    <meta property="og:site_name" content={FULL_NAME} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A machined scale model of a request path: one track running through seven stations." />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogUrl} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(personLd)} />
+
+    <ClientRouter />
+  </head>
+  <body data-slug={slug} data-stations={stations}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <WorldHost />
+    <SiteHeader current={page} />
+    <main id="main" tabindex="-1" transition:name="main">
+      <slot />
+    </main>
+    <SiteFooter />
+    <script>
+      import '@/scripts/world-gate';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,68 @@
+/* Design tokens. Values come from DESIGN.md section 2. Components use these, never raw hex. */
+
+:root {
+  /* Color */
+  --color-bg: #e3e4e2;
+  --color-surface: #d2d4d1;
+  --color-ink: #1b1d1e;
+  --color-ink-muted: #4f5456;
+  --color-rule: #9da2a0;
+  --color-trace: #e2401c;
+  --color-trace-ink: #b02e0e;
+
+  /* Type families. Fallback faces are metric-matched in fonts.css to limit layout shift. */
+  --font-display: 'Familjen Grotesk', 'Familjen Fallback', sans-serif;
+  --font-body: 'Public Sans', 'Public Sans Fallback', sans-serif;
+  --font-mono: 'Commit Mono', 'Commit Mono Fallback', ui-monospace, monospace;
+
+  /* Type scale */
+  --text-label: 0.75rem;
+  --text-mono: 0.875rem;
+  --text-small: 0.9375rem;
+  --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --text-lead: clamp(1.1875rem, 1.05rem + 0.6vw, 1.5rem);
+  --text-h3: clamp(1.375rem, 1.2rem + 0.8vw, 1.875rem);
+  --text-h2: clamp(1.875rem, 1.4rem + 2vw, 3.25rem);
+  --text-display: clamp(2.5rem, 7vw, 6.5rem);
+
+  --tracking-display: -0.02em;
+  --tracking-label: 0.06em;
+  --leading-display: 0.95;
+  --leading-heading: 1.05;
+  --leading-body: 1.55;
+  --measure: 66ch;
+
+  /* Space, 4px base */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+
+  /* Layout */
+  --page-gutter: clamp(1rem, 4vw, 3.5rem);
+  --grid-gap: clamp(1rem, 2vw, 1.5rem);
+  --page-max: 90rem;
+  --header-h: 3.5rem;
+
+  /* Lines and focus */
+  --hairline: 1px solid var(--color-rule);
+  --rule-strong: 1px solid var(--color-ink);
+  --focus-ring: 2px solid var(--color-trace);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur-med: 260ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-med: 0ms;
+  }
+}

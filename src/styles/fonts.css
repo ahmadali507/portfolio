@@ -1,0 +1,36 @@
+/* Self-hosted, Latin-subset fonts from @fontsource (SIL OFL 1.1, see docs/DECISIONS.md).
+   Each import is one weight with font-display: swap. */
+@import '@fontsource/familjen-grotesk/latin-600.css';
+@import '@fontsource/familjen-grotesk/latin-700.css';
+@import '@fontsource/public-sans/latin-400.css';
+@import '@fontsource/public-sans/latin-600.css';
+@import '@fontsource/commit-mono/latin-400.css';
+
+/* Metric-matched fallbacks. Ascent and descent come from each font's hhea table.
+   size-adjust was measured in Chromium against the local fallback (scripts/font-fallback.mjs). */
+@font-face {
+  font-family: 'Familjen Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 95%;
+  ascent-override: 107.89%;
+  descent-override: 23.68%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Public Sans Fallback';
+  src: local('Arial'), local('Helvetica'), local('Liberation Sans');
+  size-adjust: 104%;
+  ascent-override: 91.35%;
+  descent-override: 21.63%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Commit Mono Fallback';
+  src: local('Courier New'), local('Courier'), local('Liberation Mono');
+  size-adjust: 100%;
+  ascent-override: 90%;
+  descent-override: 20%;
+  line-gap-override: 0%;
+}
