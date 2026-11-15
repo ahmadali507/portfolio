@@ -86,3 +86,39 @@ These are starting targets. They are measured, not assumed, at the first milesto
 - `public/models/`, `public/textures/`: compressed runtime assets only.
 - `scripts/`: verification tooling (`slop-check`, `asset-budget`, `shot`).
 - `.claude/skills/`: vendored agent skills, pinned in `.claude/skills.lock.json`.
+
+## 8. Direction A (Request Path): technical shape
+
+Chosen at Gate 2 on 2026-11-15. See `DESIGN.md` section 1.
+
+**Scene structure.**
+
+- `Track`: one `CatmullRomCurve3` path baked at build time into a sampled lookup table (positions, tangents, cumulative length). The track mesh is a single extruded, merged geometry with a baked lightmap.
+- `Station` (one per stage, at most 8 on the main track): a compressed GLB with baked lighting on `MeshBasicMaterial`. Repeated details (bolts, rails, rib supports) are `InstancedMesh`.
+- `Packet`: one small mesh plus a short trail drawn as a single `Line2` or a ribbon in a custom shader. Position comes from the lookup table, never from per-frame curve evaluation.
+- `Branch` (side track per approved case study): loaded only when its case study page or its hover target is reached.
+- No WebGL text. Every label is DOM, positioned through the anchor system in section 3.
+
+**Budget plan (fits the DESIGN.md limits).**
+
+| Part                                       | Draw calls | Triangles                    |
+| ------------------------------------------ | ---------- | ---------------------------- |
+| Track                                      | 2          | 15,000                       |
+| Stations (8 at most, 6 calls each at most) | 48         | 96,000 (12,000 each at most) |
+| Packet and trail                           | 2          | 1,000                        |
+| Branches visible at once (2 at most)       | 12         | 24,000                       |
+| Headroom                                   | 16         | 14,000                       |
+| **Total**                                  | **80**     | **150,000**                  |
+
+**Scroll and trace sync.**
+
+- The trace panel is an ordered list in the DOM (`<ol>` of spans). Each span element carries `data-world-anchor` and `data-station`. It is the source of truth for order and for scroll ranges.
+- Section anchors map scroll position to a track parameter `t` in the range 0 to 1. The packet follows `t` with `THREE.MathUtils.damp` using frame delta. The active span is the one whose range contains the damped `t`, so the panel and the packet can never disagree.
+- Hover and focus on a span set a highlight target on its station; pointer raycasting on stations sets the matching span state. Both paths share one state object, and the DOM state is applied through attributes (`aria-current`, `data-active`), not through inline style writes each frame.
+- Keyboard: spans are focusable links to the matching section. Focus moves the scroll target, so keyboard users drive the packet the same way scroll users do.
+
+**Reduced motion.** The packet jumps to the active station without a trail. The camera holds a fixed framing per section instead of following the track. The trace panel still updates.
+
+**Weak devices.** Tier 1 (full): every station, trail, pixel ratio up to 2. Tier 2 (weak mobile): a shortened loop of at most 4 stations, no trail, pixel ratio 1, branches disabled. Tier 3 (gate fails or context lost twice): static cutaway poster plus the trace panel as plain HTML. Tier choice starts from the capability gate in section 4 and drops one tier if the median frame time over the first two seconds exceeds 22 ms.
+
+**Content dependency.** Station names come from the approved stack list in `docs/CONTENT.md`. A station for a client integration exists only when that project is approved there.

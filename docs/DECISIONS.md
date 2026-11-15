@@ -18,3 +18,8 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **WebGL2 first.** `WebGPURenderer` and TSL deferred until a feature needs them. See `ARCHITECTURE.md` section 6.
 - **Budgets from DESIGN.md win over the playbook:** 150k triangles and 80 draw calls.
 - **Performance targets:** LCP under 2.0 s, initial JS under 20 KB gzip, 3D chunk under 200 KB gzip, total JS under 260 KB gzip. To be measured at the first milestone.
+- **Gate 2: Direction A, Request Path.** One request travels a machined track through stations that map to the real stack, with a distributed-trace panel synced to the packet. Chosen over B (Proof Lattice: most distinctive, most abstract) and C (Retrieval Atlas: needs a build-time embedding dependency). Reason: the clearest link to client work, and it degrades into an honest HTML trace.
+- **Type:** Familjen Grotesk (display), Public Sans (body), Commit Mono (mono). All SIL OFL 1.1, self-hosted. Licenses to be confirmed against the shipped LICENSE files when the fonts are added. No font packages installed yet.
+- **Palette:** machined gray `#E3E4E2`, surface `#D2D4D1`, graphite ink `#1B1D1E`, muted `#4F5456`, rule `#9DA2A0`, trace vermilion `#E2401C` (non-text and large text only), trace ink `#B02E0E` (small text on bg only). Contrast ratios recorded in `DESIGN.md`.
+- **Trace honesty rule:** the trace panel shows stage names and order only. No latency or throughput figures.
+- **Direction A budget plan:** at most 8 stations at 6 draw calls and 12,000 triangles each, totaling 80 draw calls and 150,000 triangles with headroom. See `ARCHITECTURE.md` section 8.

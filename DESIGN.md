@@ -4,9 +4,13 @@ This file binds every human and agent working on the site. If a skill, a tutoria
 
 ## 1. Aesthetic direction
 
-- **Visual persona:** TBD at Gate 2.
-- **The 3D world and why it exists:** TBD at Gate 2.
-- **Signature interaction:** TBD at Gate 2.
+Direction chosen at Gate 2 (2026-11-15): **A. Request Path.**
+
+- **Visual persona:** an engineering cutaway. The world looks like a machined scale model of a production system: matte surfaces, baked light, hairline annotations, nothing glossy. Restraint over spectacle. Information density over decoration.
+- **The 3D world and why it exists:** one continuous track that a single request travels: edge, API, queue, agents, retrieval, model, response. Each station is a physical stage that maps to a real part of Ahmad's stack, taken only from `docs/CONTENT.md`. Approved case studies branch off as side tracks. The world exists because building these paths is the work. A visitor who watches one request travel through it understands what Ahmad does without a skills grid.
+- **Signature interaction:** scroll moves the request along the track. A DOM panel styled as a distributed trace waterfall stays locked to the 3D packet: each span activates as the packet passes its station. Hovering or focusing a span highlights its station, and hovering a station highlights its span. The trace panel is real, semantic HTML and carries the full story without WebGL.
+- **What the world must never become:** a generic pipeline diagram with glowing tubes, a server rack, a circuit board, or a data center fly-through. Stations are abstracted, machined forms, not literal hardware.
+- **Honesty rule:** the trace is a narrative device, not telemetry. It shows stage names and order only. It never shows latency numbers, throughput, or any figure that is not approved in `docs/CONTENT.md`.
 
 ### Banned UI patterns (immediate reject)
 
@@ -27,10 +31,35 @@ This file binds every human and agent working on the site. If a skill, a tutoria
 
 ## 2. Typography and color tokens
 
-- **Display font:** TBD at Gate 2.
-- **Body font:** TBD at Gate 2.
-- **Technical or HUD monospace:** TBD at Gate 2.
-- **Palette:** TBD at Gate 2.
+### Type
+
+| Role                                     | Family           | License     | Settings                                                                                                     |
+| ---------------------------------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
+| Display                                  | Familjen Grotesk | SIL OFL 1.1 | Weight 600 to 700, tracking `-0.02em`, line-height `0.95`, sizes from `clamp(2.5rem, 7vw, 6.5rem)`           |
+| Body                                     | Public Sans      | SIL OFL 1.1 | Weight 400 and 600, tracking `0`, line-height `1.55`, base `1rem` to `1.125rem`, measure 60 to 72 characters |
+| Mono (trace spans, labels, station tags) | Commit Mono      | SIL OFL 1.1 | Weight 400, uppercase labels at `0.75rem` with tracking `+0.06em`; span names in sentence case at `0.875rem` |
+
+- Licenses must be confirmed against the LICENSE file shipped with each download before the fonts are committed. Font files are not installed yet.
+- Subset to Latin plus the punctuation in use. Preload only the display weight used above the fold. `font-display: swap` with metric-matched fallbacks to limit layout shift.
+
+### Color tokens
+
+| Token               | Value     | Use                                                                                             | Contrast                                                |
+| ------------------- | --------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `--color-bg`        | `#E3E4E2` | Page and canvas clear color (machined gray)                                                     | Base                                                    |
+| `--color-surface`   | `#D2D4D1` | Trace panel, raised areas                                                                       | 1.17:1 against bg                                       |
+| `--color-ink`       | `#1B1D1E` | Primary text, linework                                                                          | 13.26:1 on bg, 11.34:1 on surface                       |
+| `--color-ink-muted` | `#4F5456` | Secondary text, captions                                                                        | 6.02:1 on bg, 5.15:1 on surface                         |
+| `--color-rule`      | `#9DA2A0` | Hairlines and grid only, never text                                                             | 2.03:1 on bg (decorative)                               |
+| `--color-trace`     | `#E2401C` | The live packet, the active span bar, focus rings. Non-text marks and text 24px and larger only | 3.30:1 on bg, 4.02:1 on ink                             |
+| `--color-trace-ink` | `#B02E0E` | Small accent text on `--color-bg` only                                                          | 5.08:1 on bg (fails on surface, so do not use it there) |
+
+- The trace accent covers under 5 percent of any viewport. It marks the one thing that is live right now and nothing else.
+- No gradients on UI surfaces. Depth in the 3D world comes from baked lighting, not from CSS shadows.
+- A dark variant is not in scope. If added later, it needs its own contrast table and a decision log entry.
+
+### Rules
+
 - Fonts are self-hosted (`woff2`, subset) with a license that permits web embedding. Record the license in `docs/DECISIONS.md`.
 - Tokens live as CSS custom properties in `src/styles/`. Components use tokens, never raw hex values.
 
