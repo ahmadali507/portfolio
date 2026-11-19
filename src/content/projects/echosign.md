@@ -1,21 +1,21 @@
 ---
-title: 'AI Interviewer'
+title: 'EchoSign'
 summary:
-  value: 'A React Native app.'
+  value: 'Turns sign-language gestures captured by a webcam into text and speech, with chat and social features.'
   placeholder: false
 featured: false
-order: 4
+order: 8
 status:
   value: 'shipped'
   placeholder: true
 role:
-  value: 'Engineer'
+  value: 'Built at OnePercent Technologies'
   placeholder: true
 year:
-  value: 2024
+  value: 2025
   placeholder: true
 stack:
-  value: ['React Native']
+  value: ['TODO']
   placeholder: true
 problem:
   value: 'Placeholder. Replace with the problem this project solved.'
@@ -28,9 +28,9 @@ links:
     url: '#'
     placeholder: true
 media:
-  placeholder: true
+  placeholder: false
 public: false
 placeholder: true
 ---
 
-Placeholder. A short account of how this was built goes here once the details are confirmed.
+Screens show a camera capture step, the recognized word, a voice picker, text-to-speech with audio export, and chat and friends pages. Placeholder: the build story goes here once confirmed.

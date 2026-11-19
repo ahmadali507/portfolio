@@ -1,64 +1,75 @@
 import {
   CanvasTexture,
-  Color,
+  GLSL3,
   LinearMipmapLinearFilter,
   Mesh,
+  NoColorSpace,
   OrthographicCamera,
   PlaneGeometry,
   Scene,
   ShaderMaterial,
   SRGBColorSpace,
   WebGLRenderTarget,
+  type Texture,
   type WebGLRenderer,
 } from 'three';
 import { SCENES_GLSL } from '../shaders/scenes';
+import { PALETTE_GLSL, paletteUniforms, type Palette } from './palette';
 
 export interface CardData {
   slug: string;
   title: string;
-  kind: string;
   index: number;
-  pattern: number;
   seed: number;
-  base: string;
-  line: string;
-  accent: string;
+  palette: Palette;
 }
 
+/**
+ * Card faces in three depth layers, written in one pass to three color attachments:
+ *   0 ground (opaque, sRGB)  1 surfaces (premultiplied, linear)  2 lift (premultiplied, linear)
+ * Showcase maps layer 0 onto the card and floats layers 1 and 2 above it on their own planes.
+ */
 const fragmentShader = /* glsl */ `
-${SCENES_GLSL}
+precision highp float;
+layout(location = 0) out vec4 oGround;
+layout(location = 1) out vec4 oSurface;
+layout(location = 2) out vec4 oLift;
 
-uniform float uScene;
-uniform float uSeed;
+${SCENES_GLSL}
+${PALETTE_GLSL}
+
 uniform float uTime;
-uniform vec3 uBase;
-uniform vec3 uInk;
-uniform vec3 uAccent;
+uniform float uSeed;
 uniform sampler2D uLabel;
-varying vec2 vUv;
+in vec2 vUv;
 
 void main() {
-  vec2 p = vec2(vUv.x * 1.6, vUv.y);
-  // The motion graphic plays in the upper four fifths; the name sits in a strip below it.
-  vec2 q = (p - vec2(0.16, 0.2)) / 0.8;
-  vec3 col = uBase;
-  if (q.y > 0.0) col = scene(uScene, q, uTime, uBase, uInk, uAccent, uSeed);
-  col = mix(col, uInk, gFill(abs(p.y - 0.2) - 0.0012) * 0.35 * step(0.07, p.x) * step(p.x, 1.53));
-  col = mix(col, uInk, texture2D(uLabel, vUv).a);
-  gl_FragColor = vec4(col, 1.0);
-  #include <colorspace_fragment>
+  gP = vec2(vUv.x * 1.6, vUv.y);
+  gPar = vec2(0.0);
+  gL0 = vec4(0.0);
+  gL1 = vec4(0.0);
+  gL2 = vec4(0.0);
+  usePalette();
+  runScene(mod(uTime + uSeed * 10.0, 10.0));
+  // The project's name floats on the top layer, so it has the most depth when the layers part.
+  float lab = texture(uLabel, vUv).a;
+  put(2, lab, mix(cInk, cBg, 0.0));
+  // Attachment 0 is SRGB8_ALPHA8, so the hardware encodes on write: output stays linear.
+  oGround = vec4(gL0.rgb, 1.0);
+  oSurface = gL1;
+  oLift = gL2;
 }
 `;
 
 const vertexShader = /* glsl */ `
-varying vec2 vUv;
+out vec2 vUv;
 void main() {
   vUv = uv;
   gl_Position = vec4(position.xy * 2.0, 0.0, 1.0);
 }
 `;
 
-/** The card's name and number, drawn once with the site fonts. White on transparent; the shader inks it. */
+/** Name and kind along the bottom of the card, drawn once with the site fonts. */
 function drawLabel(d: CardData, width: number, height: number): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -68,21 +79,17 @@ function drawLabel(d: CardData, width: number, height: number): CanvasTexture {
     const u = height / 640;
     g.fillStyle = '#fff';
     g.textBaseline = 'middle';
-    g.font = `700 ${64 * u}px 'Familjen Grotesk', sans-serif`;
-    g.fillText(d.title, 46 * u, height - 62 * u);
-    g.font = `400 ${22 * u}px 'Commit Mono', monospace`;
+    g.font = `700 ${58 * u}px 'Familjen Grotesk', sans-serif`;
+    g.fillText(d.title, 50 * u, height - 64 * u);
+    g.font = `400 ${21 * u}px 'Commit Mono', monospace`;
     g.textAlign = 'right';
-    g.fillText(`${String(d.index + 1).padStart(2, '0')}  ${d.kind.toUpperCase()}`, width - 46 * u, height - 60 * u);
+    g.fillText(`${String(d.index + 1).padStart(2, '0')}  ${d.palette.kind.toUpperCase()}`, width - 50 * u, height - 62 * u);
   }
   const tex = new CanvasTexture(canvas);
   tex.generateMipmaps = false;
   return tex;
 }
 
-/**
- * One card face: a live motion graphic rendered into a texture each frame it is on screen.
- * Rendering stays on the GPU (one small full-screen pass), so nothing is uploaded per frame.
- */
 export class CardArt {
   readonly target: WebGLRenderTarget;
   private readonly material: ShaderMaterial;
@@ -94,29 +101,37 @@ export class CardArt {
   constructor(renderer: WebGLRenderer, d: CardData, width: number, height: number) {
     // Mipmaps keep fine strokes smooth when a card is small or seen at an angle.
     this.target = new WebGLRenderTarget(width, height, {
+      count: 3,
       depthBuffer: false,
       generateMipmaps: true,
       minFilter: LinearMipmapLinearFilter,
     });
-    this.target.texture.colorSpace = SRGBColorSpace;
-    this.target.texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    this.target.textures.forEach((tex, i) => {
+      tex.colorSpace = i === 0 ? SRGBColorSpace : NoColorSpace;
+      tex.anisotropy = aniso;
+    });
     this.label = drawLabel(d, width, height);
     this.material = new ShaderMaterial({
+      glslVersion: GLSL3,
       vertexShader,
       fragmentShader,
+      defines: { SCENE: d.palette.scene },
       depthTest: false,
       depthWrite: false,
       uniforms: {
-        uScene: { value: d.pattern },
-        uSeed: { value: d.seed },
         uTime: { value: 0 },
-        uBase: { value: new Color(d.base) },
-        uInk: { value: new Color(d.line) },
-        uAccent: { value: new Color(d.accent) },
+        uSeed: { value: d.seed },
         uLabel: { value: this.label },
+        ...paletteUniforms(d.palette),
       },
     });
     this.scene.add(new Mesh(this.geometry, this.material));
+  }
+
+  /** Layer textures: 0 ground, 1 surfaces, 2 lift. */
+  layer(i: 0 | 1 | 2): Texture {
+    return this.target.textures[i]!;
   }
 
   render(renderer: WebGLRenderer, time: number): void {

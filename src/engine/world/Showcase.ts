@@ -1,9 +1,14 @@
 import {
+  CustomBlending,
   Euler,
   Group,
   MathUtils,
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
+  OneFactor,
+  OneMinusSrcAlphaFactor,
+  PlaneGeometry,
   PMREMGenerator,
   Quaternion,
   Raycaster,
@@ -11,6 +16,7 @@ import {
   Vector3,
   type Intersection,
   type Object3D,
+  type Texture,
   type WebGLRenderTarget,
 } from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -31,7 +37,29 @@ interface Card {
   material: MeshPhysicalMaterial;
   art: CardArt;
   lift: number;
+  /** The two layer planes floating above the face: surfaces, then lift. */
+  layers: Mesh[];
+  layerMats: MeshBasicMaterial[];
+  /** 0 = layers resting on the face, 1 = fully separated. */
+  explode: number;
 }
+
+/** Premultiplied layer textures composite with ONE, ONE_MINUS_SRC_ALPHA. */
+function layerMaterial(map: Texture): MeshBasicMaterial {
+  return new MeshBasicMaterial({
+    map,
+    transparent: true,
+    depthWrite: false,
+    toneMapped: false,
+    blending: CustomBlending,
+    blendSrc: OneFactor,
+    blendDst: OneMinusSrcAlphaFactor,
+    blendSrcAlpha: OneFactor,
+    blendDstAlpha: OneMinusSrcAlphaFactor,
+  });
+}
+
+const LAYER_GAP = 0.24;
 
 const easeOutExpo = (t: number) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
@@ -52,6 +80,7 @@ export class Showcase implements WorldPart {
   private tiltY = 0;
   private hovered = -1;
   private artCursor = 0;
+  private readonly layerGeo: PlaneGeometry;
 
   // Scratch, allocated once.
   private readonly pa = new Vector3();
@@ -82,12 +111,13 @@ export class Showcase implements WorldPart {
     // Tier 2 (weak devices): fewer bevel segments and smaller card art.
     this.geometry = new RoundedBoxGeometry(CARD_W, CARD_H, CARD_D, tier === 1 ? 5 : 3, 0.11);
     const artW = tier === 1 ? 768 : 512;
+    this.layerGeo = new PlaneGeometry(CARD_W * 0.985, CARD_H * 0.985);
 
     for (const d of Showcase.readCards()) {
       const art = new CardArt(renderer, d, artW, artW * 0.625);
       art.render(renderer, 1 + d.index);
       const material = new MeshPhysicalMaterial({
-        map: art.target.texture,
+        map: art.layer(0),
         roughness: 0.32,
         metalness: 0,
         clearcoat: 1,
@@ -98,7 +128,15 @@ export class Showcase implements WorldPart {
       mesh.position.set(0, -8, 0);
       this.group.add(mesh);
       this.meshes.push(mesh);
-      this.cards.push({ mesh, material, art, lift: 0 });
+      const layerMats = [layerMaterial(art.layer(1)), layerMaterial(art.layer(2))];
+      const layers = layerMats.map((m, li) => {
+        const plane = new Mesh(this.layerGeo, m);
+        plane.position.z = CARD_D / 2 + 0.004 * (li + 1);
+        plane.renderOrder = 1 + li;
+        mesh.add(plane);
+        return plane;
+      });
+      this.cards.push({ mesh, material, art, lift: 0, layers, layerMats, explode: 0 });
     }
     scene.add(this.group);
   }
@@ -164,7 +202,9 @@ export class Showcase implements WorldPart {
         rot.set(-0.1, -0.38, 0.05);
         break;
       default:
-        pos.set(c * 1.2, -9 - i, -1);
+        // Parked far below the band: the group scrolls up with the page, so a near park would
+        // drift into the content under the header.
+        pos.set(c * 1.2, -40 - i, -1);
         rot.set(-1.2, 0, 0.5);
     }
   }
@@ -173,7 +213,7 @@ export class Showcase implements WorldPart {
   private helix(i: number, portrait: boolean): void {
     const d = i - motion.workPos;
     // One at a time: each card rises from below, faces the viewer at the center, and leaves upward.
-    const gap = portrait ? 5.6 : 4.3;
+    const gap = portrait ? 12 : 4.3;
     this.pa.set(0, -d * gap + motion.workOut * 10, -Math.abs(d) * 0.9);
     this.ea.set(d * 0.32, -0.26, d * 0.05);
     this.qa.setFromEuler(this.ea);
@@ -277,7 +317,8 @@ export class Showcase implements WorldPart {
           this.pa.lerp(this.pb, 1 - intro);
           this.qa.slerp(this.qb, 1 - intro);
         }
-      } else if (motion.page === 'case' && motion.focus >= 0) {
+      } else if (motion.page === 'case') {
+        // A featured case keeps its own card in the head band; any other case sends the deck away.
         if (i === motion.focus) this.blend(i, 'feature', 'feature', 0);
         else this.blend(i, 'away', 'away', 0);
       } else if (motion.page === 'work') {
@@ -296,6 +337,15 @@ export class Showcase implements WorldPart {
       mesh.quaternion.slerp(this.qa, k);
       if (mesh.position.distanceToSquared(this.pa) > 1e-6 || mesh.quaternion.angleTo(this.qa) > 1e-3) this.moving = true;
       if (Math.abs(card.lift - (isHover ? 1 : 0)) > 1e-3) this.moving = true;
+
+      // The interface lifts off the card: layers part when the card is in front or under the pointer.
+      const front = gallery ? (Math.abs(i - motion.workPos) < 0.5 ? 1 : 0.15) : motion.page === 'case' && i === motion.focus ? 0.85 : 0.12;
+      const exTarget = rm ? 0.15 : Math.max(front, isHover ? 1 : 0);
+      card.explode = rm ? exTarget : damp(card.explode, exTarget, 4, dt);
+      if (Math.abs(card.explode - exTarget) > 1e-3) this.moving = true;
+      for (let li = 0; li < card.layers.length; li++) {
+        card.layers[li]!.position.z = CARD_D / 2 + 0.004 * (li + 1) + card.explode * LAYER_GAP * (li + 1);
+      }
     }
 
     const g = this.group;
@@ -317,11 +367,12 @@ export class Showcase implements WorldPart {
     const playing = show && !rm;
     if (playing) {
       const renderer = this.ctx.renderer;
-      // Two faces per frame, in turn: every card still refreshes about 24 times a second at 60 Hz.
-      for (let j = 0; j < 2; j++) {
-        this.artCursor = (this.artCursor + 1) % n;
-        this.cards[this.artCursor]!.art.render(renderer, input.time);
-      }
+      // The card in front redraws every frame; the rest take turns, one per frame.
+      const lead = gallery ? clamp(Math.round(motion.workPos), 0, n - 1) : motion.page === 'case' && motion.focus >= 0 ? motion.focus : 0;
+      this.cards[lead]!.art.render(renderer, input.time);
+      this.artCursor = (this.artCursor + 1) % n;
+      if (this.artCursor === lead) this.artCursor = (this.artCursor + 1) % n;
+      this.cards[this.artCursor]!.art.render(renderer, input.time);
     }
     return this.moving || playing || input.pointerMoved || (motion.page === 'home' && since < 2.2);
   }
@@ -330,9 +381,11 @@ export class Showcase implements WorldPart {
     this.ctx.scene.remove(this.group);
     for (const c of this.cards) {
       c.material.dispose();
+      for (const m of c.layerMats) m.dispose();
       c.art.dispose();
     }
     this.geometry.dispose();
+    this.layerGeo.dispose();
     this.envTarget.dispose();
     this.ctx.scene.environment = null;
   }

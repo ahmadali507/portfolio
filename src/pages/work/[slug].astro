@@ -41,7 +41,7 @@ const d = project.data;
 const { Content } = await render(project);
 const pattern = patternFor(project);
 const seed = seedFor(project);
-const tone = toneForProject(project, featured);
+const tone = toneForProject(project);
 const focus = featured.findIndex((f) => f.id === project.id);
 const pad = (n: number) => String(n).padStart(2, '0');
 const draft = hasPlaceholders(project);
@@ -73,7 +73,7 @@ const titleChars = [...d.title];
     </header>
 
     <div class="page">
-      <Cover title={d.title} pattern={pattern} seed={seed} tone={tone} size="hero">
+      <Cover title={d.title} slug={project.id} pattern={pattern} seed={seed} tone={tone} size="hero">
         <figcaption class="label caption">
           Generative cover, drawn from code for this page. <Todo when={d.media.placeholder} text="Placeholder media" />
         </figcaption>

@@ -4,7 +4,7 @@
 // Without JavaScript, or under reduced motion, it is a plain list of projects with relief covers.
 import Relief from './Relief.astro';
 import Todo from './Todo.astro';
-import { patternFor, seedFor, STATUS_LABEL, toneFor, type Project } from '@/lib/projects';
+import { patternFor, seedFor, STATUS_LABEL, toneForProject, type Project } from '@/lib/projects';
 
 interface Props {
   projects: Project[];
@@ -31,7 +31,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       {
         projects.map((p, i) => {
           const d = p.data;
-          const tone = toneFor(i);
+          const tone = toneForProject(p);
           return (
             <li class="item" data-work-item data-state={i === 0 ? 'active' : 'next'}>
               <span class="ghost" aria-hidden="true">
@@ -41,8 +41,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 <p class="label">
                   {STATUS_LABEL[d.status.value]} <Todo when={d.status.placeholder} />
                 </p>
-                <h3>
-                  <a href={`/work/${p.id}/`}>{d.title}</a>
+                <h3 class:list={{ long: d.title.length > 10 }}>
+                  <a href={`/work/${p.id}/`}>
+                    {d.title.split('.').map((part, k, all) => (k < all.length - 1 ? <Fragment>{part}.<wbr /></Fragment> : part))}
+                  </a>
                 </h3>
                 <p class="summary">
                   {d.summary.value} <Todo when={d.summary.placeholder} />
@@ -130,6 +132,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   h3 a {
     text-decoration: none;
+  }
+
+  /* Long names step down so they never run under the card. */
+  h3.long {
+    font-size: clamp(2.5rem, 5.2vw, 5.5rem);
   }
 
   .summary {
@@ -353,6 +360,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
     .work[data-live] h3 {
       font-size: clamp(2.5rem, 12vw, 4rem);
+    }
+
+    .work[data-live] h3.long {
+      font-size: clamp(2rem, 8.4vw, 3rem);
     }
   }
 </style>

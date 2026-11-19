@@ -3,39 +3,34 @@ title: 'Xiomara'
 summary:
   value: 'A multilingual AI content platform.'
   placeholder: false
-featured: true
-order: 3
+featured: false
+order: 13
 status:
-  value: 'in-progress'
+  value: 'shipped'
   placeholder: true
 role:
-  value: 'Engineer, generation pipeline'
+  value: 'Built at OnePercent Technologies'
   placeholder: true
 year:
   value: 2025
   placeholder: true
 stack:
-  value: ['Next.js', 'Node.js', 'TypeScript', 'LLM APIs']
+  value: ['TODO']
   placeholder: true
 problem:
-  value: 'Content had to go out in several languages with the same meaning and the same tone.'
+  value: 'Placeholder. Replace with the problem this project solved.'
   placeholder: true
 outcome:
-  value: 'Writers draft once, then review a generated version for each language before it is published.'
+  value: 'Placeholder. Replace with what changed once it shipped, in plain words.'
   placeholder: true
 links:
-  - label: 'Live site'
-    url: '#'
-    placeholder: true
-  - label: 'Source'
+  - label: 'Project link'
     url: '#'
     placeholder: true
 media:
-  placeholder: true
+  placeholder: false
 public: false
 placeholder: true
 ---
 
-A draft fans out into one job per language. Separate agents translate, check terminology against a glossary, and flag sentences where the tone drifted.
-
-Nothing publishes without a person approving it. The review screen shows the source and the generated text side by side.
+Placeholder. A short account of how this was built goes here once the details are confirmed.

@@ -4,18 +4,26 @@ The 3D world and the scroll story. Contract files win on any conflict: `DESIGN.m
 
 ## Concept
 
-A portfolio is a deck of finished work, so the hero object is a deck: one glossy card per featured project, in its own finish (porcelain, vermilion, graphite, pearl, obsidian). Each face plays a motion graphic of what the project does and carries its name. The same graphic and finish appear on the case-study cover and the work-index preview.
+A portfolio is a deck of finished work, so the hero object is a deck: one glossy card per featured project. Each card is a shallow diorama. Its face plays a ten-second motion graphic of what the project does, in a palette taken from the project's own interface, and two transparent layers float in front of it carrying the interface panels and the name. When a card is in front or under the pointer, the layers part along depth. The same scene plays on the case-study cover and the work-index preview, where the layers shift against each other with the pointer.
 
-| Scene | Shows | Used by |
-| ----- | ----- | ------- |
-| editor | Two people typing in one document | Shocodoc |
-| ask | A document is searched; an answer points back at the passage | DocuChat AI |
-| languages | One source fans out into variants, one set right to left | Xiomara |
-| call | A call is checked, then routed to a person | Voice Transfer System |
-| book | Pages write themselves and turn | MagicalBook.Store |
-| product, phone, pipeline, spikes | Generic product kinds | The other projects |
+| Scene | Project | What plays |
+| ----- | ------- | ---------- |
+| 1 | MagicalBook.Store | A photo is scanned, a book writes and illustrates itself, a page turns, an order is confirmed |
+| 2 | Vakse | A request for proposal goes out, three bids fly in and the best is chosen, approval steps fill, payment pulses |
+| 3 | Codesmash | Two editors type side by side, tests turn green, a timer closes, the winner is crowned |
+| 4 | Shocodoc | Three colored carets edit one document, a passage is highlighted, a comment thread opens |
+| 5 | MenuMatch | A menu is built by dragging, a QR code resolves to a phone menu, an order ticket moves through its states |
+| 6 | TaxLens | A slip is uploaded, scraper nodes pulse, a dashboard fills with bars and a two-part ring |
+| 7 | Prepify | Interview cards deal in, a score ring fills, a skill radar opens |
+| 8 | EchoSign | A hand shape becomes points, the points become a word, the word becomes a waveform |
+| 9 | SearchX | A query is typed, index shards light up, results stack with a timing chip |
+| 10 | Scrape-Stripe | A clock fires a function, tables layer up, a line chart draws |
+| 11 | HundredPov | Three live stream cards pulse, the active one glows |
+| 12 | Waynaa | A radar sweeps a city map, pins drop, a deal card rises |
+| 13 | Xiomara | One source fans out into four language panels, one right to left |
+| 14 | OrderlyFlow | A phone list scrolls, a notification lands, a chart grows |
 
-The graphics are diagrams, not screenshots. They show no metric and imply no result. Source: `src/engine/shaders/scenes.ts`.
+The graphics are diagrams, not screenshots, and carry no real names, people, or figures. Source: `src/engine/shaders/holo.ts` (drawing kit), `src/engine/shaders/scenes.ts` (scenes), `src/lib/palettes.ts` (palettes).
 
 ## The home story, beat by beat
 
@@ -50,10 +58,11 @@ No downloaded models, textures, or HDR files.
 | Asset          | Source                                            | Triangles        | Draw calls  |
 | -------------- | ------------------------------------------------- | ---------------- | ----------- |
 | Card           | `RoundedBoxGeometry(3.2, 2, 0.07, 5, 0.11)`       | about 2,500      | 1 each      |
-| Card face      | Render target from the scene shader, 768 x 480, two faces refreshed per frame | 0 | 2 small passes per frame |
+| Card layers    | Two `PlaneGeometry` planes per card, shared geometry, premultiplied blending | 4 each | 2 each |
+| Card art       | One pass into three render targets (ground, surfaces, lift), 768 x 480 | 0 | lead card plus one other per frame |
 | Reflections    | `RoomEnvironment` prefiltered by `PMREMGenerator` | 0                | 0 per frame |
 | Plate          | `PlaneGeometry(1, 1, 32, 24)`, shared             | 1,536 each       | 1 each      |
-| **Worst case** | 5 cards and 6 plates                              | **about 22,000** | **11**      |
+| **Worst case** | 6 cards with layers and 6 plates                  | **about 24,300** | **24**      |
 
 ## Lighting and finish
 

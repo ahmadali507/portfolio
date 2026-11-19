@@ -25,13 +25,16 @@ Glass Deck, dark, with the liquid splash (DESIGN.md section 1, docs/SCENE.md). R
 - `src/components/WorldHost.astro`: `#world`, persisted across navigation, holds the poster.
 - `src/motion/core.ts`: Lenis, the one ticker, ScrollTrigger, router lifecycle. `src/motion/scenes.ts`: page choreography. `src/motion/state.ts`: shared progress values.
 - `src/motion/liquid.ts`: the cursor splash (own canvas, raw WebGL2). `src/components/WorkGallery.astro`: the pinned wheel gallery markup.
-- `src/engine/world/Showcase.ts`: the glossy deck and its poses. `cardArt.ts`: card faces rendered once.
-- `src/engine/world/Covers.ts`: WebGL plates mapped onto `[data-plate]` figures, tracked plates, stack cut line.
+- `src/engine/world/Showcase.ts`: the glossy deck, its poses, and the floating layer planes. `cardArt.ts`: card art in three layers (multiple render targets).
+- `src/engine/shaders/holo.ts`: the drawing kit for layered motion graphics. `src/engine/shaders/scenes.ts`: the fourteen project scenes. `src/lib/palettes.ts`: palette and scene number per project. `src/engine/world/palette.ts`: palette uniforms.
+- `src/engine/world/Covers.ts`: WebGL plates mapped onto `[data-plate]` figures; they play the project scene with pointer parallax.
 - `scripts/film.mjs`: frames at scroll positions for reviewing choreography.
 - `src/lib/patterns.ts` and `src/engine/shaders/patterns.ts`: the relief patterns, TypeScript and GLSL twins.
 - `src/lib/projects.ts`: visibility (draft switch plus CONTENT.md approval), pattern ids.
 - `scripts/prelaunch.mjs`: launch gate. `scripts/font-fallback.mjs`: fallback metrics.
 
 ## Remaining work
+
+- Content: projects now come from the Notion knowledge base and the Drive OnePercent folder (2026-11-19). Roles on Vakse, Codesmash, and MenuMatch, and most fields on the Drive-only projects, are TODO. See `docs/CONTENT.md`.
 
 - Step 5: Open Graph image (`/og.png` referenced, not generated), measured frame rate, Lighthouse runs, idle-render check, final micro-interaction pass.

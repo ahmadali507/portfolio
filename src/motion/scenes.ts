@@ -215,6 +215,7 @@ function peek(doc: Document): void {
   });
   list.querySelectorAll<HTMLElement>('[data-peek-row]').forEach((row) => {
     row.addEventListener('pointerenter', () => {
+      peekEl.dataset.slug = row.dataset.slug ?? '';
       peekEl.dataset.pattern = row.dataset.pattern ?? '0';
       peekEl.dataset.seed = row.dataset.seed ?? '0';
       peekEl.dataset.base = row.dataset.base ?? '';

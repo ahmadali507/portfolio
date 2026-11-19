@@ -103,16 +103,17 @@ Adopted on 2026-11-15, replacing Kinetic Field. See `DESIGN.md` section 1 and `d
 
 **Scene parts.**
 
-- `Showcase` (`src/engine/world/Showcase.ts`): one `RoundedBoxGeometry` shared by up to 5 meshes with `MeshPhysicalMaterial` (clear coat). Each card face is a render target drawn by the scene shader (`shaders/scenes.ts`, `cardArt.ts`); two faces are refreshed per frame in turn while the deck is on screen, so nothing is uploaded from the CPU. Reflections come from `RoomEnvironment` through `PMREMGenerator`, so no HDR file is downloaded. Poses (enter, stack, fan, row, wheel, feature, away) are pure functions; each frame damps meshes toward them. The wheel is the work gallery: card angle follows `motion.workPos`, which `scenes.ts` eases so a card rests at the front.
-- `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]`, drawn in an orthographic pass in CSS pixels after the deck. Static plates use cached rectangles. Plates marked `data-plate-track` (the cursor preview) read their rectangle each frame.
+- `Showcase` (`src/engine/world/Showcase.ts`): one `RoundedBoxGeometry` shared by up to 6 meshes with `MeshPhysicalMaterial` (clear coat). Card art (`cardArt.ts`) renders the project's scene once into a three-attachment render target (WebGL2 multiple render targets, GLSL 3): attachment 0 is the ground (sRGB, encoded by the hardware on write) and maps onto the card face; attachments 1 and 2 are premultiplied linear layers on two child planes with `One, OneMinusSrcAlpha` blending. The planes part along z when a card is in front or hovered. Each material compiles one scene through a `SCENE` define. The lead card redraws every frame and one other card refreshes in turn, so nothing is uploaded from the CPU. Reflections come from `RoomEnvironment` through `PMREMGenerator`, so no HDR file is downloaded. Poses (enter, stack, fan, row, wheel, feature, away) are pure functions; each frame damps meshes toward them. The wheel is the work gallery: card angle follows `motion.workPos`, which `scenes.ts` eases so a card rests at the front.
+- `Covers` (`src/engine/world/Covers.ts`): one plane per `[data-plate]`, drawn in an orthographic pass in CSS pixels after the deck. It runs the same scene and composites the three layers in one pass, offsetting each layer by the pointer for parallax. A plate rebuilds its material when its `data-slug` changes (the work-index preview). Static plates use cached rectangles. Plates marked `data-plate-track` (the cursor preview) read their rectangle each frame.
 
 **Budget plan (fits the DESIGN.md limits).**
 
 | Part                                   | Draw calls | Triangles                 |
 | -------------------------------------- | ---------- | ------------------------- |
-| Deck, 5 cards, tier 1 (bevel 5)        | 5          | about 5 x 2,500 = 12,500  |
+| Deck, 6 cards, tier 1 (bevel 5)        | 6          | about 6 x 2,500 = 15,000  |
+| Card layers, 2 planes per card         | 12         | 24                        |
 | Plates visible at once (6 at most)     | 6          | 6 x 1,536 = 9,216         |
-| **Worst case**                         | **11**     | **about 22,000**          |
+| **Worst case**                         | **24**     | **about 24,300**          |
 
 **Reduced motion.** No scroll scrubbing, no tilt, bend, or magnetic pull, no hero pin (the hero is one screen tall). The deck holds its rest pose, and page changes are instant.
 

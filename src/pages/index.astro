@@ -5,7 +5,7 @@ import SplitWords from '@/components/SplitWords.astro';
 import Relief from '@/components/Relief.astro';
 import Todo from '@/components/Todo.astro';
 import { CONTACT, FIRST_NAME, FULL_NAME, PERSON, SURNAME } from '@/config/site';
-import { patternFor, seedFor, toneFor, visibleProjects } from '@/lib/projects';
+import { patternFor, seedFor, toneForProject, visibleProjects } from '@/lib/projects';
 
 const { featured, all } = await visibleProjects();
 const email = CONTACT.find((c) => c.label === 'Email');
@@ -20,7 +20,7 @@ const practice = [
   { area: 'Cloud', items: ['AWS', 'GCP'] },
   { area: 'Automation', items: ['n8n', 'Zapier'] },
 ];
-const fallbackCards = featured.slice(0, 3).map((p, i) => ({ p, tone: toneFor(i) }));
+const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject(p) }));
 ---
 
 <Base page="home">

@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { DRAFT_PREVIEW } from '@/config/site';
-import { toneFor, TONES, type Tone } from './tones';
+import { toneForSlug, type Tone } from './tones';
+import { paletteFor } from './palettes';
 
 export type Project = CollectionEntry<'projects'>;
 
@@ -66,55 +67,17 @@ export const STATUS_LABEL = {
   proposal: 'Proposal',
 } as const;
 
-/**
- * Generative cover pattern per project, shared by the WebGL field, the WebGL covers, and the
- * SVG fallback (src/lib/patterns.ts). Visual identity only; it makes no claim about the project.
- */
-const PATTERN_BY_SLUG: Record<string, number> = {
-  shocodoc: 1,
-  'docuchat-ai': 2,
-  xiomara: 3,
-  'voice-transfer-system': 4,
-  'magicalbook-store': 5,
-  prepify: 6,
-  'scrape-stripe': 8,
-  cricping: 7,
-  'ai-interviewer': 7,
-  eapo: 7,
-  orderlyflow: 7,
-  'spiking-mamba': 9,
-};
+/** Motion-graphic scene id for a project (src/lib/palettes.ts). */
+export const patternFor = (p: Project): number => paletteFor(p.id).scene;
 
-/** Two or three words for the card's corner label, taken from the one-line summaries. */
-const KIND_BY_SLUG: Record<string, string> = {
-  shocodoc: 'Collaborative editor',
-  'docuchat-ai': 'Document Q&A',
-  xiomara: 'Content platform',
-  'voice-transfer-system': 'Call routing',
-  'magicalbook-store': 'Storybooks',
-};
+/** Two words for the card's corner label. */
+export const kindFor = (p: Project): string => paletteFor(p.id).kind;
 
-export const kindFor = (p: Project): string => KIND_BY_SLUG[p.id] ?? 'Project';
-
-export const patternFor = (p: Project): number => {
-  const fixed = PATTERN_BY_SLUG[p.id];
-  if (fixed !== undefined) return fixed;
-  return 6;
-};
-
-/** Stable 0..1 seed per project, so variants of a shared pattern differ. */
+/** Stable 0..1 seed per project, so loops do not run in lockstep. */
 export const seedFor = (p: Project): number => {
   let h = 2166136261;
   for (const ch of p.id) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0;
   return (h % 1000) / 1000;
 };
 
-
-/** Card finish: featured projects take the fixed sequence; the rest alternate the light finishes. */
-export const toneForProject = (p: Project, featured: Project[]): Tone => {
-  const i = featured.findIndex((f) => f.id === p.id);
-  if (i >= 0) return toneFor(i);
-  return seedFor(p) > 0.5 ? TONES[1]! : TONES[4]!;
-};
-
-export { toneFor };
+export const toneForProject = (p: Project): Tone => toneForSlug(p.id);

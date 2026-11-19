@@ -4,15 +4,15 @@ summary:
   value: 'A React Native app.'
   placeholder: false
 featured: false
-order: 6
+order: 14
 status:
   value: 'shipped'
   placeholder: true
 role:
-  value: 'Engineer'
+  value: 'Built at OnePercent Technologies'
   placeholder: true
 year:
-  value: 2024
+  value: 2025
   placeholder: true
 stack:
   value: ['React Native']
@@ -28,7 +28,7 @@ links:
     url: '#'
     placeholder: true
 media:
-  placeholder: true
+  placeholder: false
 public: false
 placeholder: true
 ---

@@ -1,21 +1,21 @@
 ---
-title: 'Tax-Lens'
+title: 'HundredPov'
 summary:
-  value: 'Placeholder. One-line summary to come.'
-  placeholder: true
+  value: 'A hub for live game streams, with stream cards, live markers, and a match lobby.'
+  placeholder: false
 featured: false
-order: 7
+order: 11
 status:
   value: 'shipped'
   placeholder: true
 role:
-  value: 'Engineer'
+  value: 'Built at OnePercent Technologies'
   placeholder: true
 year:
-  value: 2024
+  value: 2025
   placeholder: true
 stack:
-  value: ['TypeScript']
+  value: ['TODO']
   placeholder: true
 problem:
   value: 'Placeholder. Replace with the problem this project solved.'
@@ -28,9 +28,9 @@ links:
     url: '#'
     placeholder: true
 media:
-  placeholder: true
+  placeholder: false
 public: false
 placeholder: true
 ---
 
-Placeholder. A short account of how this was built goes here once the details are confirmed.
+Screens show a landing page with live stream cards, a features section, sign-in, and a lobby with open, live, and completed matches. Placeholder: the build story goes here once confirmed.

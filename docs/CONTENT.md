@@ -34,29 +34,38 @@ The only source of facts about Ahmad for this site. Nothing outside this file ma
 
 All candidates are unconfirmed for public display. NDA status is unknown for every one. A project's content entry must keep `public: false` until every column in its row is filled and approved.
 
-| Project                                                      | Public or NDA | May show name | May show screenshots | Ahmad's approval |
-| ------------------------------------------------------------ | ------------- | ------------- | -------------------- | ---------------- |
-| PRMEDIA                                                      |               |               |                      |                  |
-| MagicalBook.Store (featured): AI personalized storybooks     |               |               |                      |                  |
-| CricPing: cricket alerts                                     |               |               |                      |                  |
-| SpatioArchitect                                              |               |               |                      |                  |
-| Spiking Mamba (research proposal): spiking state space models for streaming intrusion detection |               |               |                      |                  |
-| Membership signup and Cloudflare Worker integration (client) |               |               |                      |                  |
-| Shocodoc (featured): CRDT collaborative editor |               |               |                      |                  |
-| DocuChat AI (featured): RAG document Q&A |               |               |                      |                  |
-| Xiomara (featured): multilingual AI content platform |               |               |                      |                  |
-| Voice Transfer System (featured): live call transfer with answering-machine detection on Telnyx |               |               |                      |                  |
-| Prepify: AI mock interviews |               |               |                      |                  |
-| Scrape-Stripe: GCP ETL pipeline |               |               |                      |                  |
-| AI Interviewer: React Native app |               |               |                      |                  |
-| EAPO: React Native app |               |               |                      |                  |
-| OrderlyFlow: React Native app |               |               |                      |                  |
-| Tax-Lens: no summary supplied |               |               |                      |                  |
-| CARTX: no summary supplied |               |               |                      |                  |
-| SearchX: no summary supplied |               |               |                      |                  |
-| Waynna: no summary supplied |               |               |                      |                  |
+Project set revised on 2026-11-19 at Ahmad's request. Sources: the Project Knowledge Base in Muhammad Amjad's Notion workspace (KB) and the OnePercent folder in Ahmad's Google Drive (Drive). Screenshots in Drive were used only as reference for each motion graphic's palette and subject. No screenshot, photo, or logo is published.
 
-Project names and one-line summaries above were supplied by Ahmad on 2026-11-15. Every other project detail on the site (role, year, problem, outcome, stack, links, imagery) is dummy data marked `placeholder: true` in `src/content/projects/`. Approve a project by writing "Approved" and a date in its last column.
+| Project | Source | Public or NDA | May show name | May show screenshots | Ahmad's approval |
+| --- | --- | --- | --- | --- | --- |
+| MagicalBook.Store (featured): AI personalized storybooks | KB, Drive | | | | |
+| Vakse (featured): procurement platform, RFP to payment | KB | | | | |
+| Codesmash (featured): real-time coding battles | KB, Drive | | | | |
+| Shocodoc (featured): real-time collaborative documents | KB, Drive | | | | |
+| MenuMatch (featured): themed digital menus behind a QR code | KB, Drive | | | | |
+| TaxLens (featured): civic tax and spending comparison | KB, Drive | | | | |
+| Prepify: AI mock interviews | Drive | | | | |
+| EchoSign: sign language to text and speech | Drive | | | | |
+| SearchX: search engine | KB | | | | |
+| Scrape-Stripe: GCP ETL pipeline | KB | | | | |
+| HundredPov: live game stream hub | Drive | | | | |
+| Waynaa: local discovery | KB | | | | |
+| Xiomara: multilingual AI content platform | Drive (empty folder) | | | | |
+| OrderlyFlow: React Native app | Drive (empty folder) | | | | |
+
+Summaries, problems, and outcomes for KB projects are condensed from their KB pages. Drive-only projects describe only what their screenshots show; every other field is a visible TODO.
+
+### Withheld on purpose
+
+- Client names, teammate names, and every figure from the KB (prices, budgets, costs, counts, and KPIs). None are approved here.
+- Folders and categories that fall under the content rules in `CLAUDE.md` (rule 1), and the Testimonials folder (rule 3).
+- RedeemX: the Drive folder is empty and the KB has no page.
+- Personal details visible in screenshots (photos of people, names, emails) and third-party trademarks or streamer handles.
+- The Codesmash server repository link, because the KB flags its remote code execution surface.
+
+### Removed from the site on 2026-11-19
+
+DocuChat AI, Voice Transfer System, CricPing, AI Interviewer, EAPO, CARTX, Spiking Mamba, and the old Waynna and Tax-Lens entries (replaced by Waynaa and TaxLens from the KB). PRMEDIA, SpatioArchitect, and the membership signup client project were never built as entries.
 
 ## Open TODOs
 
@@ -65,5 +74,6 @@ Project names and one-line summaries above were supplied by Ahmad on 2026-11-15.
 - TODO: public links (GitHub, LinkedIn, Upwork, email) and which of them may appear.
 - TODO: NDA status for every candidate project.
 - TODO: real role, year, problem, outcome, stack, and links for every project.
-- TODO: one-line summaries for Tax-Lens, CARTX, SearchX, and Waynna.
+- TODO: Ahmad's role on Vakse, Codesmash, and MenuMatch. Their repositories sit under a teammate's GitHub account, so the site says only "Built at OnePercent Technologies".
+- TODO: stack, year, problem, and outcome for Prepify, EchoSign, HundredPov, Xiomara, and OrderlyFlow.
 - TODO: production domain.

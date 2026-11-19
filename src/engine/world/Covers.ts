@@ -1,5 +1,4 @@
 import {
-  Color,
   MathUtils,
   Mesh,
   OrthographicCamera,
@@ -7,10 +6,11 @@ import {
   Scene,
   ShaderMaterial,
   Vector2,
-  Vector3,
   type WebGLRenderer,
 } from 'three';
 import { SCENES_GLSL } from '../shaders/scenes';
+import { paletteFor } from '../../lib/palettes';
+import { PALETTE_GLSL, paletteUniforms } from './palette';
 import type { EngineContext, FrameInput, Tier, WorldPart } from '../types';
 
 const { damp, clamp } = MathUtils;
@@ -45,44 +45,52 @@ void main() {
 }
 `;
 
+// The same motion graphic as the project's 3D card, composited in one pass: the three layers
+// shift against each other with the pointer, so the plate reads as a shallow diorama.
 const fragmentShader = /* glsl */ `
 ${SCENES_GLSL}
+${PALETTE_GLSL}
 
-uniform float uPattern;
 uniform float uSeed;
 uniform vec2 uSize;
 uniform vec2 uPointer;
 uniform float uHover;
 uniform float uTime;
-uniform vec3 uBase;
-uniform vec3 uLine;
-uniform vec3 uAccent;
 uniform float uRadius;
 uniform float uAlpha;
+uniform float uDim;
+uniform float uCut;
+uniform vec2 uView;
 
 varying vec2 vUv;
 varying float vShade;
 
 void main() {
-  // Rounded corners, matching the CSS radius of the frame.
   vec2 px = (vUv - 0.5) * uSize;
   vec2 q = abs(px) - (uSize * 0.5 - uRadius);
   float dist = length(max(q, 0.0)) - uRadius;
   float mask = 1.0 - smoothstep(-1.0, 0.5, dist);
   if (mask <= 0.0) discard;
+  float yTop = uView.y - gl_FragCoord.y / uView.x;
+  if (yTop > uCut) discard;
 
-  // Scenes are drawn for a 1.6 : 1 frame; wider plates center the graphic.
+  // Cards keep the bottom fifth for the title; plates show the stage above it, centered.
   float aspect = uSize.x / uSize.y;
-  vec2 p = vec2((vUv.x - 0.5) * aspect + 0.8, vUv.y);
-  vec3 col = scene(uPattern, p, uTime, uBase, uLine, uAccent, uSeed);
+  gP = vec2(0.8 + (vUv.x - 0.5) * aspect * 0.82, 0.18 + vUv.y * 0.82);
+  gPar = (uPointer - 0.5) * -0.035 * (0.35 + 0.65 * uHover);
+  gL0 = vec4(0.0);
+  gL1 = vec4(0.0);
+  gL2 = vec4(0.0);
+  usePalette();
+  runScene(mod(uTime + uSeed * 10.0, 10.0));
+  vec3 col = over(gL2, over(gL1, gL0)).rgb;
 
-  // Gloss: a soft diagonal sheen that slides with the pointer, plus a fixed top-left glaze.
+  // Gloss: a soft diagonal sheen that slides with the pointer.
   vec2 dir = normalize(vec2(1.0, 0.55));
   float band = dot(vUv - mix(vec2(0.2, 0.8), uPointer, uHover), dir);
-  float sheen = exp(-band * band * 38.0) * (0.05 + 0.09 * uHover);
-  float glaze = smoothstep(1.2, 0.0, length(vUv - vec2(0.0, 1.0))) * 0.04;
-  col += vec3(sheen + glaze);
+  col += vec3(exp(-band * band * 38.0) * (0.03 + 0.06 * uHover));
   col *= 1.0 - vShade * 0.05;
+  col = mix(col, vec3(0.004, 0.0045, 0.005), uDim);
 
   gl_FragColor = vec4(col, mask * uAlpha);
   #include <colorspace_fragment>
@@ -96,18 +104,18 @@ interface Plate {
   host: HTMLElement;
   mesh: Mesh;
   material: ShaderMaterial;
-  /** Measured every frame when the plate lives in a moving container (sticky, scaled, following). */
+  /** Measured every frame when the plate lives in a moving container (pointer-following preview). */
   track: boolean;
-  /** Stacking cards: this card's shade overlay, and the next card whose top edge hides this plate. */
-  shade: HTMLElement | null;
-  cutEl: HTMLElement | null;
   top: number;
   left: number;
   width: number;
   height: number;
   hover: number;
   hoverTarget: number;
+  /** Shared with the material's uniforms; survives a material rebuild. */
   pointer: Vector2;
+  size: Vector2;
+  radius: number;
   pointerTarget: Vector2;
   bend: number;
   key: string;
@@ -116,8 +124,8 @@ interface Plate {
 
 /**
  * Project covers as WebGL planes in a second, orthographic pass in CSS pixels. Static plates use
- * rectangles cached on mount and resize; tracked plates read their rectangle each frame
- * (ARCHITECTURE.md section 8 allows this for at most a handful of plates in moving containers).
+ * rectangles cached on mount and resize; tracked plates read their rectangle each frame.
+ * Each plate compiles only its own scene; switching project (the work-index preview) swaps material.
  */
 export class Covers implements WorldPart {
   private readonly ctx: EngineContext;
@@ -130,7 +138,6 @@ export class Covers implements WorldPart {
   private height = 1;
   private lastScroll = -1;
   private tier: Tier;
-  private time = 0;
 
   constructor(ctx: EngineContext, tier: Tier) {
     this.ctx = ctx;
@@ -159,7 +166,7 @@ export class Covers implements WorldPart {
     p.left = r.left + window.scrollX;
     p.width = r.width;
     p.height = r.height;
-    (p.material.uniforms.uSize!.value as Vector2).set(Math.max(1, r.width), Math.max(1, r.height));
+    p.size.set(Math.max(1, r.width), Math.max(1, r.height));
   }
 
   mount(doc: Document): void {
@@ -170,50 +177,51 @@ export class Covers implements WorldPart {
     this.ctx.invalidate();
   }
 
-  private syncData(p: Plate): void {
-    const d = p.el.dataset;
-    const key = `${d.pattern}|${d.seed}|${d.base}|${d.line}|${d.accent}`;
-    if (key === p.key) return;
-    p.key = key;
-    const u = p.material.uniforms;
-    u.uPattern!.value = Number(d.pattern ?? 0);
-    u.uSeed!.value = Number(d.seed ?? 0);
-    (u.uBase!.value as Color).set(d.base ?? '#e1e2df');
-    (u.uLine!.value as Color).set(d.line ?? '#ededeb');
-    (u.uAccent!.value as Color).set(d.accent ?? '#e2401c');
-  }
-
-  private createPlate(el: HTMLElement): Plate {
-    const frame = el.querySelector<HTMLElement>('.frame') ?? el;
-    const host = el.closest<HTMLElement>('[data-plate-host]') ?? el;
-    const material = new ShaderMaterial({
+  private makeMaterial(p: Plate, slug: string, seed: number): ShaderMaterial {
+    const pal = paletteFor(slug);
+    return new ShaderMaterial({
       vertexShader,
       fragmentShader,
+      defines: { SCENE: pal.scene },
       transparent: true,
       depthTest: false,
       depthWrite: false,
       toneMapped: false,
       uniforms: {
-        uPattern: { value: 0 },
-        uSeed: { value: 0 },
-        uSize: { value: new Vector2(1, 1) },
-        uPointer: { value: new Vector2(0.5, 0.5) },
+        uSeed: { value: seed },
+        uSize: { value: p.size },
+        uPointer: { value: p.pointer },
         uHover: { value: 0 },
         uBend: { value: 0 },
         uTilt: { value: 0.1 },
-        uRipple: { value: new Vector3(0.5, 0.5, -10) },
         uTime: { value: 0 },
-        uBase: { value: new Color() },
-        uLine: { value: new Color() },
-        uAccent: { value: new Color() },
-        uRadius: { value: parseFloat(getComputedStyle(frame).borderTopLeftRadius) || 0 },
+        uRadius: { value: p.radius },
         uAlpha: { value: 1 },
         uDim: { value: 0 },
         uCut: { value: 1e6 },
         uView: { value: this.view },
+        ...paletteUniforms(pal),
       },
     });
-    const mesh = new Mesh(this.geometry, material);
+  }
+
+  /** Rebuilds the material when the element now shows a different project. */
+  private syncData(p: Plate): void {
+    const d = p.el.dataset;
+    const key = `${d.slug ?? ''}|${d.seed ?? ''}`;
+    if (key === p.key) return;
+    p.key = key;
+    const old = p.material;
+    p.material = this.makeMaterial(p, d.slug ?? '', Number(d.seed ?? 0));
+    p.mesh.material = p.material;
+    old.dispose();
+  }
+
+  private createPlate(el: HTMLElement): Plate {
+    const frame = el.querySelector<HTMLElement>('.frame') ?? el;
+    const host = el.closest<HTMLElement>('[data-plate-host]') ?? el;
+    const placeholder = new ShaderMaterial();
+    const mesh = new Mesh(this.geometry, placeholder);
     mesh.frustumCulled = false;
     this.scene.add(mesh);
 
@@ -222,20 +230,17 @@ export class Covers implements WorldPart {
       frame,
       host,
       mesh,
-      material,
+      material: placeholder,
       track: el.hasAttribute('data-plate-track'),
-      shade: el.closest('[data-stack-card]')?.querySelector<HTMLElement>('[data-stack-shade]') ?? null,
-      cutEl:
-        (el.closest('[data-stack-card]')?.nextElementSibling as HTMLElement | null)?.querySelector<HTMLElement>(
-          '[data-stack-inner]',
-        ) ?? null,
       top: 0,
       left: 0,
       width: 1,
       height: 1,
       hover: 0,
       hoverTarget: el.hasAttribute('data-peek') ? 0.6 : 0,
-      pointer: material.uniforms.uPointer!.value as Vector2,
+      pointer: new Vector2(0.5, 0.5),
+      size: new Vector2(1, 1),
+      radius: parseFloat(getComputedStyle(frame).borderTopLeftRadius) || 0,
       pointerTarget: new Vector2(0.5, 0.5),
       bend: 0,
       key: '',
@@ -264,12 +269,7 @@ export class Covers implements WorldPart {
       plate.pointerTarget.set(0.5, 0.5);
       this.ctx.invalidate();
     };
-    const down: EventListener = (e) => {
-      toUv(e as PointerEvent);
-      (material.uniforms.uRipple!.value as Vector3).set(plate.pointerTarget.x, plate.pointerTarget.y, this.time);
-      this.ctx.invalidate();
-    };
-    plate.listeners.push(['pointerenter', enter], ['pointermove', move], ['pointerleave', leave], ['pointerdown', down]);
+    plate.listeners.push(['pointerenter', enter], ['pointermove', move], ['pointerleave', leave]);
     for (const [type, fn] of plate.listeners) host.addEventListener(type, fn, { passive: true });
     return plate;
   }
@@ -288,29 +288,24 @@ export class Covers implements WorldPart {
     if (!this.plates.length) return false;
     const dt = input.dt;
     const rm = input.reducedMotion;
-    this.time = input.time;
     let active = input.scroll !== this.lastScroll;
     this.lastScroll = input.scroll;
     const bendTarget = rm || this.tier === 2 ? 0 : clamp(input.velocity * 0.01, -0.8, 0.8);
 
     for (let i = 0; i < this.plates.length; i++) {
       const p = this.plates[i]!;
-      const u = p.material.uniforms;
       if (p.track) {
-        // Sticky, scaled, or pointer-following containers: follow the real box this frame.
+        // Pointer-following containers: follow the real box this frame.
         const pt = p.top;
         const pl = p.left;
-        const pw = p.width;
-        const pa = u.uAlpha!.value as number;
         this.measure(p, input.scroll);
         this.syncData(p);
         const o = p.el.style.opacity;
-        u.uAlpha!.value = o === '' ? 1 : Number(o);
-        if (pt !== p.top || pl !== p.left || pw !== p.width || pa !== u.uAlpha!.value) active = true;
-        const so = p.shade?.style.opacity;
-        u.uDim!.value = so ? Number(so) : 0;
-        u.uCut!.value = p.cutEl ? p.cutEl.getBoundingClientRect().top : 1e6;
+        const alpha = o === '' ? 1 : Number(o);
+        if (pt !== p.top || pl !== p.left || p.material.uniforms.uAlpha!.value !== alpha) active = true;
+        p.material.uniforms.uAlpha!.value = alpha;
       }
+      const u = p.material.uniforms;
       const y = p.top - input.scroll;
       const visible = y + p.height > -50 && y < this.height + 50 && p.width > 1 && u.uAlpha!.value > 0.001;
       p.mesh.visible = visible;
@@ -324,16 +319,9 @@ export class Covers implements WorldPart {
       p.bend = p.track ? 0 : damp(p.bend, bendTarget, 5, dt);
       u.uHover!.value = p.hover;
       u.uBend!.value = p.bend;
-      u.uTime!.value = input.time;
-      if (!rm) active = true;
-
-      if (
-        Math.abs(p.hover - ht) > 1e-3 ||
-        Math.abs(p.bend - bendTarget) > 1e-3 ||
-        Math.abs(p.pointer.x - p.pointerTarget.x) > 1e-3 ||
-        Math.abs(p.pointer.y - p.pointerTarget.y) > 1e-3 ||
-        input.time - (u.uRipple!.value as Vector3).z < 2
-      ) {
+      // The motion graphic plays while the plate is on screen; under reduced motion it holds a frame.
+      if (!rm) {
+        u.uTime!.value = input.time;
         active = true;
       }
     }

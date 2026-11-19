@@ -7,18 +7,20 @@ import type { Tone } from '@/lib/tones';
 
 interface Props {
   title: string;
+  slug: string;
   pattern: number;
   seed: number;
   tone: Tone;
   size?: 'feature' | 'hero';
 }
-const { title, pattern, seed, tone, size = 'feature' } = Astro.props;
+const { title, slug, pattern, seed, tone, size = 'feature' } = Astro.props;
 ---
 
 <figure
   class:list={['cover', size]}
   data-plate
   data-plate-host
+  data-slug={slug}
   data-pattern={pattern}
   data-seed={seed.toFixed(3)}
   data-base={tone.base}
@@ -27,7 +29,7 @@ const { title, pattern, seed, tone, size = 'feature' } = Astro.props;
   style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}
 >
   <div class="frame">
-    <Relief pattern={pattern} seed={seed} label={`Generative relief cover for ${title}. Not a screenshot.`} />
+    <Relief pattern={pattern} seed={seed} label={`Motion graphic for ${title}. Not a screenshot.`} />
   </div>
   <slot />
 </figure>

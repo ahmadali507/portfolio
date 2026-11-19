@@ -1,41 +1,43 @@
 ---
 title: 'MagicalBook.Store'
 summary:
-  value: 'Personalized storybooks written with AI.'
+  value: 'Turns photos of a child into a personalized, illustrated storybook, delivered as an eBook or a printed hardcover.'
   placeholder: false
 featured: true
-order: 5
+order: 1
 status:
   value: 'shipped'
-  placeholder: true
+  placeholder: false
 role:
-  value: 'Engineer, storefront and generation flow'
-  placeholder: true
+  value: 'Built and operates it'
+  placeholder: false
 year:
-  value: 2024
+  value: 2026
   placeholder: true
 stack:
-  value: ['Next.js', 'Supabase', 'LLM APIs']
-  placeholder: true
+  value: ['Next.js', 'TypeScript', 'Supabase', 'Gemini', 'OpenAI', 'Stripe', 'Google Cloud Tasks']
+  placeholder: false
 problem:
-  value: 'Parents wanted a story with their own child in it, not a template with a name swapped in.'
-  placeholder: true
+  value: 'Parents want a book where their own child is the hero, with the same face and outfit on every page, not a template with a name swapped in.'
+  placeholder: false
 outcome:
-  value: 'Each order produces a book written for one child, checked before it goes out.'
-  placeholder: true
+  value: 'Live in English and Czech, taking real payments, and shipping printed hardcovers through a print-on-demand partner.'
+  placeholder: false
 links:
   - label: 'Live site'
-    url: '#'
-    placeholder: true
-  - label: 'Source'
-    url: '#'
-    placeholder: true
+    url: 'https://magicalbook.store'
+    placeholder: false
+  - label: 'Czech store'
+    url: 'https://magickakniha.cz'
+    placeholder: false
 media:
-  placeholder: true
+  placeholder: false
 public: false
-placeholder: true
+placeholder: false
 ---
 
-An order collects a few details about the child. A queued job writes the story in chapters, then a review step checks each chapter for the details it was given.
+Book generation runs as a chain of small, resumable steps on Google Cloud Tasks, so a crash halfway through picks up where it stopped instead of starting over or charging twice.
 
-The storefront, the order flow, and the generation jobs share one database, so an order can be traced from checkout to the finished book.
+A consistency engine builds a cast from the reference photos and keeps faces, outfits, and props the same across the cover and every scene. Each job goes to the model that does it best: one writes the story, one keeps the likeness, one paints the scenes, and one checks them.
+
+Every image passes an automated safety review before a parent can see it. Checkout, coupons, print quotes, fulfillment webhooks, and refunds on failure are all handled in the same system.

@@ -1,36 +1,40 @@
 ---
 title: 'SearchX'
 summary:
-  value: 'Placeholder. One-line summary to come.'
-  placeholder: true
+  value: 'A search engine for GitHub repositories, built from scratch on a hand-made inverted index and a ranking API.'
+  placeholder: false
 featured: false
 order: 9
 status:
-  value: 'shipped'
+  value: 'archived'
   placeholder: true
 role:
-  value: 'Engineer'
-  placeholder: true
+  value: 'Built it'
+  placeholder: false
 year:
   value: 2024
-  placeholder: true
+  placeholder: false
 stack:
-  value: ['TypeScript']
-  placeholder: true
+  value: ['Python', 'Flask', 'NLTK', 'MessagePack', 'Next.js', 'TypeScript']
+  placeholder: false
 problem:
-  value: 'Placeholder. Replace with the problem this project solved.'
-  placeholder: true
+  value: 'Hosted search services hide the ranking. This project builds every layer, from tokenizing to ranking, to control relevance and cost directly.'
+  placeholder: false
 outcome:
-  value: 'Placeholder. Replace with what changed once it shipped, in plain words.'
-  placeholder: true
+  value: 'Each query reads only the index shards it needs, in parallel, and returns ranked results with the search time shown.'
+  placeholder: false
 links:
-  - label: 'Project link'
-    url: '#'
-    placeholder: true
+  - label: 'Source'
+    url: 'https://github.com/ahmadali507/SearchX'
+    placeholder: false
 media:
-  placeholder: true
+  placeholder: false
 public: false
-placeholder: true
+placeholder: false
 ---
 
-Placeholder. A short account of how this was built goes here once the details are confirmed.
+An offline pipeline tokenizes and lemmatizes the corpus, builds a forward index with byte offsets, and inverts it into an index split across many small shards.
+
+The Flask ranking API reads only the shards a query touches, on a thread pool, and scores documents on term frequency, density, proximity, and coverage before a heap picks the top results.
+
+A Next.js interface sends the query through a Server Action and shows result cards with the time each search took.

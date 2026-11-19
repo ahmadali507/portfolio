@@ -1,41 +1,43 @@
 ---
 title: 'Shocodoc'
 summary:
-  value: 'A collaborative document editor built on CRDTs.'
+  value: 'A real-time collaborative document editor with live multi-user editing, sharing, and threaded comments.'
   placeholder: false
 featured: true
-order: 1
+order: 4
 status:
   value: 'shipped'
-  placeholder: true
+  placeholder: false
 role:
-  value: 'Lead engineer, editor and sync layer'
-  placeholder: true
+  value: 'Built and deployed it'
+  placeholder: false
 year:
   value: 2025
   placeholder: true
 stack:
-  value: ['TypeScript', 'React', 'Node.js', 'PostgreSQL']
-  placeholder: true
+  value: ['Next.js', 'TypeScript', 'Lexical', 'Liveblocks', 'Clerk', 'Sentry']
+  placeholder: false
 problem:
-  value: 'Several people had to edit one document at once, with no central lock and no lost edits when a connection dropped.'
-  placeholder: true
+  value: 'Teams needed to write in one document at the same time, see who else is there, and discuss a passage without leaving the page.'
+  placeholder: false
 outcome:
-  value: 'Edits merge in any order and reach the same text on every screen. Changes made offline sync when the connection returns.'
-  placeholder: true
+  value: 'Deployed with a live demo: several people edit at once, comments anchor to the text they discuss, and production errors are monitored.'
+  placeholder: false
 links:
-  - label: 'Live site'
-    url: '#'
-    placeholder: true
+  - label: 'Live demo'
+    url: 'https://shocodoc507.vercel.app'
+    placeholder: false
   - label: 'Source'
-    url: '#'
-    placeholder: true
+    url: 'https://github.com/ahmadali507/Shocodoc'
+    placeholder: false
 media:
-  placeholder: true
+  placeholder: false
 public: false
-placeholder: true
+placeholder: false
 ---
 
-Each client keeps its own copy of the document as a CRDT. A keystroke becomes an operation that can merge with any other operation, so the server relays and stores operations and never has to pick a winner.
+Rich text runs on Lexical, synced in real time through Liveblocks rooms, with live avatars for everyone in the document.
 
-Presence, cursors, and history ride on the same operation log. Reloading a document replays a compacted snapshot plus the operations after it.
+A custom bridge turns a signed-in user into a room token, and three roles, creator, editor, and viewer, are enforced both on the server and in the interface.
+
+Documents are shared by email. Comments thread on selected text, and an inbox of notifications brings people back to the right document.

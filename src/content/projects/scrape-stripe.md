@@ -1,36 +1,40 @@
 ---
 title: 'Scrape-Stripe'
 summary:
-  value: 'An ETL pipeline on Google Cloud.'
+  value: 'A serverless pipeline that syncs Stripe customers and subscriptions into BigQuery every day for analytics.'
   placeholder: false
 featured: false
-order: 2
+order: 10
 status:
   value: 'shipped'
   placeholder: true
 role:
-  value: 'Engineer'
-  placeholder: true
+  value: 'Built it'
+  placeholder: false
 year:
-  value: 2024
+  value: 2026
   placeholder: true
 stack:
-  value: ['GCP', 'Node.js', 'PostgreSQL']
-  placeholder: true
+  value: ['Python', 'Google Cloud Functions', 'Cloud Run', 'BigQuery', 'Secret Manager', 'Stripe API']
+  placeholder: false
 problem:
-  value: 'Data from several sources had to land in one place on a schedule.'
-  placeholder: true
+  value: 'Billing data lived only in Stripe, so questions about revenue and churn needed manual exports.'
+  placeholder: false
 outcome:
-  value: 'Jobs extract, clean, and load on a schedule, and a failed step retries without manual work.'
-  placeholder: true
+  value: 'Stripe data lands in BigQuery every day, as a raw audit copy and clean tables that BI tools can query directly.'
+  placeholder: false
 links:
-  - label: 'Project link'
-    url: '#'
-    placeholder: true
+  - label: 'Source'
+    url: 'https://github.com/ahmadali507/Scrape-Stripe'
+    placeholder: false
 media:
-  placeholder: true
+  placeholder: false
 public: false
-placeholder: true
+placeholder: false
 ---
 
-Placeholder. A short account of how this was built goes here once the details are confirmed.
+A scheduled cloud function fetches only what changed since the last run and records each sync.
+
+The warehouse is layered: raw JSON for audit, processed tables, a unified customer view, and a BI snapshot.
+
+A longer second sync runs as a Cloud Run job, credentials live in Secret Manager under a least-privilege account, and every step is provisioned by repeatable scripts.
