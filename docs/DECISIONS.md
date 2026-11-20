@@ -108,3 +108,14 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Ground layer stays linear in the shader.** The render target attachment is sRGB, so the hardware encodes on write. Encoding by hand washed every face out.
 - **Non-featured case pages send the deck away** instead of showing unrelated cards beside the title; their cover carries the motion graphic. Parked cards now sit far below the band so they cannot scroll into the content.
 - **Long project names step down in size** and break only after a dot.
+
+## 2026-11-21 (real screenshots under the motion graphics)
+
+- **Real project screenshots are shown, at Ahmad's request.** He wanted the actual product images from Drive with motion graphics on them, not drawn diagrams. Seven projects have screenshots. CLAUDE.md content rule 2 required approval for screenshots; Ahmad's instruction is recorded as that approval in `docs/CONTENT.md`, together with every edit.
+- **Edited, not raw.** Names, emails, Ahmad's unapproved surname, a real child's photo, marketing figures, and streamer handles are blurred or cropped out by `scripts/project-shots.mjs`. The raw files stay outside the repository. One screenshot (an admin dashboard with revenue) is not used.
+- **The motion graphic works on the real screens.** Each shot plays in a floating browser window with a slow push; shots change through a staggered slice wipe; a scan beam, focus brackets, a clicking cursor, and a magnified loupe that lifts onto the top layer point at the part of the screen that matters. Same three layers as before, so the window floats above the card and the loupe above the window.
+- **WebP, not KTX2, for screenshots.** They are page images as much as textures, and block compression blurs interface text. One atlas per project feeds the 3D card; individual 1600 px images serve the case pages and every fallback. DESIGN.md records the exception.
+- **Half-float card layers.** Dark screenshots banded badly in 8-bit linear targets. The card art now renders to half float when the GPU supports it, with the old 8-bit sRGB path as fallback.
+- **Case pages gain a Screens section** with each shot full size and a caption. Without JavaScript or WebGL, covers and the gallery list show the first screenshot instead of the generated relief.
+- **Gallery card enlarged** (desktop and mobile) so the screens read.
+- **Verified on the real GPU.** Earlier review frames came from a software renderer only. This round was also checked on Ahmad's machine (Intel UHD 630 through Direct3D 11), on the dev server and the production build.

@@ -13,6 +13,7 @@ import {
   visibleProjects,
   type Project,
 } from '@/lib/projects';
+import { shotsFor } from '@/lib/shots';
 
 export async function getStaticPaths() {
   const { all, featured } = await visibleProjects();
@@ -46,6 +47,7 @@ const focus = featured.findIndex((f) => f.id === project.id);
 const pad = (n: number) => String(n).padStart(2, '0');
 const draft = hasPlaceholders(project);
 const titleChars = [...d.title];
+const shots = shotsFor(project.id);
 ---
 
 <Base page="case" slug={project.id} focus={focus} title={d.title} description={`${d.title}: ${d.summary.value}`}>
@@ -75,7 +77,12 @@ const titleChars = [...d.title];
     <div class="page">
       <Cover title={d.title} slug={project.id} pattern={pattern} seed={seed} tone={tone} size="hero">
         <figcaption class="label caption">
-          Generative cover, drawn from code for this page. <Todo when={d.media.placeholder} text="Placeholder media" />
+          {
+            shots.length > 0
+              ? 'Motion graphic, played over real screens from the project.'
+              : 'Generated cover, drawn from code for this page.'
+          }
+          {shots.length === 0 && <Todo when={d.media.placeholder} text="Placeholder media" />}
         </figcaption>
       </Cover>
 
@@ -97,6 +104,39 @@ const titleChars = [...d.title];
           <dd class="mono">{d.stack.value.join(' / ')} <Todo when={d.stack.placeholder} /></dd>
         </div>
       </dl>
+
+      {
+        shots.length > 0 && (
+          <section class="screens" aria-labelledby="screens-title">
+            <div class="screens-head">
+              <p class="label n">Screens</p>
+              <h2 id="screens-title" class="visually-hidden">Screens from {d.title}</h2>
+            </div>
+            <div class="screens-grid">
+              {shots.map((s, i) => (
+                <figure class:list={['screen', { wide: i === 0 }]} data-rise>
+                  <div class="screen-frame">
+                    <span class="screen-bar" aria-hidden="true">
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    <img
+                      src={s.src}
+                      alt={s.alt}
+                      width={s.width}
+                      height={s.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <figcaption class="label">{s.alt}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )
+      }
 
       <div class="body">
         <section class="chapter" aria-labelledby="problem-title">
@@ -222,6 +262,79 @@ const titleChars = [...d.title];
   @media (min-width: 56rem) {
     .spec {
       grid-template-columns: 1.4fr 0.6fr 0.8fr 1.6fr;
+    }
+  }
+
+  /* ---------- screens: the real product, framed ---------- */
+  .screens {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-8) 0;
+  }
+
+  .screens-grid {
+    display: grid;
+    gap: var(--space-6) var(--space-5);
+  }
+
+  @media (min-width: 56rem) {
+    .screens-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .screen.wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .screen {
+    margin: 0;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .screen-frame {
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    border: var(--hairline);
+    background: var(--color-surface);
+    box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.7);
+    transition:
+      transform 700ms var(--ease-expo),
+      box-shadow 700ms var(--ease-expo);
+  }
+
+  .screen-bar {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px;
+    border-bottom: var(--hairline);
+  }
+
+  .screen-bar i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-rule);
+  }
+
+  .screen img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .screen figcaption {
+    color: var(--color-ink-muted);
+    max-width: 60ch;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .screen:hover .screen-frame {
+      transform: translateY(-6px);
+      box-shadow: 0 40px 80px -30px rgb(0 0 0 / 0.85);
     }
   }
 

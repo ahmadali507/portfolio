@@ -83,6 +83,7 @@ Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2
   - Draw calls stay under **80** per frame. Use `InstancedMesh` or `BatchedMesh` for repeats.
   - Every `.glb` uses Draco or Meshopt geometry compression. No single `.glb` over 5 MB.
   - Every texture ships as KTX2 (Basis Universal). PNG and JPEG are allowed only for the static poster fallback and Open Graph images, which live outside `public/textures`.
+  - Exception: project screenshots in `public/projects` ship as WebP. They are page images first (case studies, no-WebGL fallback) and the same atlas feeds the 3D card; block compression would smear their small interface text. About 1.3 MB for all seven projects, loaded only where a project is shown.
   - `npm run budget` enforces file size, compression, and texture format.
 - **Lighting and shaders:**
   - Prefer baked lighting on `MeshBasicMaterial`, or custom `ShaderMaterial`, over multiple dynamic shadow-casting lights.

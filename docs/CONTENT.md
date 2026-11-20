@@ -34,26 +34,35 @@ The only source of facts about Ahmad for this site. Nothing outside this file ma
 
 All candidates are unconfirmed for public display. NDA status is unknown for every one. A project's content entry must keep `public: false` until every column in its row is filled and approved.
 
-Project set revised on 2026-11-19 at Ahmad's request. Sources: the Project Knowledge Base in Muhammad Amjad's Notion workspace (KB) and the OnePercent folder in Ahmad's Google Drive (Drive). Screenshots in Drive were used only as reference for each motion graphic's palette and subject. No screenshot, photo, or logo is published.
+Project set revised on 2026-11-19 at Ahmad's request. Sources: the Project Knowledge Base in Muhammad Amjad's Notion workspace (KB) and the OnePercent folder in Ahmad's Google Drive (Drive). On 2026-11-21 Ahmad asked for the real Drive screenshots to be shown, with motion graphics played over them. Seven projects have screenshots; they are published only in the edited form described under "Screenshot edits". The other projects keep drawn motion graphics.
 
 | Project | Source | Public or NDA | May show name | May show screenshots | Ahmad's approval |
 | --- | --- | --- | --- | --- | --- |
-| MagicalBook.Store (featured): AI personalized storybooks | KB, Drive | | | | |
+| MagicalBook.Store (featured): AI personalized storybooks | KB, Drive | | | Yes, edited (2026-11-21) | |
 | Vakse (featured): procurement platform, RFP to payment | KB | | | | |
-| Codesmash (featured): real-time coding battles | KB, Drive | | | | |
-| Shocodoc (featured): real-time collaborative documents | KB, Drive | | | | |
-| MenuMatch (featured): themed digital menus behind a QR code | KB, Drive | | | | |
+| Codesmash (featured): real-time coding battles | KB, Drive | | | Yes, edited (2026-11-21) | |
+| Shocodoc (featured): real-time collaborative documents | KB, Drive | | | Yes, edited (2026-11-21) | |
+| MenuMatch (featured): themed digital menus behind a QR code | KB, Drive | | | Yes, edited (2026-11-21) | |
 | TaxLens (featured): civic tax and spending comparison | KB, Drive | | | | |
-| Prepify: AI mock interviews | Drive | | | | |
-| EchoSign: sign language to text and speech | Drive | | | | |
+| Prepify: AI mock interviews | Drive | | | Yes, edited (2026-11-21) | |
+| EchoSign: sign language to text and speech | Drive | | | Yes, edited (2026-11-21) | |
 | SearchX: search engine | KB | | | | |
 | Scrape-Stripe: GCP ETL pipeline | KB | | | | |
-| HundredPov: live game stream hub | Drive | | | | |
+| HundredPov: live game stream hub | Drive | | | Yes, edited (2026-11-21) | |
 | Waynaa: local discovery | KB | | | | |
 | Xiomara: multilingual AI content platform | Drive (empty folder) | | | | |
 | OrderlyFlow: React Native app | Drive (empty folder) | | | | |
 
 Summaries, problems, and outcomes for KB projects are condensed from their KB pages. Drive-only projects describe only what their screenshots show; every other field is a visible TODO.
+
+### Screenshot edits
+
+`scripts/project-shots.mjs` holds every crop and blur. The raw screenshots are not in the repository.
+
+- Blurred: names and emails of other people (Codesmash players, MenuMatch admins, a Shocodoc mention, an EchoSign user name), Ahmad's email, text that shows Ahmad's surname (MagicalBook story page, EchoSign sample text), the real child's photo on the MagicalBook landing page, the photo-style sample in the MagicalBook art style picker, Prepify's marketing figures, and the streamer handles on HundredPov.
+- Cropped: the MenuMatch theme editor down to the dialog (a phone number and email sat behind it); the browser address bar on the MenuMatch menu page.
+- Not used: the MagicalBook admin dashboard (revenue figures and an email).
+- Still visible and worth a check before launch: the HundredPov interface uses a game brand name, and the MagicalBook landing page shows an illustrated sample cover with a child's first name.
 
 ### Withheld on purpose
 

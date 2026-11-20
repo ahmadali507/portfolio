@@ -1,8 +1,8 @@
 ---
 // Featured work as a pinned gallery. With JavaScript, the section pins and scroll turns the 3D
 // spiral of cards (engine/world/Showcase.ts) while this markup shows the project in front.
-// Without JavaScript, or under reduced motion, it is a plain list of projects with relief covers.
-import Relief from './Relief.astro';
+// Without JavaScript, or under reduced motion, it is a plain list of projects with their screenshots.
+import ProjectVisual from './ProjectVisual.astro';
 import Todo from './Todo.astro';
 import { patternFor, seedFor, STATUS_LABEL, toneForProject, type Project } from '@/lib/projects';
 
@@ -57,11 +57,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 </a>
               </div>
               <div class="cover" style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}>
-                <Relief
-                  pattern={patternFor(p)}
-                  seed={seedFor(p)}
-                  label={`Generative relief cover for ${d.title}. Not a screenshot.`}
-                />
+                <ProjectVisual slug={p.id} title={d.title} pattern={patternFor(p)} seed={seedFor(p)} />
               </div>
             </li>
           );

@@ -2,7 +2,7 @@
 import Base from '@/layouts/Base.astro';
 import WorkGallery from '@/components/WorkGallery.astro';
 import SplitWords from '@/components/SplitWords.astro';
-import Relief from '@/components/Relief.astro';
+import ProjectVisual from '@/components/ProjectVisual.astro';
 import Todo from '@/components/Todo.astro';
 import { CONTACT, FIRST_NAME, FULL_NAME, PERSON, SURNAME } from '@/config/site';
 import { patternFor, seedFor, toneForProject, visibleProjects } from '@/lib/projects';
@@ -32,7 +32,15 @@ const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject
           {
             fallbackCards.map(({ p, tone }, i) => (
               <div class="fb-card" style={`--k:${i};--relief-bg:${tone.base};--relief-ink:${tone.line}`}>
-                <Relief pattern={patternFor(p)} seed={seedFor(p)} width={640} height={400} lines={18} />
+                <ProjectVisual
+                  slug={p.id}
+                  title={p.data.title}
+                  pattern={patternFor(p)}
+                  seed={seedFor(p)}
+                  width={640}
+                  height={400}
+                  lines={18}
+                />
               </div>
             ))
           }

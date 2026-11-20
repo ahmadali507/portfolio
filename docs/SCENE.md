@@ -23,7 +23,9 @@ A portfolio is a deck of finished work, so the hero object is a deck: one glossy
 | 13 | Xiomara | One source fans out into four language panels, one right to left |
 | 14 | OrderlyFlow | A phone list scrolls, a notification lands, a chart grows |
 
-The graphics are diagrams, not screenshots, and carry no real names, people, or figures. Source: `src/engine/shaders/holo.ts` (drawing kit), `src/engine/shaders/scenes.ts` (scenes), `src/lib/palettes.ts` (palettes).
+Seven projects (MagicalBook.Store, Codesmash, Shocodoc, MenuMatch, Prepify, EchoSign, HundredPov) play over their real, edited screenshots instead: each shot sits in a browser window on the floating middle layer and slowly pushes in; the next shot wipes in through staggered slices; a scan beam passes; corner brackets and the cursor close on the region that matters, and a magnified loupe of it rises onto the top layer, tied back with connector lines. Source: `src/engine/shaders/shots.ts`.
+
+The drawn scenes are diagrams, not screenshots, and carry no real names, people, or figures. Source: `src/engine/shaders/holo.ts` (drawing kit), `src/engine/shaders/scenes.ts` (scenes), `src/lib/palettes.ts` (palettes).
 
 ## The home story, beat by beat
 

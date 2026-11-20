@@ -1,7 +1,9 @@
 import {
   CanvasTexture,
   GLSL3,
+  HalfFloatType,
   LinearMipmapLinearFilter,
+  MathUtils,
   Mesh,
   NoColorSpace,
   OrthographicCamera,
@@ -9,11 +11,14 @@ import {
   Scene,
   ShaderMaterial,
   SRGBColorSpace,
+  UnsignedByteType,
   WebGLRenderTarget,
   type Texture,
   type WebGLRenderer,
 } from 'three';
 import { SCENES_GLSL } from '../shaders/scenes';
+import { SHOTS_GLSL } from '../shaders/shots';
+import { atlasReady, hasShots, releaseAtlas, shotUniforms } from './shotAtlas';
 import { PALETTE_GLSL, paletteUniforms, type Palette } from './palette';
 
 export interface CardData {
@@ -26,8 +31,9 @@ export interface CardData {
 
 /**
  * Card faces in three depth layers, written in one pass to three color attachments:
- *   0 ground (opaque, sRGB)  1 surfaces (premultiplied, linear)  2 lift (premultiplied, linear)
+ *   0 ground (opaque)  1 surfaces (premultiplied)  2 lift (premultiplied), all linear
  * Showcase maps layer 0 onto the card and floats layers 1 and 2 above it on their own planes.
+ * Projects with screenshots play the shot graphic (SHOTS); the others play their drawn scene.
  */
 const fragmentShader = /* glsl */ `
 precision highp float;
@@ -36,6 +42,9 @@ layout(location = 1) out vec4 oSurface;
 layout(location = 2) out vec4 oLift;
 
 ${SCENES_GLSL}
+#ifdef SHOTS
+${SHOTS_GLSL}
+#endif
 ${PALETTE_GLSL}
 
 uniform float uTime;
@@ -50,11 +59,16 @@ void main() {
   gL1 = vec4(0.0);
   gL2 = vec4(0.0);
   usePalette();
+#ifdef SHOTS
+  runShots(uTime + uSeed * 10.0);
+#else
   runScene(mod(uTime + uSeed * 10.0, 10.0));
+#endif
   // The project's name floats on the top layer, so it has the most depth when the layers part.
   float lab = texture(uLabel, vUv).a;
   put(2, lab, mix(cInk, cBg, 0.0));
-  // Attachment 0 is SRGB8_ALPHA8, so the hardware encodes on write: output stays linear.
+  // Linear throughout: on half-float targets nothing is encoded, and on the 8-bit fallback
+  // attachment 0 is SRGB8_ALPHA8, which the hardware encodes on write.
   oGround = vec4(gL0.rgb, 1.0);
   oSurface = gL1;
   oLift = gL2;
@@ -97,18 +111,26 @@ export class CardArt {
   private readonly camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
   private readonly geometry = new PlaneGeometry(1, 1);
   private readonly label: CanvasTexture;
+  private readonly slug: string;
+  private readonly shots: boolean;
+  private lastTime = -1;
 
   constructor(renderer: WebGLRenderer, d: CardData, width: number, height: number) {
-    // Mipmaps keep fine strokes smooth when a card is small or seen at an angle.
+    this.slug = d.slug;
+    this.shots = hasShots(d.slug);
+    // Half float keeps dark screenshots from banding in linear space. Without float render targets,
+    // fall back to 8 bits with an sRGB ground. Mipmaps keep detail smooth on small or angled cards.
+    const float = renderer.extensions.has('EXT_color_buffer_float');
     this.target = new WebGLRenderTarget(width, height, {
       count: 3,
       depthBuffer: false,
       generateMipmaps: true,
       minFilter: LinearMipmapLinearFilter,
+      type: float ? HalfFloatType : UnsignedByteType,
     });
     const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     this.target.textures.forEach((tex, i) => {
-      tex.colorSpace = i === 0 ? SRGBColorSpace : NoColorSpace;
+      tex.colorSpace = i === 0 && !float ? SRGBColorSpace : NoColorSpace;
       tex.anisotropy = aniso;
     });
     this.label = drawLabel(d, width, height);
@@ -116,7 +138,7 @@ export class CardArt {
       glslVersion: GLSL3,
       vertexShader,
       fragmentShader,
-      defines: { SCENE: d.palette.scene },
+      defines: this.shots ? { SCENE: 0, SHOTS: 1 } : { SCENE: d.palette.scene },
       depthTest: false,
       depthWrite: false,
       uniforms: {
@@ -124,6 +146,7 @@ export class CardArt {
         uSeed: { value: d.seed },
         uLabel: { value: this.label },
         ...paletteUniforms(d.palette),
+        ...(this.shots ? shotUniforms(d.slug) : {}),
       },
     });
     this.scene.add(new Mesh(this.geometry, this.material));
@@ -135,7 +158,14 @@ export class CardArt {
   }
 
   render(renderer: WebGLRenderer, time: number): void {
-    this.material.uniforms.uTime!.value = time;
+    const u = this.material.uniforms;
+    u.uTime!.value = time;
+    if (this.shots) {
+      // The screenshots fade in over the skeleton once the atlas has arrived.
+      const dt = this.lastTime < 0 ? 0 : Math.max(0, time - this.lastTime);
+      if (atlasReady(this.slug)) u.uReady!.value = MathUtils.damp(u.uReady!.value as number, 1, 4, dt);
+    }
+    this.lastTime = time;
     const previous = renderer.getRenderTarget();
     renderer.setRenderTarget(this.target);
     renderer.render(this.scene, this.camera);
@@ -147,5 +177,6 @@ export class CardArt {
     this.material.dispose();
     this.label.dispose();
     this.target.dispose();
+    if (this.shots) releaseAtlas(this.slug);
   }
 }

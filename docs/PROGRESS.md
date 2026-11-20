@@ -27,6 +27,7 @@ Glass Deck, dark, with the liquid splash (DESIGN.md section 1, docs/SCENE.md). R
 - `src/motion/liquid.ts`: the cursor splash (own canvas, raw WebGL2). `src/components/WorkGallery.astro`: the pinned wheel gallery markup.
 - `src/engine/world/Showcase.ts`: the glossy deck, its poses, and the floating layer planes. `cardArt.ts`: card art in three layers (multiple render targets).
 - `src/engine/shaders/holo.ts`: the drawing kit for layered motion graphics. `src/engine/shaders/scenes.ts`: the fourteen project scenes. `src/lib/palettes.ts`: palette and scene number per project. `src/engine/world/palette.ts`: palette uniforms.
+- `src/engine/shaders/shots.ts`: the motion graphic over real screenshots. `src/engine/world/shotAtlas.ts`: shared atlas textures. `scripts/project-shots.mjs`: crops, blurs, and exports the Drive screenshots to `public/projects` and `src/data/shots.json`.
 - `src/engine/world/Covers.ts`: WebGL plates mapped onto `[data-plate]` figures; they play the project scene with pointer parallax.
 - `scripts/film.mjs`: frames at scroll positions for reviewing choreography.
 - `src/lib/patterns.ts` and `src/engine/shaders/patterns.ts`: the relief patterns, TypeScript and GLSL twins.

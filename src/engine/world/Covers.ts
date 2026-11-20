@@ -9,6 +9,8 @@ import {
   type WebGLRenderer,
 } from 'three';
 import { SCENES_GLSL } from '../shaders/scenes';
+import { SHOTS_GLSL } from '../shaders/shots';
+import { atlasReady, hasShots, releaseAtlas, shotUniforms } from './shotAtlas';
 import { paletteFor } from '../../lib/palettes';
 import { PALETTE_GLSL, paletteUniforms } from './palette';
 import type { EngineContext, FrameInput, Tier, WorldPart } from '../types';
@@ -49,6 +51,9 @@ void main() {
 // shift against each other with the pointer, so the plate reads as a shallow diorama.
 const fragmentShader = /* glsl */ `
 ${SCENES_GLSL}
+#ifdef SHOTS
+${SHOTS_GLSL}
+#endif
 ${PALETTE_GLSL}
 
 uniform float uSeed;
@@ -76,13 +81,23 @@ void main() {
 
   // Cards keep the bottom fifth for the title; plates show the stage above it, centered.
   float aspect = uSize.x / uSize.y;
+#ifdef SHOTS
+  // The browser window fills most of the plate; narrow plates zoom out so it never clips.
+  float span = max(0.84, 1.54 / aspect);
+  gP = vec2(0.8 + (vUv.x - 0.5) * aspect * span, 0.565 + (vUv.y - 0.5) * span);
+#else
   gP = vec2(0.8 + (vUv.x - 0.5) * aspect * 0.82, 0.18 + vUv.y * 0.82);
+#endif
   gPar = (uPointer - 0.5) * -0.035 * (0.35 + 0.65 * uHover);
   gL0 = vec4(0.0);
   gL1 = vec4(0.0);
   gL2 = vec4(0.0);
   usePalette();
+#ifdef SHOTS
+  runShots(uTime + uSeed * 10.0);
+#else
   runScene(mod(uTime + uSeed * 10.0, 10.0));
+#endif
   vec3 col = over(gL2, over(gL1, gL0)).rgb;
 
   // Gloss: a soft diagonal sheen that slides with the pointer.
@@ -119,6 +134,8 @@ interface Plate {
   pointerTarget: Vector2;
   bend: number;
   key: string;
+  /** Project whose atlas the current material holds, or empty. */
+  atlas: string;
   listeners: Array<[string, EventListener]>;
 }
 
@@ -179,10 +196,12 @@ export class Covers implements WorldPart {
 
   private makeMaterial(p: Plate, slug: string, seed: number): ShaderMaterial {
     const pal = paletteFor(slug);
+    const shots = hasShots(slug);
+    p.atlas = shots ? slug : '';
     return new ShaderMaterial({
       vertexShader,
       fragmentShader,
-      defines: { SCENE: pal.scene },
+      defines: shots ? { SCENE: 0, SHOTS: 1 } : { SCENE: pal.scene },
       transparent: true,
       depthTest: false,
       depthWrite: false,
@@ -201,6 +220,7 @@ export class Covers implements WorldPart {
         uCut: { value: 1e6 },
         uView: { value: this.view },
         ...paletteUniforms(pal),
+        ...(shots ? shotUniforms(slug) : {}),
       },
     });
   }
@@ -212,9 +232,11 @@ export class Covers implements WorldPart {
     if (key === p.key) return;
     p.key = key;
     const old = p.material;
+    const oldAtlas = p.atlas;
     p.material = this.makeMaterial(p, d.slug ?? '', Number(d.seed ?? 0));
     p.mesh.material = p.material;
     old.dispose();
+    if (oldAtlas) releaseAtlas(oldAtlas);
   }
 
   private createPlate(el: HTMLElement): Plate {
@@ -244,6 +266,7 @@ export class Covers implements WorldPart {
       pointerTarget: new Vector2(0.5, 0.5),
       bend: 0,
       key: '',
+      atlas: '',
       listeners: [],
     };
     this.syncData(plate);
@@ -279,6 +302,7 @@ export class Covers implements WorldPart {
       for (const [type, fn] of p.listeners) p.host.removeEventListener(type, fn);
       this.scene.remove(p.mesh);
       p.material.dispose();
+      if (p.atlas) releaseAtlas(p.atlas);
     }
     this.plates = [];
     delete document.documentElement.dataset.plates;
@@ -318,6 +342,7 @@ export class Covers implements WorldPart {
       p.pointer.y = rm ? p.pointerTarget.y : damp(p.pointer.y, p.pointerTarget.y, 9, dt);
       p.bend = p.track ? 0 : damp(p.bend, bendTarget, 5, dt);
       u.uHover!.value = p.hover;
+      if (p.atlas && atlasReady(p.atlas)) u.uReady!.value = rm ? 1 : damp(u.uReady!.value as number, 1, 4, dt);
       u.uBend!.value = p.bend;
       // The motion graphic plays while the plate is on screen; under reduced motion it holds a frame.
       if (!rm) {

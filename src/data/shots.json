@@ -1,0 +1,376 @@
+{
+  "magicalbook-store": [
+    {
+      "src": "/projects/magicalbook-store/1.webp",
+      "alt": "MagicalBook landing page: headline, the create-preview button, and an illustrated book cover.",
+      "width": 1600,
+      "height": 765,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.94140625
+      ],
+      "focus": [
+        0.6,
+        0.24,
+        0.245,
+        0.63
+      ]
+    },
+    {
+      "src": "/projects/magicalbook-store/2.webp",
+      "alt": "The book reader: an illustrated page beside the story text, with edit, share, export, and print actions.",
+      "width": 1600,
+      "height": 767,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.943359375
+      ],
+      "focus": [
+        0.24,
+        0.1,
+        0.26,
+        0.77
+      ]
+    },
+    {
+      "src": "/projects/magicalbook-store/3.webp",
+      "alt": "The art style picker: 3D cinematic, classic storybook, block, and realistic styles.",
+      "width": 1600,
+      "height": 763,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.9375
+      ],
+      "focus": [
+        0.415,
+        0.215,
+        0.17,
+        0.28
+      ]
+    }
+  ],
+  "codesmash": [
+    {
+      "src": "/projects/codesmash/1.webp",
+      "alt": "A Codesmash battle: the problem on the left, your editor in the middle, the opponent editor blurred on the right, and a countdown.",
+      "width": 1600,
+      "height": 811,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.955078125,
+        0.96875
+      ],
+      "focus": [
+        0.25,
+        0.11,
+        0.37,
+        0.49
+      ]
+    },
+    {
+      "src": "/projects/codesmash/2.webp",
+      "alt": "The Codesmash lobby with a live battle to watch and open challenges to join.",
+      "width": 1600,
+      "height": 846,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.9169921875,
+        0.96875
+      ],
+      "focus": [
+        0.14,
+        0.32,
+        0.235,
+        0.21
+      ]
+    },
+    {
+      "src": "/projects/codesmash/3.webp",
+      "alt": "The result screen after a battle ends, with both players and a button back to the lobby.",
+      "width": 1600,
+      "height": 808,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.958984375,
+        0.96875
+      ],
+      "focus": [
+        0.4,
+        0.3,
+        0.2,
+        0.22
+      ]
+    }
+  ],
+  "shocodoc": [
+    {
+      "src": "/projects/shocodoc/1.webp",
+      "alt": "The Shocodoc editor: formatted text, a highlighted word, and an inline comment box.",
+      "width": 1600,
+      "height": 760,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.935546875
+      ],
+      "focus": [
+        0.44,
+        0.34,
+        0.24,
+        0.2
+      ]
+    },
+    {
+      "src": "/projects/shocodoc/2.webp",
+      "alt": "The document list with a button to start a blank document.",
+      "width": 1600,
+      "height": 753,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.927734375
+      ],
+      "focus": [
+        0.26,
+        0.3,
+        0.3,
+        0.13
+      ]
+    }
+  ],
+  "menumatch": [
+    {
+      "src": "/projects/menumatch/1.webp",
+      "alt": "The MenuMatch admin overview: restaurant, menu, and admin totals, and recent activity.",
+      "width": 1600,
+      "height": 756,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.9296875
+      ],
+      "focus": [
+        0.21,
+        0.24,
+        0.25,
+        0.23
+      ]
+    },
+    {
+      "src": "/projects/menumatch/2.webp",
+      "alt": "A menu editor with its generated QR code, versions, and sections.",
+      "width": 1600,
+      "height": 750,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.921875
+      ],
+      "focus": [
+        0.68,
+        0.025,
+        0.31,
+        0.185
+      ]
+    },
+    {
+      "src": "/projects/menumatch/3.webp",
+      "alt": "The theme editor: colors on the left and a live preview of the themed menu on the right.",
+      "width": 1125,
+      "height": 788,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.69140625,
+        0.96875
+      ],
+      "focus": [
+        0.51,
+        0.23,
+        0.45,
+        0.65
+      ]
+    }
+  ],
+  "prepify": [
+    {
+      "src": "/projects/prepify/1.webp",
+      "alt": "The Prepify landing page: the headline, start and demo buttons, and an illustration.",
+      "width": 1600,
+      "height": 760,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.935546875
+      ],
+      "focus": [
+        0.12,
+        0.3,
+        0.34,
+        0.31
+      ]
+    },
+    {
+      "src": "/projects/prepify/2.webp",
+      "alt": "A list of mock interviews, each with a role, date, score, and short feedback.",
+      "width": 1600,
+      "height": 747,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.919921875
+      ],
+      "focus": [
+        0.365,
+        0.45,
+        0.26,
+        0.55
+      ]
+    },
+    {
+      "src": "/projects/prepify/3.webp",
+      "alt": "The progress dashboard: interview count, average score, and suggested next steps.",
+      "width": 1600,
+      "height": 751,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.923828125
+      ],
+      "focus": [
+        0.4,
+        0.18,
+        0.205,
+        0.6
+      ]
+    }
+  ],
+  "echosign": [
+    {
+      "src": "/projects/echosign/1.webp",
+      "alt": "The EchoSign landing page and its call to try gesture recognition.",
+      "width": 1600,
+      "height": 764,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.939453125
+      ],
+      "focus": [
+        0.385,
+        0.52,
+        0.23,
+        0.1
+      ]
+    },
+    {
+      "src": "/projects/echosign/2.webp",
+      "alt": "Gesture recognition: a captured hand sign, the recognized word, and audio export.",
+      "width": 996,
+      "height": 473,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.935546875
+      ],
+      "focus": [
+        0.114,
+        0.516,
+        0.247,
+        0.4
+      ]
+    },
+    {
+      "src": "/projects/echosign/3.webp",
+      "alt": "Text to voice: typed text, a voice picker, and convert and export buttons.",
+      "width": 996,
+      "height": 482,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.953125
+      ],
+      "focus": [
+        0.11,
+        0.68,
+        0.35,
+        0.13
+      ]
+    }
+  ],
+  "hundredpov": [
+    {
+      "src": "/projects/hundredpov/1.webp",
+      "alt": "The landing page: a headline for live game streams and a featured live card.",
+      "width": 1600,
+      "height": 762,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.9375
+      ],
+      "focus": [
+        0.595,
+        0.34,
+        0.295,
+        0.415
+      ]
+    },
+    {
+      "src": "/projects/hundredpov/2.webp",
+      "alt": "Live stream cards with live markers, viewer counts, and watch buttons.",
+      "width": 1600,
+      "height": 759,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.93359375
+      ],
+      "focus": [
+        0.056,
+        0.34,
+        0.285,
+        0.52
+      ]
+    },
+    {
+      "src": "/projects/hundredpov/3.webp",
+      "alt": "The match lobby with open, live, and completed tabs and a sign-in prompt.",
+      "width": 1600,
+      "height": 761,
+      "cell": [
+        0.0078125,
+        0.015625,
+        0.984375,
+        0.935546875
+      ],
+      "focus": [
+        0.727,
+        0.26,
+        0.22,
+        0.36
+      ]
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 ---
 // Project cover. With WebGL, the overlay layer draws a glossy relief plate exactly over this box
-// (data-plate): it tilts toward the pointer, ripples on press, and bends with scroll speed.
-// Without WebGL, the SVG relief inside is the cover. Generated, never stock or AI imagery.
-import Relief from './Relief.astro';
+// (data-plate): it tilts toward the pointer and bends with scroll speed, and plays the project's
+// motion graphic over its real screenshots. Without WebGL, the first screenshot (or a generated
+// relief when there are none) is the cover.
+import ProjectVisual from './ProjectVisual.astro';
 import type { Tone } from '@/lib/tones';
 
 interface Props {
@@ -29,7 +30,7 @@ const { title, slug, pattern, seed, tone, size = 'feature' } = Astro.props;
   style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}
 >
   <div class="frame">
-    <Relief pattern={pattern} seed={seed} label={`Motion graphic for ${title}. Not a screenshot.`} />
+    <ProjectVisual slug={slug} title={title} pattern={pattern} seed={seed} eager={size === 'hero'} />
   </div>
   <slot />
 </figure>

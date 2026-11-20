@@ -1,0 +1,53 @@
+---
+// The still image for a project wherever the WebGL graphic is not running: its first real screenshot
+// when one exists, otherwise the generated relief. Carries the .relief class so a live WebGL plate
+// above it can hide it the same way.
+import Relief from './Relief.astro';
+import { shotsFor } from '@/lib/shots';
+
+interface Props {
+  slug: string;
+  title: string;
+  pattern: number;
+  seed: number;
+  width?: number;
+  height?: number;
+  lines?: number;
+  eager?: boolean;
+}
+const { slug, title, pattern, seed, width = 800, height = 500, lines = 26, eager = false } = Astro.props;
+const shot = shotsFor(slug)[0];
+---
+
+{
+  shot ? (
+    <img
+      class="relief shot"
+      src={shot.src}
+      alt={`${title}: ${shot.alt}`}
+      width={shot.width}
+      height={shot.height}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+  ) : (
+    <Relief
+      pattern={pattern}
+      seed={seed}
+      width={width}
+      height={height}
+      lines={lines}
+      label={`Generated cover for ${title}. Not a screenshot.`}
+    />
+  )
+}
+
+<style>
+  .shot {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+</style>

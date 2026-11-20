@@ -260,9 +260,9 @@ export class Showcase implements WorldPart {
     if (gallery) {
       // The group grows from its hero size to gallery size as the deck opens: the zoom in.
       const open = smoothstep(motion.workIn, 0, 1);
-      gx = portrait ? 0 : MathUtils.lerp(3.05, 2.5, open);
-      gy = portrait ? MathUtils.lerp(-1.75, 1.5, open) : MathUtils.lerp(-0.1, 0, open);
-      gs = portrait ? MathUtils.lerp(0.68, 0.5, open) : MathUtils.lerp(0.78, 1.05, open);
+      gx = portrait ? 0 : MathUtils.lerp(3.05, 2.36, open);
+      gy = portrait ? MathUtils.lerp(-1.75, 1.05, open) : MathUtils.lerp(-0.1, 0, open);
+      gs = portrait ? MathUtils.lerp(0.68, 0.64, open) : MathUtils.lerp(0.78, 1.18, open);
       show = true;
     } else if (motion.page === 'home') {
       gx = portrait ? 0 : 3.05;
