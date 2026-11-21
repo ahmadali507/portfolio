@@ -8,12 +8,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion } from './state';
 import type { MotionCore } from './core';
 import { mountChem } from './chem';
+import { mountTyped } from './typed';
 
 const EXPO = 'expo.out';
 
 export function mountScenes(doc: Document, core: MotionCore): void {
   heroScene(doc);
   mountChem(doc, core);
+  mountTyped(doc, core);
   if (motion.reduced) return;
   revealLines(doc);
   rise(doc);

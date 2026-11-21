@@ -30,7 +30,7 @@ The drawn scenes are diagrams, not screenshots, and carry no real names, people,
 ## The home story, beat by beat
 
 1. Load: the cards fly up and settle into a deck beside the name. The name rises letter by letter and its chemistry begins.
-2. Leaving the hero: the hero scrolls away as an ordinary first screen. The deck stays in place and opens: the top card comes forward, turns to face the viewer, and grows, while the others drop below.
+2. Leaving the hero: the hero is about Ahmad and holds no cards (Ahmad, 2026-11-21). As the work section scrolls in, the cards rise from below the fold, tipped back and standing up as they arrive, already at gallery size.
 3. Work gallery, pinned for five screens: one card at a time rests at the center beside its title, summary, and a giant index numeral. Scrolling on sends it upward and brings the next one up from below.
 4. Statement: words light up as the reader scrolls through them.
 5. A sideways practice track, the about block, and the closing call to action.
@@ -74,5 +74,5 @@ No downloaded models, textures, or HDR files.
 
 - Portrait: the deck sits below the copy, smaller. The row becomes a vertical cascade with a deeper pull-back.
 - Tier 2: bevel 3, card art at 512 x 320, no plate bend.
-- Reduced motion: one-screen hero, deck at rest, no scrubbing, tilt, bend, or magnetic pull.
-- No WebGL: CSS 3D fallback cards with SVG reliefs in the hero, and SVG reliefs in every plate.
+- Reduced motion: one-screen hero with the first role as plain text, the work section as a plain list, no scrubbing, tilt, bend, or magnetic pull.
+- No WebGL: a text-only hero, the work list with screenshots, and SVG reliefs or screenshots in every plate.

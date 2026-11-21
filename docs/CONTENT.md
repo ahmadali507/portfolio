@@ -21,6 +21,7 @@ The only source of facts about Ahmad for this site. Nothing outside this file ma
 | Interests detail | Foundations in ML mathematics and formal methods: HOL theorem proving, SAT solvers. Direction: deep learning engineering. Supplied by Ahmad on 2026-11-15. | Draft only |              |
 | Positioning | A software engineer with an entrepreneurial mindset: builds products end to end and ships them for paying clients. Not to be framed as an AI or RAG specialist. Revised by Ahmad on 2026-11-16. | Draft only |              |
 | Builds | AI systems (RAG, LLM integrations, multi-agent systems, voice agents), full-stack SaaS, mobile apps (React Native), cloud infrastructure (AWS, GCP), workflow automation (n8n, Zapier). Supplied by Ahmad on 2026-11-15. | Draft only |              |
+| Roles (home hero) | Software Engineer; AI & LLM Engineer; Web & Mobile App Developer; Cloud Solutions Architect (supplied by Ahmad on 2026-11-21). Full-Stack SaaS Developer and Automation Engineer are taken from the Builds row. "AI & LLM Engineer" is one role among several, which keeps the positioning above. | Draft only |              |
 | Freelance history | Started as an Upwork freelancer before co-founding the agency. Supplied by Ahmad on 2026-11-15. | Draft only |              |
 
 ## Never publish

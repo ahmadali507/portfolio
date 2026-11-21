@@ -356,11 +356,13 @@ a {
   max-width: 100%;
 }
 
+/* Inset a few pixels: on a fractional position the wrapper's edge pixels are partly transparent,
+   and a canvas reaching them would show through as a faint box around the heading. */
 .chem-canvas {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
   mix-blend-mode: darken;
   pointer-events: none;
 }

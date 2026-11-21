@@ -37,6 +37,19 @@ export const PERSON = {
   direction: 'Moving toward deep learning engineering, on foundations in ML mathematics and formal methods.',
 } as const;
 
+/**
+ * The roles the home hero types out, in order. Supplied by Ahmad on 2026-11-21; the last two
+ * come from the Builds row in docs/CONTENT.md. `a` is the article the typed line uses.
+ */
+export const ROLES = [
+  { a: 'a', role: 'Software Engineer' },
+  { a: 'an', role: 'AI & LLM Engineer' },
+  { a: 'a', role: 'Web & Mobile App Developer' },
+  { a: 'a', role: 'Cloud Solutions Architect' },
+  { a: 'a', role: 'Full-Stack SaaS Developer' },
+  { a: 'an', role: 'Automation Engineer' },
+] as const;
+
 export interface ContactHandle {
   label: string;
   handle: string;

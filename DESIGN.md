@@ -7,7 +7,8 @@ This file binds every human and agent working on the site. If a skill, a tutoria
 Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2026-11-16. Request Path and Kinetic Field are retired. See `docs/DECISIONS.md`.
 
 - **Visual persona:** dark, clean, glossy, and minimal. Giant grotesk type on a near-black ground and a single hero object finished like lacquer and porcelain. Every motion is staged as a beat: entrance, hold, exit.
-- **The hero object:** a deck of glossy cards, one per featured project. Each card face is a live motion graphic of what that project does (an editor with two people typing, a document being searched and answered, a call being routed) with the project's name on it. The deck flies in on load. As the hero scrolls away the deck opens, and its top card comes forward into the work gallery.
+- **The home hero is about Ahmad:** his name, centered, with the chemistry phenomena in its letters; under it a typed line that cycles through his roles ("I am a Software Engineer", "I am an AI & LLM Engineer", and so on), a row naming every role with the current one marked, the positioning line, and the actions. No cards in the hero (Ahmad, 2026-11-21).
+- **The project object:** a deck of glossy cards, one per featured project. Each card face is a live motion graphic over the project's real, edited screenshots, with the project's name on it. The cards rise from below the fold into the work gallery as it scrolls in, and each comes to the front, large, in turn.
 - **Chemistry in the name:** the letters of the main heading fill with a sequence of twelve procedural phenomena (foam, reaction-diffusion stripes, ink in water, crystallisation, boiling, oxidation, acid etch, ferrofluid, smoke, dividing cells, mercury, frost). Each grows through the word as a reaction front and replaces the last. The text stays real and readable.
 - **Continuity:** the canvas persists across navigation. On a case study, that project's card takes the banner; on the work index the deck fans beside the heading. Moving between pages, the cards fly to their new poses.
 - **Liquid splash:** the pointer leaves a fluid trail that inverts everything beneath it: type, cards, and header flip to the light theme inside the splash and flow back to dark as it drains. A tap makes one splash on touch screens.
@@ -24,7 +25,8 @@ Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2
 - No decorative floating 3D primitives. No aimlessly spinning torus knots, icosahedrons, or wireframe spheres. The only 3D object is the project deck.
 - No pill badges with sparkle glyphs or emoji above section headings. No emoji used as icons.
 - No gradient-filled heading text.
-- No centered hero with two pill buttons as the opening composition.
+- No centered hero with two pill buttons as the opening composition. The home hero is centered at Ahmad's request; it keeps one pill button beside a text link.
+- The typed line types, holds, marks the role like an editor selection, and clears. One vermilion caret is its only accent. It pauses off screen and under reduced motion shows the first role as plain text.
 - No cream background plus serif display plus sage accent as an unexamined default. The replacement for one default must not be another default.
 - No stock illustration or stock photography standing in for real work.
 

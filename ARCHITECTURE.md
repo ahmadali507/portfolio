@@ -47,7 +47,7 @@ Technical contract for the site. Every decision here has a reason and a cost. Ch
 ## 4. Progressive enhancement and failure handling
 
 - **No WebGL, no JavaScript:** every page is complete, readable, and indexable as HTML. Project text, links, and navigation never depend on the canvas.
-- **Static fallback:** pages carry their own static versions: CSS 3D cards with SVG reliefs in the home hero, and SVG reliefs inside every plate. The canvas fades in after its first frame; if WebGL2 is unavailable or initialization throws, the fallbacks stay.
+- **Static fallback:** pages carry their own static versions: the home hero is text only, the work list shows each project's first screenshot or SVG relief, and every plate keeps its SVG relief or screenshot. The canvas fades in after its first frame; if WebGL2 is unavailable or initialization throws, the fallbacks stay.
 - **Capability gate:** before loading the 3D bundle, check WebGL2 support, `navigator.connection.saveData`, and reduced-motion. Device tiering beyond this (for example `detect-gpu`) is deferred until a real device test shows the need.
 - **Context loss:** listen for `webglcontextlost` (call `preventDefault`, stop the loop, hide the canvas) and `webglcontextrestored` (re-upload assets from the in-memory cache, resume). After a second loss within a short window, stay on the poster for the session.
 - **Errors:** any exception during Engine init or a frame stops the loop, restores the poster, and logs once. The page must keep working.
@@ -116,6 +116,6 @@ Adopted on 2026-11-15, replacing Kinetic Field. See `DESIGN.md` section 1 and `d
 | Plates visible at once (6 at most)     | 6          | 6 x 1,536 = 9,216         |
 | **Worst case**                         | **24**     | **about 24,300**          |
 
-**Reduced motion.** No scroll scrubbing, no tilt, bend, or magnetic pull, no hero pin (the hero is one screen tall). The deck holds its rest pose, and page changes are instant.
+**Reduced motion.** No scroll scrubbing, no tilt, bend, or magnetic pull, no hero pin (the hero is one screen tall). The home gallery shows as a plain list with screenshots, the typed line shows its first role, and page changes are instant.
 
-**Weak devices.** Tier 2 (coarse pointer or small screen): bevel 3, card art at 512 x 320, no plate bend. Without WebGL: CSS 3D fallback cards in the hero and SVG reliefs for every plate.
+**Weak devices.** Tier 2 (coarse pointer or small screen): bevel 3, card art at 512 x 320, no plate bend. Without WebGL: the plain work list with screenshots, and SVG reliefs or screenshots for every plate.

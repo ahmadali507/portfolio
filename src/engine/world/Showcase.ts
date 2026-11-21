@@ -61,7 +61,6 @@ function layerMaterial(map: Texture): MeshBasicMaterial {
 
 const LAYER_GAP = 0.24;
 
-const easeOutExpo = (t: number) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
 
 /**
  * The hero object: one glossy card per featured project. Poses are pure functions of page,
@@ -218,16 +217,13 @@ export class Showcase implements WorldPart {
     // A slight turn toward the copy; small enough that the screen stays square to the reader.
     this.ea.set(d * 0.32, -0.14, d * 0.05);
     this.qa.setFromEuler(this.ea);
-    // Leaving the hero: the deck opens. The top card comes forward to the center while the
-    // others drop below, ready to come up in turn.
-    const open = smoothstep(motion.workIn, 0, 1);
-    if (open < 1) {
-      this.pose('stack', i, this.pb, this.eb);
-      this.qb.setFromEuler(this.eb);
-      this.pa.lerpVectors(this.pb, this.pa, open);
-      // slerpQuaternions copies its first argument into the target first, so the target must not be an input.
-      this.qb.slerp(this.qa, open);
-      this.qa.copy(this.qb);
+    // The hero is about Ahmad and holds no cards. As the work section comes up, the cards rise
+    // from below the fold into the spiral, tipped back a little and standing up as they arrive.
+    const rest = 1 - smoothstep(motion.workIn, 0, 1);
+    if (rest > 0) {
+      this.pa.y -= rest * 9;
+      this.ea.x -= rest * 0.55;
+      this.qa.setFromEuler(this.ea);
     }
   }
 
@@ -257,14 +253,9 @@ export class Showcase implements WorldPart {
     const camTarget = 11;
     let show: boolean;
 
-    // Home sizes come from the viewport in pixels, so the card stays large on any screen.
-    // Hero: the deck fills the right side beside the name. Gallery: the front card fills the
-    // right half, as large as the height allows, so its screenshot reads.
+    // Gallery size comes from the viewport in pixels, so the card stays large on any screen: the
+    // front card fills the right half, as large as the height allows, so its screenshot reads.
     const viewW = this.aspect * this.viewH;
-    const heroPx = portrait ? viewW * 0.74 :Math.min(viewW * 0.3, this.viewH * 0.62);
-    const heroS = (heroPx * worldPerPx) / CARD_W;
-    const heroX = portrait ? 0 : viewW * 0.24 * worldPerPx;
-    const heroY = portrait ? -1.75 : -0.1;
     // The right margin is wider than it looks: the turn brings the right edge nearer the camera.
     const galPx = portrait ? viewW * 0.9 : Math.min(viewW * 0.5 - 100, this.viewH * 0.6 * 1.6);
     const galS = (galPx * worldPerPx) / CARD_W;
@@ -272,24 +263,14 @@ export class Showcase implements WorldPart {
     // Portrait: the card's top edge sits 150 px down, clear of the section header.
     const galY = portrait ? (this.viewH * 0.5 - 150 - galPx / 3.2) * worldPerPx : -12 * worldPerPx;
 
-    const gallery = motion.page === 'home' && motion.workIn > 0 && motion.workOut < 1;
-    if (gallery) {
-      // The group grows from its hero size to gallery size as the deck opens: the zoom in.
-      const open = smoothstep(motion.workIn, 0, 1);
-      gx = MathUtils.lerp(heroX, galX, open);
-      gy = MathUtils.lerp(heroY, galY, open);
-      gs = MathUtils.lerp(heroS, galS, open);
-      show = true;
-    } else if (motion.page === 'home') {
-      gx = heroX;
-      gy = heroY;
-      gs = heroS;
-      show = motion.workOut < 1;
-      if (rm) {
-        // No gallery choreography under reduced motion: the deck simply scrolls away with the hero.
-        gy += input.scroll * worldPerPx;
-        show = input.scroll < this.viewH * 1.1;
-      }
+    // The home group always holds its gallery size; the cards themselves rise in (see helix).
+    // Under reduced motion the gallery choreography does not run, so the list shows its screenshots.
+    const gallery = motion.page === 'home' && motion.workIn > 0 && motion.workOut < 1 && !rm;
+    if (motion.page === 'home') {
+      gx = galX;
+      gy = galY;
+      gs = galS;
+      show = gallery;
     } else {
       // Banner pages: the group sits in the head band and scrolls away with it.
       const feature = motion.page === 'case' && motion.focus >= 0;
@@ -322,17 +303,9 @@ export class Showcase implements WorldPart {
       const card = this.cards[i]!;
       const mesh = card.mesh;
 
-      if (gallery) {
+      if (motion.page === 'home') {
+        // Hidden while the hero is up, but parked below the fold so the rise starts from there.
         this.helix(i, portrait);
-      } else if (motion.page === 'home') {
-        const intro = rm ? 1 : easeOutExpo(clamp((since - 0.2 - i * 0.09) / 1.4, 0, 1));
-        this.blend(i, 'stack', 'stack', 0);
-        if (intro < 1) {
-          this.pose('enter', i, this.pb, this.eb);
-          this.qb.setFromEuler(this.eb);
-          this.pa.lerp(this.pb, 1 - intro);
-          this.qa.slerp(this.qb, 1 - intro);
-        }
       } else if (motion.page === 'case') {
         // A featured case keeps its own card in the head band; any other case sends the deck away.
         if (i === motion.focus) this.blend(i, 'feature', 'feature', 0);

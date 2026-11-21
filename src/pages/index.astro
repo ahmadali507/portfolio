@@ -2,10 +2,9 @@
 import Base from '@/layouts/Base.astro';
 import WorkGallery from '@/components/WorkGallery.astro';
 import SplitWords from '@/components/SplitWords.astro';
-import ProjectVisual from '@/components/ProjectVisual.astro';
 import Todo from '@/components/Todo.astro';
-import { CONTACT, FIRST_NAME, FULL_NAME, PERSON, SURNAME } from '@/config/site';
-import { patternFor, seedFor, toneForProject, visibleProjects } from '@/lib/projects';
+import { CONTACT, FIRST_NAME, FULL_NAME, PERSON, ROLES, SURNAME } from '@/config/site';
+import { visibleProjects } from '@/lib/projects';
 
 const { featured, all } = await visibleProjects();
 const email = CONTACT.find((c) => c.label === 'Email');
@@ -20,33 +19,13 @@ const practice = [
   { area: 'Cloud', items: ['AWS', 'GCP'] },
   { area: 'Automation', items: ['n8n', 'Zapier'] },
 ];
-const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject(p) }));
+const firstRole = ROLES[0];
 ---
 
 <Base page="home">
-  <!-- 1. Hero: one screen. Scrolling on, the deck opens into the gallery below. -->
+  <!-- 1. Hero: about Ahmad. His name, then a typed line that cycles through what he does. -->
   <section class="hero" aria-labelledby="hero-title" data-hero data-world-anchor="hero">
     <div class="hero-pin">
-      <div class="hero-stage" data-hero-stage aria-hidden="true">
-        <div class="fallback">
-          {
-            fallbackCards.map(({ p, tone }, i) => (
-              <div class="fb-card" style={`--k:${i};--relief-bg:${tone.base};--relief-ink:${tone.line}`}>
-                <ProjectVisual
-                  slug={p.id}
-                  title={p.data.title}
-                  pattern={patternFor(p)}
-                  seed={seedFor(p)}
-                  width={640}
-                  height={400}
-                  lines={18}
-                />
-              </div>
-            ))
-          }
-        </div>
-      </div>
-
       <div class="hero-copy page" data-hero-copy>
         <p class="label enter" style="--d:120ms">{PERSON.role} / {PERSON.location}</p>
         <h1 id="hero-title" aria-label={FULL_NAME} data-chem>
@@ -57,14 +36,33 @@ const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject
             {last.map(({ c, i }) => <span class="ch" style={`--i:${i}`}>{c === ' ' ? ' ' : c}</span>)}
           </span>
         </h1>
-        <p class="lead enter" style="--d:620ms">{PERSON.positioning}</p>
-        <div class="actions enter" style="--d:780ms">
+
+        <!-- The typed line is decoration for sighted readers; the list below carries the same words for everyone. -->
+        <p class="typed enter" style="--d:520ms" aria-hidden="true" data-typed>
+          <span class="typed-lead">I am</span>
+          <span class="typed-text" data-typed-text>{`${firstRole.a} ${firstRole.role}`}</span><span
+            class="caret"></span>
+        </p>
+
+        <ul class="roles enter" style="--d:700ms" role="list" aria-label="What I do" data-roles>
+          {
+            ROLES.map((r, i) => (
+              <li data-role={i} data-active={i === 0 ? '' : undefined}>
+                {r.role}
+                <span class="role-bar" aria-hidden="true" />
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="lead enter" style="--d:820ms">{PERSON.positioning}</p>
+        <div class="actions enter" style="--d:940ms">
           <a class="btn" href="#work" data-magnetic="0.25">See the work <span class="arrow" aria-hidden="true">↓</span></a>
           <a class="text-link mono" href="/contact/">Start a project</a>
         </div>
       </div>
 
-      <dl class="hero-meta page enter" style="--d:900ms" data-hero-meta aria-label="Summary">
+      <dl class="hero-meta page enter" style="--d:1060ms" data-hero-meta aria-label="Summary">
         <div><dt class="label">Agency</dt><dd>{PERSON.company}, co-founder</dd></div>
         <div>
           <dt class="label">Freelance</dt><dd>Top Rated on Upwork, 38+ clients <Todo text="Verify" /></dd>
@@ -166,60 +164,26 @@ const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject
     overflow: hidden;
   }
 
-  .hero-stage {
-    position: absolute;
-    inset: 0;
-    background: var(--color-bg);
-  }
-
-  /* Static stack for browsers without WebGL: the same cards, posed in CSS 3D. */
-  .fallback {
-    position: absolute;
-    right: 4vw;
-    top: 50%;
-    width: min(33vw, 28rem);
-    aspect-ratio: 16 / 10;
-    perspective: 1600px;
-    transform: translateY(-50%);
-  }
-
-  .fb-card {
-    position: absolute;
-    inset: 0;
-    border-radius: 1rem;
-    overflow: hidden;
-    background: var(--relief-bg);
-    box-shadow: 0 30px 50px -28px rgb(0 0 0 / 0.45);
-    transform: rotateX(56deg) rotateZ(-24deg) translateZ(calc((2 - var(--k)) * 26px));
-  }
-
-  :global(html:has(#world[data-state='live'])) .fallback {
-    opacity: 0;
-    transition: opacity 600ms var(--ease-out);
-  }
-
-  @media (max-width: 56rem) {
-    .fallback {
-      right: 50%;
-      top: auto;
-      bottom: 16svh;
-      width: 70vw;
-      transform: translateX(50%);
-    }
-  }
-
+  /* Everything in the first screen sits on one centered axis. */
   .hero-copy {
     position: relative;
     align-self: center;
-    padding-top: var(--header-h);
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    padding-top: calc(var(--header-h) + var(--space-5));
   }
 
   h1 {
-    font-size: var(--text-giant);
+    font-size: clamp(3.5rem, 11vw, 11.5rem);
     font-weight: 700;
     line-height: 0.86;
     letter-spacing: -0.035em;
     margin-block: var(--space-4) var(--space-5);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 0.22em;
   }
 
   .line {
@@ -232,21 +196,147 @@ const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject
     display: inline-block;
   }
 
-  .lead {
+  /* ---------- the typed line ---------- */
+  .typed {
     font-family: var(--font-display);
-    font-size: var(--text-h3);
+    font-size: clamp(1.625rem, 1rem + 2.6vw, 3.5rem);
     font-weight: 600;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    min-height: 2.3em;
     max-width: 22ch;
+    text-wrap: balance;
+  }
+
+  .typed-lead {
+    color: var(--color-ink-muted);
+    margin-right: 0.26em;
+  }
+
+  .typed-text {
+    color: var(--color-ink);
+    white-space: pre-wrap;
+  }
+
+  /* While a role is selected before it clears, it reads like text marked in an editor. */
+  .typed[data-selected] .typed-text {
+    background: var(--color-trace-deep);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  .typed :global(.tw-word) {
+    white-space: nowrap;
+  }
+
+  .typed :global(.tw) {
+    display: inline-block;
+    white-space: pre;
+  }
+
+  .typed :global(.tw[hidden]) {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .typed :global(.tw) {
+      animation: tw-in 520ms var(--ease-expo) both;
+    }
+  }
+
+  @keyframes tw-in {
+    from {
+      opacity: 0;
+      filter: blur(8px);
+      transform: translateY(0.28em) scale(0.92);
+    }
+
+    to {
+      opacity: 1;
+      filter: none;
+      transform: none;
+    }
+  }
+
+  .caret {
+    display: inline-block;
+    width: 0.07em;
+    height: 0.92em;
+    margin-left: 0.06em;
+    vertical-align: -0.1em;
+    border-radius: 1px;
+    background: var(--color-trace);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .typed:not([data-busy]) .caret {
+      animation: blink 1.05s steps(1, end) infinite;
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* ---------- every role, the current one marked ---------- */
+  .roles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-5);
+    max-width: 62rem;
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    letter-spacing: 0.02em;
+    color: var(--color-ink-muted);
+  }
+
+  .roles li {
+    position: relative;
+    padding-block: var(--space-1);
+    transition: color 400ms var(--ease-out);
+  }
+
+  .roles li[data-active] {
+    color: var(--color-ink);
+  }
+
+  /* Fills while the role is on screen, so the row doubles as the progress of the cycle. */
+  .role-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-trace);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .roles li[data-active] .role-bar {
+    transform: scaleX(1);
+    transition: transform var(--role-dwell, 0ms) linear;
+  }
+
+  .lead {
+    font-family: var(--font-body);
+    font-size: var(--text-lead);
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+    max-width: 34ch;
+    margin-top: var(--space-6);
   }
 
   .actions {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     align-items: center;
     gap: var(--space-5);
-    margin-top: var(--space-6);
+    margin-top: var(--space-5);
   }
 
   .text-link {
@@ -260,8 +350,14 @@ const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3) var(--space-7);
-    padding-bottom: var(--space-6);
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-3) var(--space-8);
+    padding-block: var(--space-7) var(--space-6);
+  }
+
+  .hero-meta dd {
+    justify-content: center;
   }
 
   .hero-meta dd {
@@ -317,8 +413,16 @@ const fallbackCards = featured.slice(0, 3).map((p) => ({ p, tone: toneForProject
 
   @media (max-width: 56rem) {
     .hero-copy {
-      align-self: start;
       padding-top: calc(var(--header-h) + var(--space-6));
+    }
+
+    .roles {
+      gap: var(--space-1) var(--space-4);
+    }
+
+    /* On a phone the name takes two large lines instead of one small one. */
+    h1 {
+      font-size: min(23vw, 9rem);
     }
 
     .hero-meta {

@@ -125,3 +125,12 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Surname is Ali.** Ahmad supplied it; `SURNAME` in `src/config/site.ts` and the Name row in `docs/CONTENT.md` are updated. The screenshot blurs over his surname stay for now; they can be lifted by rerunning `scripts/project-shots.mjs` with those rectangles removed.
 - **Cards sized from the viewport, not fixed world units.** Ahmad found the gallery cards too small to show anything. The front gallery card now fills the right half of the screen (up to 60 percent of its height) and the hero deck takes about 30 percent of the width. The card turns less toward the copy (0.14 rad), so the screen reads square.
 - **Larger browser window on the card face.** The screenshot window now takes the face above the title strip (height 0.68 of the face, width up to 1.5). Cover plates zoom out to match.
+
+## 2026-11-21 (hero about Ahmad, typed roles)
+
+- **The hero is about Ahmad, with no cards.** He asked for the first screen to be about him, with a typewriter in the center naming what he does. The name is centered and keeps its chemistry phenomena; a typed line cycles through six roles; a row under it lists every role and marks the current one, which also gives screen readers and no-JavaScript visitors the full list.
+- **Centered composition, an exception to DESIGN.md.** The ban on a centered hero targets the default "centered headline and two pill buttons". This hero stays centered at Ahmad's request and keeps one pill button beside a text link. DESIGN.md records the exception.
+- **How the typing looks.** Each letter settles in from a blur; a finished role holds, is marked like a selection in an editor, then clears; one vermilion caret blinks only while idle. It runs on the shared gsap.ticker loop with letter spans built once at mount, keeps its own clock, pauses off screen or in a hidden tab, and does not run under reduced motion.
+- **Roles.** Four come from Ahmad's message; Full-Stack SaaS Developer and Automation Engineer come from the approved Builds row. Logged in CONTENT.md.
+- **Cards enter with the gallery.** With the deck gone from the hero, the gallery cards rise from below the fold at gallery size as the section scrolls in. The CSS fallback deck in the hero is removed.
+- **Chemistry heading box fixed.** The chemistry canvas reached the heading wrapper's partly transparent edge pixels and drew a faint box around the name. The canvas is now inset 3 px.
