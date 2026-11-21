@@ -134,3 +134,9 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Roles.** Four come from Ahmad's message; Full-Stack SaaS Developer and Automation Engineer come from the approved Builds row. Logged in CONTENT.md.
 - **Cards enter with the gallery.** With the deck gone from the hero, the gallery cards rise from below the fold at gallery size as the section scrolls in. The CSS fallback deck in the hero is removed.
 - **Chemistry heading box fixed.** The chemistry canvas reached the heading wrapper's partly transparent edge pixels and drew a faint box around the name. The canvas is now inset 3 px.
+
+## 2026-11-21 (practice section as a 3D drum)
+
+- **"What I build" is a pinned drum, not a sideways track.** Ahmad found the sideways track flat, and its heading slid off screen with the panels. The five practices now sit on the faces of a five-sided prism in CSS 3D. Scroll turns it one face at a time with a dwell on each, damped in the shared frame loop. The next face rolls up from below; faces turning away darken as if lit from the front and their copy fades; the number, title, tools, and project links float at different depths so they parallax as it turns; the pointer tilts the whole drum; on the way in it rises and stands up from a tipped-back pose. A counter and a row of practice names mark the face in front. The heading and the row sit in front of the drum.
+- **"Seen in" uses real stacks only.** Each face lists the projects whose confirmed stack names one of its tools. Projects with a placeholder stack are never listed, so Mobile apps and Automation show none yet.
+- **Fallbacks.** Without JavaScript or under reduced motion the faces are a plain list of panels.

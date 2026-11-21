@@ -76,3 +76,7 @@ No downloaded models, textures, or HDR files.
 - Tier 2: bevel 3, card art at 512 x 320, no plate bend.
 - Reduced motion: one-screen hero with the first role as plain text, the work section as a plain list, no scrubbing, tilt, bend, or magnetic pull.
 - No WebGL: a text-only hero, the work list with screenshots, and SVG reliefs or screenshots in every plate.
+
+## Practice drum
+
+"What I build" pins and turns a five-sided prism, one practice per face (CSS 3D, `drum()` in `src/motion/scenes.ts`). Scroll rolls the next face up from below and rests on each; faces turning away darken, their copy floats at three depths, and the pointer tilts the drum.

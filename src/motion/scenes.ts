@@ -21,7 +21,7 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   rise(doc);
   statement(doc);
   workGallery(doc);
-  horizontal(doc);
+  drum(doc, core);
   magnetic(doc);
   peek(doc);
   anchors(doc, core);
@@ -144,39 +144,133 @@ function workGallery(doc: Document): void {
   });
 }
 
-// ---------- Practice: a sticky track that scrolls sideways ----------
-function horizontal(doc: Document): void {
-  doc.querySelectorAll<HTMLElement>('[data-hscroll]').forEach((section) => {
-    const track = section.querySelector<HTMLElement>('[data-hscroll-track]');
-    if (!track) return;
-    section.classList.add('is-horizontal');
-    const distance = () => Math.max(0, track.scrollWidth - window.innerWidth);
-    // CSS sticky holds the frame; the section is made tall enough to scroll the full track.
-    const size = () => {
-      section.style.height = `${distance() + window.innerHeight}px`;
-    };
-    size();
-    ScrollTrigger.addEventListener('refreshInit', size);
-    gsap.to(track, {
-      x: () => -distance(),
-      ease: 'none',
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top',
-        end: () => `+=${distance()}`,
-        scrub: 0.5,
-        invalidateOnRefresh: true,
-      },
-    });
-    const bar = section.querySelector<HTMLElement>('[data-hscroll-bar]');
-    if (bar) {
-      gsap.fromTo(
-        bar,
-        { scaleX: 0 },
-        { scaleX: 1, ease: 'none', scrollTrigger: { trigger: section, start: 'top top', end: () => `+=${distance()}`, scrub: true } },
-      );
+// ---------- Practice: a pinned drum. Scroll turns a five-sided prism, one practice per face ----------
+// The section pins; scroll progress sets a target position that dwells on each face, and the frame
+// loop damps the drum toward it. Faces turning away darken; the pointer tilts the whole drum. On
+// the way in, the drum rises and stands up from a tipped-back pose.
+let drumStop: (() => void) | null = null;
+
+function drum(doc: Document, core: MotionCore): void {
+  drumStop?.();
+  drumStop = null;
+  const section = doc.querySelector<HTMLElement>('[data-drum]');
+  const ring = section?.querySelector<HTMLElement>('[data-drum-ring]');
+  const stage = section?.querySelector<HTMLElement>('[data-drum-stage]');
+  if (!section || !ring || !stage) return;
+  const faces = Array.from(ring.querySelectorAll<HTMLElement>('[data-face]'));
+  const ticks = Array.from(section.querySelectorAll<HTMLElement>('[data-drum-tick]'));
+  const count = section.querySelector<HTMLElement>('[data-drum-count]');
+  const n = faces.length;
+  if (n < 2) return;
+  section.dataset.live = '';
+  const step = 360 / n;
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  let target = 0;
+  let pos = 0;
+  let enterT = 0;
+  let enter = 0;
+  let tiltX = 0;
+  let tiltY = 0;
+  let tiltXT = 0;
+  let tiltYT = 0;
+  let active = -1;
+  let dirty = true;
+
+  const setActive = (i: number): void => {
+    if (i === active) return;
+    active = i;
+    for (let j = 0; j < n; j++) {
+      // Only the face in front takes the pointer and the keyboard.
+      faces[j]!.inert = j !== i;
+      const t = ticks[j];
+      if (t) {
+        if (j === i) t.dataset.active = '';
+        else delete t.dataset.active;
+      }
     }
+    if (count) count.textContent = String(i + 1).padStart(2, '0');
+  };
+  setActive(0);
+
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: (self) => {
+      // Dwell on each face: ease between whole positions so a face rests square to the reader.
+      const x = self.progress * (n - 1);
+      const f = x - Math.floor(x);
+      const e = gsap.utils.clamp(0, 1, (f - 0.2) / 0.6);
+      target = Math.floor(x) + e * e * (3 - 2 * e);
+      dirty = true;
+    },
   });
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top bottom',
+    end: 'top top',
+    onUpdate: (self) => {
+      enterT = self.progress;
+      dirty = true;
+    },
+  });
+
+  const onMove = (e: PointerEvent): void => {
+    const r = stage.getBoundingClientRect();
+    tiltYT = ((e.clientX - r.left) / r.width - 0.5) * 10;
+    tiltXT = -((e.clientY - r.top) / r.height - 0.5) * 7;
+    dirty = true;
+  };
+  const onLeave = (): void => {
+    tiltXT = 0;
+    tiltYT = 0;
+    dirty = true;
+  };
+  if (fine) {
+    stage.addEventListener('pointermove', onMove);
+    stage.addEventListener('pointerleave', onLeave);
+  }
+
+  const frame = (_time: number, deltaMs: number): void => {
+    if (!dirty) return;
+    const dt = Math.min(deltaMs, 64) / 1000;
+    const k = 1 - Math.exp(-7 * dt);
+    const kt = 1 - Math.exp(-4 * dt);
+    pos += (target - pos) * k;
+    enter += (enterT - enter) * k;
+    tiltX += (tiltXT - tiltX) * kt;
+    tiltY += (tiltYT - tiltY) * kt;
+    const settled =
+      Math.abs(target - pos) < 1e-4 &&
+      Math.abs(enterT - enter) < 1e-4 &&
+      Math.abs(tiltXT - tiltX) < 1e-3 &&
+      Math.abs(tiltYT - tiltY) < 1e-3;
+    if (settled) {
+      pos = target;
+      enter = enterT;
+      dirty = false;
+    }
+    const ease = 1 - Math.pow(1 - enter, 3);
+    ring.style.setProperty('--rot', `${(pos * step).toFixed(3)}deg`);
+    ring.style.setProperty('--enter', ease.toFixed(4));
+    ring.style.setProperty('--tx', `${tiltX.toFixed(3)}deg`);
+    ring.style.setProperty('--ty', `${tiltY.toFixed(3)}deg`);
+    // Distance around the prism, in faces: the last face sits next to the first.
+    for (let i = 0; i < n; i++) {
+      const d = Math.abs(i - pos);
+      faces[i]!.style.setProperty('--a', Math.min(d, n - d).toFixed(3));
+    }
+    setActive(Math.min(n - 1, Math.max(0, Math.round(pos))));
+  };
+  core.addFrame(frame);
+
+  drumStop = () => {
+    core.removeFrame(frame);
+    stage.removeEventListener('pointermove', onMove);
+    stage.removeEventListener('pointerleave', onLeave);
+  };
+  doc.addEventListener('astro:before-swap', () => drumStop?.(), { once: true });
 }
 
 // ---------- Magnetic controls: pulled a little toward the pointer, damped back on leave ----------

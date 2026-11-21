@@ -12,13 +12,36 @@ const chars = (s: string, offset = 0) => [...s].map((c, i) => ({ c, i: i + offse
 const first = chars(FIRST_NAME);
 const last = chars(SURNAME, FIRST_NAME.length + 2);
 
-const practice = [
-  { area: 'Full-stack SaaS', items: ['Next.js', 'React', 'Node.js', 'TypeScript', 'Supabase', 'PostgreSQL'] },
-  { area: 'Mobile apps', items: ['React Native'] },
-  { area: 'AI systems', items: ['LLM integrations', 'RAG pipelines', 'Multi-agent systems', 'Voice agents'] },
-  { area: 'Cloud', items: ['AWS', 'GCP'] },
-  { area: 'Automation', items: ['n8n', 'Zapier'] },
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// "Seen in" lists only projects whose confirmed stack names one of these tools. Projects whose
+// stack is still a placeholder are never listed.
+const areas = [
+  {
+    area: 'Full-stack SaaS',
+    items: ['Next.js', 'React', 'Node.js', 'TypeScript', 'Supabase', 'PostgreSQL'],
+    match: ['Supabase', 'PostgreSQL'],
+  },
+  { area: 'Mobile apps', items: ['React Native'], match: ['React Native'] },
+  {
+    area: 'AI systems',
+    items: ['LLM integrations', 'RAG pipelines', 'Multi-agent systems', 'Voice agents'],
+    match: ['Gemini', 'OpenAI'],
+  },
+  {
+    area: 'Cloud',
+    items: ['AWS', 'GCP'],
+    match: ['AWS', 'GCP', 'Google Cloud Tasks', 'Google Cloud Functions', 'Cloud Run', 'BigQuery'],
+  },
+  { area: 'Automation', items: ['n8n', 'Zapier'], match: ['n8n', 'Zapier'] },
 ];
+const practice = areas.map((a) => ({
+  ...a,
+  seen: all
+    .filter((p) => !p.data.stack.placeholder && p.data.stack.value.some((s) => a.match.includes(s)))
+    .slice(0, 4)
+    .map((p) => ({ id: p.id, title: p.data.title })),
+}));
 const firstRole = ROLES[0];
 ---
 
@@ -91,28 +114,56 @@ const firstRole = ROLES[0];
   </section>
 
   <!-- 4. Practice: a sticky track that scrolls sideways. Without JavaScript it is a plain list. -->
-  <section class="practice" aria-labelledby="practice-title" data-hscroll>
+  <section class="practice" aria-labelledby="practice-title" data-drum style={`--n:${practice.length}`}>
     <div class="practice-pin">
       <header class="page practice-head">
-        <p class="label">Practice</p>
-        <SplitWords as="h2" id="practice-title" text="What I build" class="giant-h" />
+        <div>
+          <p class="label">Practice</p>
+          <SplitWords as="h2" id="practice-title" text="What I build" class="giant-h" />
+        </div>
+        <p class="drum-count mono" aria-hidden="true">
+          <span data-drum-count>01</span> / {pad(practice.length)}
+        </p>
       </header>
-      <ol class="track" role="list" data-hscroll-track>
-        {
-          practice.map((b, i) => (
-            <li class="panel">
-              <span class="n mono">{String(i + 1).padStart(2, '0')}</span>
-              <h3>{b.area}</h3>
-              <ul role="list" class="items">
-                {b.items.map((it) => (
-                  <li class="mono">{it}</li>
-                ))}
-              </ul>
-            </li>
-          ))
-        }
-      </ol>
-      <div class="progress page" aria-hidden="true"><span data-hscroll-bar></span></div>
+
+      <div class="drum-stage" data-drum-stage>
+        <ol class="drum" role="list" data-drum-ring>
+          {
+            practice.map((b, i) => (
+              <li class="face" style={`--i:${i}`} data-face>
+                <div class="face-in">
+                  <div class="face-head">
+                    <span class="n mono">{pad(i + 1)}</span>
+                    <h3>{b.area}</h3>
+                  </div>
+                  <div class="face-body">
+                    <ul role="list" class="items">
+                      {b.items.map((it) => (
+                        <li class="mono">{it}</li>
+                      ))}
+                    </ul>
+                    {b.seen.length > 0 && (
+                      <p class="seen">
+                        <span class="label">Seen in</span>
+                        <span class="seen-links">
+                          {b.seen.map((p) => (
+                            <a href={`/work/${p.id}/`}>{p.title}</a>
+                          ))}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <span class="shade" aria-hidden="true" />
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <div class="drum-rail page" aria-hidden="true">
+        {practice.map((b) => <span data-drum-tick>{b.area}</span>)}
+      </div>
     </div>
   </section>
 
@@ -472,92 +523,284 @@ const firstRole = ROLES[0];
   }
 
   .practice-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-5);
     padding-bottom: var(--space-7);
   }
 
-  .track {
+  .drum-count,
+  .drum-rail {
+    display: none;
+  }
+
+  /* Static: a plain list of faces (no JavaScript, or reduced motion). */
+  .drum {
     display: grid;
     gap: var(--space-4);
     padding-inline: var(--page-gutter);
   }
 
-  .panel {
-    display: grid;
-    align-content: space-between;
-    gap: var(--space-6);
-    min-height: 20rem;
-    padding: var(--space-6);
+  .face {
+    position: relative;
     border-radius: var(--radius-card);
     background: var(--color-surface);
     border: 1px solid var(--color-rule);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.07);
   }
 
-  .panel h3 {
-    font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+  .face-in {
+    display: grid;
+    gap: var(--space-6);
+    height: 100%;
+    padding: clamp(1.5rem, 3.5vw, 3.25rem);
+  }
+
+  .face-head {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+  }
+
+  .face h3 {
+    font-size: clamp(2.5rem, 6.2vw, 6.5rem);
     font-weight: 700;
-    line-height: 0.95;
-    letter-spacing: -0.03em;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
   }
 
   .n {
+    font-size: var(--text-small);
     color: var(--color-ink-muted);
+  }
+
+  .face-body {
+    display: grid;
+    gap: var(--space-6);
+    align-content: end;
   }
 
   .items {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
-    color: var(--color-ink-muted);
+    gap: var(--space-2);
   }
 
-  .progress {
+  .items li {
+    padding: 0.45em 0.9em;
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
+    font-size: var(--text-small);
+    color: var(--color-ink);
+    background: var(--color-bg);
+  }
+
+  .seen {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .seen-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    font-weight: 600;
+  }
+
+  .seen-links a {
+    text-decoration-color: var(--color-rule);
+  }
+
+  .shade {
     display: none;
   }
 
-  /* With JavaScript and motion, the panels become a sideways track inside a sticky frame. */
-  .practice:global(.is-horizontal) {
+  @media (min-width: 56rem) {
+    .face-in {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: var(--space-8);
+    }
+  }
+
+  /* ---------- live: a pinned drum. Each practice is a face of a five-sided prism; scroll turns it ---------- */
+  .practice[data-live] {
+    height: calc(var(--n) * 85svh + 100svh);
     padding: 0;
   }
 
-  .practice:global(.is-horizontal) .practice-pin {
+  .practice[data-live] .practice-pin {
     position: sticky;
     top: 0;
     height: 100svh;
     display: grid;
     grid-template-rows: auto 1fr auto;
-    align-content: center;
-    padding-block: calc(var(--header-h) + var(--space-6)) var(--space-6);
+    padding-block: calc(var(--header-h) + var(--space-5)) var(--space-5);
     overflow: hidden;
   }
 
-  .practice:global(.is-horizontal) .practice-head {
-    padding-bottom: var(--space-6);
+  /* The heading sits in front of the drum: a turning face passes behind its letters. */
+  .practice[data-live] .practice-head {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 0;
+    pointer-events: none;
   }
 
-  .practice:global(.is-horizontal) .track {
+  .practice[data-live] .drum-stage {
+    z-index: 1;
+  }
+
+  .practice[data-live] .drum-count {
+    display: block;
+    color: var(--color-ink-muted);
+  }
+
+  .practice[data-live] .drum-count span {
+    color: var(--color-ink);
+  }
+
+  /* The stage carries the perspective, the entrance, and the pointer tilt. */
+  .practice[data-live] .drum-stage {
+    --h: min(46svh, 27rem);
+    --r: calc(var(--h) * 0.6882); /* apothem of a pentagon: (h / 2) / tan(36deg) */
+    position: relative;
+    display: grid;
+    place-items: center;
+    perspective: 1700px;
+    perspective-origin: 50% 50%;
+  }
+
+  .practice[data-live] .drum {
+    --rot: 0deg;
+    --tx: 0deg;
+    --ty: 0deg;
+    --enter: 1;
+    position: relative;
+    display: block;
+    width: min(100% - 2 * var(--page-gutter), 76rem);
+    height: var(--h);
+    padding: 0;
+    transform-style: preserve-3d;
+    transform: translateY(calc((1 - var(--enter)) * 22svh)) translateZ(calc(-1 * var(--r)))
+      rotateX(calc(var(--tx) + (1 - var(--enter)) * 38deg)) rotateY(var(--ty)) rotateX(var(--rot));
+  }
+
+  .practice[data-live] .face {
+    --a: 0;
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    /* Each next face sits below the front one, so scrolling down rolls it up into view. */
+    transform: rotateX(calc(var(--i) * -72deg)) translateZ(var(--r));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.09),
+      0 40px 80px -40px rgb(0 0 0 / 0.8);
+  }
+
+  /* The copy floats off the face at three depths, so it parallaxes as the drum turns. */
+  .practice[data-live] .face-in {
+    transform-style: preserve-3d;
+    /* The copy of a face that has turned away fades, so it never pokes past the drum's edge. */
+    opacity: clamp(0, 1.3 - var(--a) * 1.25, 1);
+  }
+
+  .practice[data-live] .face :global(*) {
+    backface-visibility: hidden;
+  }
+
+  .practice[data-live] .face-head,
+  .practice[data-live] .face-body {
+    transform-style: preserve-3d;
+  }
+
+  .practice[data-live] .n {
+    transform: translateZ(40px);
+  }
+
+  .practice[data-live] .face h3 {
+    transform: translateZ(28px);
+  }
+
+  .practice[data-live] .items {
+    transform: translateZ(14px);
+  }
+
+  .practice[data-live] .seen {
+    transform: translateZ(22px);
+  }
+
+  /* Light from the front: a face darkens as it turns away. */
+  .practice[data-live] .shade {
+    display: block;
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: var(--color-bg);
+    opacity: calc(min(1, var(--a)) * 0.78);
+    transform: translateZ(44px);
+    pointer-events: none;
+  }
+
+  .practice[data-live] .drum-rail {
+    position: relative;
+    z-index: 2;
     display: flex;
-    width: max-content;
-    gap: var(--space-5);
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-6);
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
+    color: var(--color-ink-muted);
   }
 
-  .practice:global(.is-horizontal) .panel {
-    width: min(68vw, 40rem);
-    min-height: 0;
-    height: 100%;
+  .drum-rail span {
+    position: relative;
+    padding-block: var(--space-1);
+    transition: color 400ms var(--ease-out);
   }
 
-  .practice:global(.is-horizontal) .progress {
-    display: block;
-    padding-top: var(--space-5);
-  }
-
-  .progress span {
-    display: block;
-    height: 2px;
-    background: var(--color-ink);
-    transform-origin: left;
+  .drum-rail span::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--color-trace);
     transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 600ms var(--ease-expo);
+  }
+
+  .drum-rail span[data-active] {
+    color: var(--color-ink);
+  }
+
+  .drum-rail span[data-active]::after {
+    transform: scaleX(1);
+  }
+
+  @media (max-width: 56rem) {
+    .practice[data-live] .drum-stage {
+      --h: min(58svh, 30rem);
+      perspective: 1100px;
+    }
+
+    .practice[data-live] .face h3 {
+      font-size: clamp(2.25rem, 11vw, 3.5rem);
+    }
+
+    .practice[data-live] .seen-links {
+      font-size: var(--text-lead);
+    }
+
+    .practice[data-live] .drum-rail {
+      gap: var(--space-1) var(--space-4);
+    }
   }
 
   /* ---------- about ---------- */
