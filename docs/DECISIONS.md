@@ -119,3 +119,9 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **Case pages gain a Screens section** with each shot full size and a caption. Without JavaScript or WebGL, covers and the gallery list show the first screenshot instead of the generated relief.
 - **Gallery card enlarged** (desktop and mobile) so the screens read.
 - **Verified on the real GPU.** Earlier review frames came from a software renderer only. This round was also checked on Ahmad's machine (Intel UHD 630 through Direct3D 11), on the dev server and the production build.
+
+## 2026-11-21 (surname and larger project cards)
+
+- **Surname is Ali.** Ahmad supplied it; `SURNAME` in `src/config/site.ts` and the Name row in `docs/CONTENT.md` are updated. The screenshot blurs over his surname stay for now; they can be lifted by rerunning `scripts/project-shots.mjs` with those rectangles removed.
+- **Cards sized from the viewport, not fixed world units.** Ahmad found the gallery cards too small to show anything. The front gallery card now fills the right half of the screen (up to 60 percent of its height) and the hero deck takes about 30 percent of the width. The card turns less toward the copy (0.14 rad), so the screen reads square.
+- **Larger browser window on the card face.** The screenshot window now takes the face above the title strip (height 0.68 of the face, width up to 1.5). Cover plates zoom out to match.

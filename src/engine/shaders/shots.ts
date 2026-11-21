@@ -17,7 +17,7 @@ uniform vec4 uCell[3];  // where each shot sits in its cell: x, y, w, h as fract
 uniform vec4 uFocus[3]; // the focus region of each shot: x, y, w, h as fractions of the shot, y down
 
 const float SHOT_D = 4.6;
-const vec2 SHOT_C = vec2(0.8, 0.58);
+const vec2 SHOT_C = vec2(0.8, 0.575);
 const float SHOT_BAR = 0.042;
 
 int shotIndex(float k) { return int(clamp(k, 0.0, 2.0)); }
@@ -26,9 +26,10 @@ int shotIndex(float k) { return int(clamp(k, 0.0, 2.0)); }
 vec2 shotHalf(int k) {
   vec4 cell = uCell[k];
   float aspect = 2.0 * cell.z / max(cell.w, 1e-3);
-  float hgt = 0.6;
+  // As large as the face allows: the title keeps the bottom strip, the window takes the rest.
+  float hgt = 0.68;
   float wid = hgt * aspect;
-  if (wid > 1.42) { wid = 1.42; hgt = wid / aspect; }
+  if (wid > 1.5) { wid = 1.5; hgt = wid / aspect; }
   return vec2(wid, hgt) * 0.5;
 }
 

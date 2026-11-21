@@ -2,8 +2,8 @@
 // Facts here must match docs/CONTENT.md. `npm run prelaunch` fails while any
 // `placeholder: true`, the surname placeholder, or DRAFT_PREVIEW = true remains.
 
-/** Replace with the real surname. This is the only place it is set. */
-export const SURNAME = '[Surname]';
+/** The surname, supplied by Ahmad on 2026-11-21. This is the only place it is set. */
+export const SURNAME = 'Ali';
 
 export const FIRST_NAME = 'Ahmad';
 export const FULL_NAME = `${FIRST_NAME} ${SURNAME}`;

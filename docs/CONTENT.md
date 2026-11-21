@@ -11,7 +11,7 @@ The only source of facts about Ahmad for this site. Nothing outside this file ma
 
 | Fact      | Wording for drafts                                                                                                                                         | Status     | Confirmed on |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ------------ |
-| Name      | Ahmad. Surname: TODO.                                                                                                                                      | Draft only |              |
+| Name      | Ahmad Ali. Surname supplied by Ahmad on 2026-11-21.                                                                                                        | Draft only |              |
 | Location  | Based in Islamabad, Pakistan.                                                                                                                              | Draft only |              |
 | Education | BS Software Engineering, NUST Islamabad, class of 2026.                                                                                                    | Draft only |              |
 | Company   | Co-founder of OnePercent Technologies, an AI and software agency serving clients in the US, UK, and Middle East. Leads AI automation and SaaS development. | Draft only |              |
@@ -78,7 +78,6 @@ DocuChat AI, Voice Transfer System, CricPing, AI Interviewer, EAPO, CARTX, Spiki
 
 ## Open TODOs
 
-- TODO: surname.
 - TODO: exact Upwork wording and whether the client count may be shown.
 - TODO: public links (GitHub, LinkedIn, Upwork, email) and which of them may appear.
 - TODO: NDA status for every candidate project.

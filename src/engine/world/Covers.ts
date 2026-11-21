@@ -83,8 +83,8 @@ void main() {
   float aspect = uSize.x / uSize.y;
 #ifdef SHOTS
   // The browser window fills most of the plate; narrow plates zoom out so it never clips.
-  float span = max(0.84, 1.54 / aspect);
-  gP = vec2(0.8 + (vUv.x - 0.5) * aspect * span, 0.565 + (vUv.y - 0.5) * span);
+  float span = max(0.82, 1.6 / aspect);
+  gP = vec2(0.8 + (vUv.x - 0.5) * aspect * span, 0.585 + (vUv.y - 0.5) * span);
 #else
   gP = vec2(0.8 + (vUv.x - 0.5) * aspect * 0.82, 0.18 + vUv.y * 0.82);
 #endif

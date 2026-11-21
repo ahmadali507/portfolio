@@ -215,7 +215,8 @@ export class Showcase implements WorldPart {
     // One at a time: each card rises from below, faces the viewer at the center, and leaves upward.
     const gap = portrait ? 12 : 4.3;
     this.pa.set(0, -d * gap + motion.workOut * 10, -Math.abs(d) * 0.9);
-    this.ea.set(d * 0.32, -0.26, d * 0.05);
+    // A slight turn toward the copy; small enough that the screen stays square to the reader.
+    this.ea.set(d * 0.32, -0.14, d * 0.05);
     this.qa.setFromEuler(this.ea);
     // Leaving the hero: the deck opens. The top card comes forward to the center while the
     // others drop below, ready to come up in turn.
@@ -256,18 +257,33 @@ export class Showcase implements WorldPart {
     const camTarget = 11;
     let show: boolean;
 
+    // Home sizes come from the viewport in pixels, so the card stays large on any screen.
+    // Hero: the deck fills the right side beside the name. Gallery: the front card fills the
+    // right half, as large as the height allows, so its screenshot reads.
+    const viewW = this.aspect * this.viewH;
+    const heroPx = portrait ? viewW * 0.74 :Math.min(viewW * 0.3, this.viewH * 0.62);
+    const heroS = (heroPx * worldPerPx) / CARD_W;
+    const heroX = portrait ? 0 : viewW * 0.24 * worldPerPx;
+    const heroY = portrait ? -1.75 : -0.1;
+    // The right margin is wider than it looks: the turn brings the right edge nearer the camera.
+    const galPx = portrait ? viewW * 0.9 : Math.min(viewW * 0.5 - 100, this.viewH * 0.6 * 1.6);
+    const galS = (galPx * worldPerPx) / CARD_W;
+    const galX = portrait ? 0 : (viewW * 0.5 - 100 - galPx * 0.5) * worldPerPx;
+    // Portrait: the card's top edge sits 150 px down, clear of the section header.
+    const galY = portrait ? (this.viewH * 0.5 - 150 - galPx / 3.2) * worldPerPx : -12 * worldPerPx;
+
     const gallery = motion.page === 'home' && motion.workIn > 0 && motion.workOut < 1;
     if (gallery) {
       // The group grows from its hero size to gallery size as the deck opens: the zoom in.
       const open = smoothstep(motion.workIn, 0, 1);
-      gx = portrait ? 0 : MathUtils.lerp(3.05, 2.36, open);
-      gy = portrait ? MathUtils.lerp(-1.75, 1.05, open) : MathUtils.lerp(-0.1, 0, open);
-      gs = portrait ? MathUtils.lerp(0.68, 0.64, open) : MathUtils.lerp(0.78, 1.18, open);
+      gx = MathUtils.lerp(heroX, galX, open);
+      gy = MathUtils.lerp(heroY, galY, open);
+      gs = MathUtils.lerp(heroS, galS, open);
       show = true;
     } else if (motion.page === 'home') {
-      gx = portrait ? 0 : 3.05;
-      gy = portrait ? -1.75 : -0.1;
-      gs = portrait ? 0.68 : 0.78;
+      gx = heroX;
+      gy = heroY;
+      gs = heroS;
       show = motion.workOut < 1;
       if (rm) {
         // No gallery choreography under reduced motion: the deck simply scrolls away with the hero.
