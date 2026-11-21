@@ -30,6 +30,7 @@ let stop: (() => void) | null = null;
 export function mountTyped(doc: Document, core: MotionCore): void {
   stop?.();
   stop = null;
+  motion.role = 0;
   if (motion.reduced) return;
   const host = doc.querySelector<HTMLElement>('[data-typed]');
   const text = host?.querySelector<HTMLElement>('[data-typed-text]');
@@ -41,17 +42,22 @@ export function mountTyped(doc: Document, core: MotionCore): void {
   const groups: HTMLElement[] = [];
   const letters: HTMLElement[][] = [];
   const dwell: string[] = [];
-  for (const r of ROLES) {
-    const line = `${r.a} ${r.role}`;
-    const g = doc.createElement('span');
-    g.hidden = true;
-    const ls: HTMLElement[] = [];
-    // Letters sit inside a no-wrap span per word, so a long role breaks between words only.
-    const words = line.split(' ');
-    for (let w = 0; w < words.length; w++) {
+  const space = (into: HTMLElement, ls: HTMLElement[]): void => {
+    const s = doc.createElement('span');
+    s.className = 'tw';
+    s.textContent = ' ';
+    s.hidden = true;
+    into.appendChild(s);
+    ls.push(s);
+  };
+  // Letters sit inside a no-wrap span per word, so a long role breaks between words only. The
+  // adverb and the role each get a wrapper, which carries its colour.
+  const words = (text: string, into: HTMLElement, ls: HTMLElement[]): void => {
+    const list = text.split(' ');
+    for (let w = 0; w < list.length; w++) {
       const word = doc.createElement('span');
       word.className = 'tw-word';
-      for (const c of words[w]!) {
+      for (const c of list[w]!) {
         const s = doc.createElement('span');
         s.className = 'tw';
         s.textContent = c;
@@ -59,20 +65,27 @@ export function mountTyped(doc: Document, core: MotionCore): void {
         word.appendChild(s);
         ls.push(s);
       }
-      g.appendChild(word);
-      if (w < words.length - 1) {
-        const space = doc.createElement('span');
-        space.className = 'tw';
-        space.textContent = ' ';
-        space.hidden = true;
-        g.appendChild(space);
-        ls.push(space);
-      }
+      into.appendChild(word);
+      if (w < list.length - 1) space(into, ls);
     }
+  };
+  for (const r of ROLES) {
+    const g = doc.createElement('span');
+    g.hidden = true;
+    const ls: HTMLElement[] = [];
+    const adv = doc.createElement('span');
+    adv.className = 'tw-adv';
+    words(r.adv, adv, ls);
+    g.appendChild(adv);
+    space(g, ls);
+    const role = doc.createElement('span');
+    role.className = 'tw-role';
+    words(r.role, role, ls);
+    g.appendChild(role);
     text.appendChild(g);
     groups.push(g);
     letters.push(ls);
-    dwell.push(`${(line.length * TYPE + HOLD).toFixed(2)}s`);
+    dwell.push(`${(ls.length * TYPE + HOLD).toFixed(2)}s`);
   }
 
   let visible = true;
@@ -88,6 +101,8 @@ export function mountTyped(doc: Document, core: MotionCore): void {
   let shown = 0;
 
   const setActive = (i: number): void => {
+    // The 3D object for this role comes forward (engine/world/HeroField.ts).
+    motion.role = i;
     for (let j = 0; j < items.length; j++) {
       const it = items[j]!;
       if (j === i) {
@@ -106,7 +121,7 @@ export function mountTyped(doc: Document, core: MotionCore): void {
 
   const frame = (_time: number, deltaMs: number): void => {
     if (!visible || doc.hidden || motion.reduced) return;
-    clock += Math.min(deltaMs, 100) / 1000;
+    clock += Math.min(deltaMs, 250) / 1000;
     const t = clock - since;
     const ls = letters[k]!;
     switch (phase) {

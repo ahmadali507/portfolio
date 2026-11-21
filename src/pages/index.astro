@@ -62,9 +62,9 @@ const firstRole = ROLES[0];
 
         <!-- The typed line is decoration for sighted readers; the list below carries the same words for everyone. -->
         <p class="typed enter" style="--d:520ms" aria-hidden="true" data-typed>
-          <span class="typed-lead">I am</span>
-          <span class="typed-text" data-typed-text>{`${firstRole.a} ${firstRole.role}`}</span><span
-            class="caret"></span>
+          <span class="typed-text" data-typed-text
+            ><span class="tw-adv">{firstRole.adv}</span> <span class="tw-role">{firstRole.role}</span></span
+          ><span class="caret"></span>
         </p>
 
         <ul class="roles enter" style="--d:700ms" role="list" aria-label="What I do" data-roles>
@@ -239,12 +239,39 @@ const firstRole = ROLES[0];
 
   .line {
     display: block;
-    overflow: hidden;
+    overflow: clip;
+    overflow-clip-margin: 0.2em;
     padding-bottom: 0.06em;
+    perspective: 900px;
   }
 
   .ch {
     display: inline-block;
+  }
+
+  /* The name floats: once risen in, each letter bobs and tilts in depth on its own phase.
+     translate and rotate are separate properties, so they stack on the rise-in transform. */
+  @media (prefers-reduced-motion: no-preference) {
+    h1 .ch {
+      animation:
+        rise-in 1.2s var(--ease-expo) both,
+        letter-float 5.8s ease-in-out infinite alternate;
+      animation-delay:
+        calc(140ms + var(--i, 0) * 32ms),
+        calc(var(--i, 0) * -0.71s);
+    }
+  }
+
+  @keyframes letter-float {
+    from {
+      translate: 0 0.03em;
+      rotate: 1 0.45 0 -10deg;
+    }
+
+    to {
+      translate: 0 -0.05em;
+      rotate: 1 -0.5 0 12deg;
+    }
   }
 
   /* ---------- the typed line ---------- */
@@ -259,14 +286,21 @@ const firstRole = ROLES[0];
     text-wrap: balance;
   }
 
-  .typed-lead {
-    color: var(--color-ink-muted);
-    margin-right: 0.26em;
-  }
-
   .typed-text {
     color: var(--color-ink);
     white-space: pre-wrap;
+  }
+
+  /* The adverb in the accent, set lighter and slanted; the role in full ink. */
+  .typed :global(.tw-adv) {
+    display: block;
+    color: var(--color-trace-ink);
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .typed :global(.tw-role) {
+    color: var(--color-ink);
   }
 
   /* While a role is selected before it clears, it reads like text marked in an editor. */

@@ -16,6 +16,8 @@ export const motion = {
   workIn: 0,
   workPos: 0,
   workOut: 0,
+  /** Home hero: index into ROLES of the role being typed, so the 3D object for it comes forward. */
+  role: 0,
   /** Featured card index a case-study page is about, or -1. */
   focus: -1,
   /** Featured card index under the pointer in the DOM (rows, stack cards), or -1. */

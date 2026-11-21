@@ -47,10 +47,15 @@ export async function boot(host: HTMLElement, core: MotionCore): Promise<void> {
 
 /** Scene parts. Kept in one place so the engine shell does not depend on any one world. */
 async function loadParts(e: Engine): Promise<WorldPart[]> {
-  const [{ Showcase }, { Covers }] = await Promise.all([import('./world/Showcase'), import('./world/Covers')]);
+  const [{ Showcase }, { Covers }, { HeroField }] = await Promise.all([
+    import('./world/Showcase'),
+    import('./world/Covers'),
+    import('./world/HeroField'),
+  ]);
   // Tier 2 from the start on coarse pointers and small screens (ARCHITECTURE.md section 8).
   const weak = window.matchMedia('(pointer: coarse)').matches || Math.min(window.innerWidth, window.innerHeight) < 600;
   const tier = weak ? 2 : 1;
   if (weak) e.quality.tier = 2;
-  return [new Showcase(e, tier), new Covers(e, tier)];
+  // Showcase first: it installs the room environment the hero objects are lit by.
+  return [new Showcase(e, tier), new HeroField(e, tier), new Covers(e, tier)];
 }

@@ -241,6 +241,13 @@ a {
   opacity: 1;
 }
 
+/* While the home hero is in view the layer drops beneath the page (engine/world/HeroField.ts):
+   its 3D objects show through the hero, which has no background, and sit behind the copy.
+   Sections with a background still cover it. */
+.world[data-under] {
+  z-index: -1;
+}
+
 /* ---------- page transitions: the old page settles back, the new one wipes up over it ---------- */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(main) {

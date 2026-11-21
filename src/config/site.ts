@@ -38,16 +38,17 @@ export const PERSON = {
 } as const;
 
 /**
- * The roles the home hero types out, in order. Supplied by Ahmad on 2026-11-21; the last two
- * come from the Builds row in docs/CONTENT.md. `a` is the article the typed line uses.
+ * The roles the home hero types out, in order, each after its adverb. Roles supplied by Ahmad on
+ * 2026-11-21; the last two come from the Builds row in docs/CONTENT.md. The order matches the 3D
+ * objects in engine/world/HeroField.ts.
  */
 export const ROLES = [
-  { a: 'a', role: 'Software Engineer' },
-  { a: 'an', role: 'AI & LLM Engineer' },
-  { a: 'a', role: 'Web & Mobile App Developer' },
-  { a: 'a', role: 'Cloud Solutions Architect' },
-  { a: 'a', role: 'Full-Stack SaaS Developer' },
-  { a: 'an', role: 'Automation Engineer' },
+  { adv: 'Thoughtfully', role: 'Software Engineer' },
+  { adv: 'Practically', role: 'AI & LLM Engineer' },
+  { adv: 'Fluently', role: 'Web & Mobile App Developer' },
+  { adv: 'Reliably', role: 'Cloud Solutions Architect' },
+  { adv: 'Thoroughly', role: 'Full-Stack SaaS Developer' },
+  { adv: 'Quietly', role: 'Automation Engineer' },
 ] as const;
 
 export interface ContactHandle {
