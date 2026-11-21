@@ -149,3 +149,11 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 - **The name floats.** Each letter bobs and tilts in depth on its own phase after rising in. It uses the separate translate and rotate properties, so it stacks on the rise-in transform; reduced motion holds it still.
 - **Adverb and role.** "I am" is gone. Each role types after an adverb (Thoughtfully, Practically, Fluently, Reliably, Thoroughly, Quietly) on its own line, the adverb in the accent ink and the role in full ink. The adverbs are copy, not claims.
 - **Known cost, not new.** On first load the main thread blocks for about four seconds while the project card shaders compile, which delays the first typed role. It predates this change (measured without the hero objects); the hero objects add under a second. Worth a follow-up: compile the card art lazily as the gallery approaches.
+
+## 2026-11-21 (the hero stands on a keyboard)
+
+- **A full 3D stage under the hero.** Ahmad said the hero had 3D objects but no 3D background for the section to stand on. The stage is a full-size keyboard, modelled key by key in physical materials, laid under the hero and tilted toward the reader, running off both edges on wide screens. A keyboard says what the work is made with, and it ties to the typed line: every key the line strikes goes down and springs back, capitals hold shift, the ampersand is shift and 7, and the clear presses delete. The return key carries the deep accent.
+- **Grounded objects.** The floating role objects cast soft shadows straight down onto the keys, wider and fainter the higher they hang, so they read as hanging over a real surface.
+- **Readable copy over it.** The keys are near black with dim legends and low reflections, and the board falls off into the page colour at its edges, so the role list, the lead, and the actions keep their contrast over it.
+- **Leaving the hero.** The keyboard draws back and fades as the reader scrolls and fades out above the top edge of the next section, which is opaque and would otherwise cut across it. Under reduced motion the keys never move.
+- **Cost.** Three draw calls and about 58k triangles on tier 1 (fewer on tier 2), one canvas texture for the legends. A key stroke writes one uniform value; nothing is uploaded per frame.

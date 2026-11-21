@@ -41,18 +41,20 @@ export function mountTyped(doc: Document, core: MotionCore): void {
   text.textContent = '';
   const groups: HTMLElement[] = [];
   const letters: HTMLElement[][] = [];
+  const chars: string[][] = [];
   const dwell: string[] = [];
-  const space = (into: HTMLElement, ls: HTMLElement[]): void => {
+  const space = (into: HTMLElement, ls: HTMLElement[], cs: string[]): void => {
     const s = doc.createElement('span');
     s.className = 'tw';
     s.textContent = ' ';
     s.hidden = true;
     into.appendChild(s);
     ls.push(s);
+    cs.push(' ');
   };
   // Letters sit inside a no-wrap span per word, so a long role breaks between words only. The
   // adverb and the role each get a wrapper, which carries its colour.
-  const words = (text: string, into: HTMLElement, ls: HTMLElement[]): void => {
+  const words = (text: string, into: HTMLElement, ls: HTMLElement[], cs: string[]): void => {
     const list = text.split(' ');
     for (let w = 0; w < list.length; w++) {
       const word = doc.createElement('span');
@@ -64,27 +66,30 @@ export function mountTyped(doc: Document, core: MotionCore): void {
         s.hidden = true;
         word.appendChild(s);
         ls.push(s);
+        cs.push(c);
       }
       into.appendChild(word);
-      if (w < list.length - 1) space(into, ls);
+      if (w < list.length - 1) space(into, ls, cs);
     }
   };
   for (const r of ROLES) {
     const g = doc.createElement('span');
     g.hidden = true;
     const ls: HTMLElement[] = [];
+    const cs: string[] = [];
     const adv = doc.createElement('span');
     adv.className = 'tw-adv';
-    words(r.adv, adv, ls);
+    words(r.adv, adv, ls, cs);
     g.appendChild(adv);
-    space(g, ls);
+    space(g, ls, cs);
     const role = doc.createElement('span');
     role.className = 'tw-role';
-    words(r.role, role, ls);
+    words(r.role, role, ls, cs);
     g.appendChild(role);
     text.appendChild(g);
     groups.push(g);
     letters.push(ls);
+    chars.push(cs);
     dwell.push(`${(ls.length * TYPE + HOLD).toFixed(2)}s`);
   }
 
@@ -114,6 +119,12 @@ export function mountTyped(doc: Document, core: MotionCore): void {
     }
   };
 
+  // The keyboard under the hero presses the key for every stroke (engine/world/HeroField.ts).
+  const strike = (c: string): void => {
+    motion.key = c;
+    motion.keySeq++;
+  };
+
   const enter = (p: Phase): void => {
     phase = p;
     since = clock;
@@ -135,7 +146,10 @@ export function mountTyped(doc: Document, core: MotionCore): void {
         break;
       case Phase.Type: {
         const want = Math.min(ls.length, Math.floor(t / TYPE) + 1);
-        while (shown < want) ls[shown++]!.hidden = false;
+        while (shown < want) {
+          strike(chars[k]![shown]!);
+          ls[shown++]!.hidden = false;
+        }
         if (shown === ls.length) {
           delete host.dataset.busy;
           enter(Phase.Hold);
@@ -151,6 +165,7 @@ export function mountTyped(doc: Document, core: MotionCore): void {
       case Phase.Select:
         if (t >= SELECT) {
           delete host.dataset.selected;
+          strike('\b');
           groups[k]!.hidden = true;
           for (let i = 0; i < ls.length; i++) ls[i]!.hidden = true;
           shown = 0;

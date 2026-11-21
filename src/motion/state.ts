@@ -18,6 +18,12 @@ export const motion = {
   workOut: 0,
   /** Home hero: index into ROLES of the role being typed, so the 3D object for it comes forward. */
   role: 0,
+  /**
+   * Home hero: the last key the typed line struck ('\b' for the clear), and a counter that rises
+   * with every stroke, so the keyboard under the hero presses the same key.
+   */
+  key: '',
+  keySeq: 0,
   /** Featured card index a case-study page is about, or -1. */
   focus: -1,
   /** Featured card index under the pointer in the DOM (rows, stack cards), or -1. */

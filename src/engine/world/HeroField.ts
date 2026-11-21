@@ -18,13 +18,15 @@ import {
 } from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { motion } from '../../motion/state';
+import { HeroKeyboard, KB_WIDTH, KEY_TOP } from './HeroKeyboard';
 import type { EngineContext, FrameInput, Tier, WorldPart } from '../types';
 
 /**
  * The home hero's 3D background: one object per role in the typed line (code brackets, a chip, a
  * phone, a cloud, a laptop, a gear), modelled from simple solids in physical materials and lit by
  * the room environment the Showcase installs. They float around the edges of the hero, clear of
- * the name, and lean with the pointer. The object for the role being typed comes forward and turns
+ * the name, and lean with the pointer. Under them all lies a full keyboard (HeroKeyboard) that
+ * presses each key the typed line strikes and takes the objects' soft shadows. The object for the role being typed comes forward and turns
  * to face the reader, so the background follows the words rather than decorating them.
  *
  * The world canvas normally sits above the page. While the hero is in view this part lowers it
@@ -86,6 +88,8 @@ export class HeroField implements WorldPart {
   private readonly geometries: BufferGeometry[] = [];
   private readonly materials: Material[] = [];
   private host: HTMLElement | null = null;
+  /** The section after the hero. It is opaque, so the keyboard fades out above its top edge. */
+  private next: Element | null = null;
   private under = false;
   private aspect = 1;
   private viewH = 1;
@@ -98,6 +102,9 @@ export class HeroField implements WorldPart {
   /** Tall screens show only the current role's object, above the name, so nothing sits behind the copy. */
   private solo = false;
   private readonly v = new Vector3();
+  private readonly kb: HeroKeyboard;
+  private readonly kbInv = new Matrix4();
+  private keySeq = motion.keySeq;
 
   constructor(ctx: EngineContext, tier: Tier) {
     this.ctx = ctx;
@@ -308,6 +315,8 @@ export class HeroField implements WorldPart {
       });
       this.group.add(obj);
     }
+    this.kb = new HeroKeyboard(tier === 1 ? 3 : 2, Math.min(8, ctx.renderer.capabilities.getMaxAnisotropy()));
+    this.group.add(this.kb.root);
     this.group.visible = false;
     ctx.scene.add(this.group);
     // Compile the programs off the main thread where the GPU allows it, so the first hero frames do
@@ -352,10 +361,12 @@ export class HeroField implements WorldPart {
 
   mount(doc: Document): void {
     this.host = doc.getElementById('world');
+    this.next = doc.querySelector('[data-hero]')?.nextElementSibling ?? null;
     this.ctx.invalidate();
   }
 
   unmount(): void {
+    this.next = null;
     this.setUnder(false);
   }
 
@@ -398,6 +409,30 @@ export class HeroField implements WorldPart {
     this.group.position.y = input.scroll * worldPerPx;
 
     const sink = this.hide;
+
+    // The keyboard: wide enough to run off both edges, low in the view, tilted toward the reader.
+    const kb = this.kb;
+    const kbZ = this.solo ? -3 : -4;
+    const kbHalfH = (CAM_Z - kbZ) * tanH;
+    const unit = MathUtils.clamp((kbHalfH * this.aspect * 2 * (this.solo ? 1.2 : 0.98)) / KB_WIDTH, 0.18, 1.15);
+    const kbAppear = rm ? 1 : smooth((since - 0.1) / 1.4);
+    // As the reader scrolls, the keyboard draws back and fades, so it is gone before the work
+    // section's edge would cut across it.
+    const leave = smooth(input.scroll / (this.viewH * 0.4));
+    kb.root.scale.setScalar(unit);
+    kb.root.position.set(0, -kbHalfH * (this.solo ? 0.8 : 0.7) - sink * 2.5 - (1 - kbAppear) * 1.2, kbZ - leave * 3);
+    kb.root.rotation.set(0.72, 0, 0);
+    kb.uniforms.uShow.value = kbAppear * (1 - sink) * (1 - leave);
+    kb.uniforms.uTime.value = t;
+    const dpr = this.ctx.renderer.getPixelRatio();
+    const top = this.next ? this.next.getBoundingClientRect().top : this.viewH * 4;
+    kb.uniforms.uCut.value.set((this.viewH - top) * dpr, 180 * dpr);
+    if (this.keySeq !== motion.keySeq) {
+      this.keySeq = motion.keySeq;
+      if (!rm) kb.strike(motion.key, t);
+    }
+    kb.root.updateMatrix();
+    this.kbInv.copy(kb.root.matrix).invert();
     for (let i = 0; i < this.items.length; i++) {
       const it = this.items[i]!;
       const o = it.obj;
@@ -431,12 +466,19 @@ export class HeroField implements WorldPart {
       const s = it.size * (1 + it.lift * 0.12) * Math.max(0.0001, it.appear * solo) * (1 - sink * 0.6);
       o.visible = s > 0.002;
       o.scale.setScalar(s);
+
+      // A soft shadow straight down onto the keys, wider and fainter the higher the object hangs.
+      this.v.copy(o.position).applyMatrix4(this.kbInv);
+      const h = Math.max(0, this.v.y - KEY_TOP);
+      const sh = kb.uniforms.uShadow.value[i]!;
+      sh.set(this.v.x, this.v.z, (0.5 * s) / unit + 0.16 * h, o.visible ? 0.5 * Math.min(1, it.appear) * MathUtils.clamp(1 - h / 16, 0, 1) : 0);
     }
     return true;
   }
 
   dispose(): void {
     this.setUnder(false);
+    this.kb.dispose();
     this.ctx.scene.remove(this.group);
     for (const g of this.geometries) g.dispose();
     for (const m of this.materials) m.dispose();
