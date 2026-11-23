@@ -398,6 +398,50 @@ const firstRole = ROLES[0];
     background: var(--color-surface);
     transform-origin: 50% 0;
     overflow: hidden;
+    transition:
+      border-color 400ms var(--ease-out),
+      background-color 400ms var(--ease-out);
+  }
+
+  /* Under the pointer a card answers: its border takes the accent, a soft light follows the
+     pointer across its surface, and its title steps forward. --mx and --my come from
+     motion/scenes.ts; without it the light sits in the middle. */
+  .card-in::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      26rem circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--color-trace) 16%, transparent),
+      transparent 62%
+    );
+    opacity: 0;
+    transition: opacity 500ms var(--ease-out);
+    pointer-events: none;
+  }
+
+  .card h3 {
+    transition: transform 600ms var(--ease-expo);
+  }
+
+  @media (hover: hover) {
+    .card-in:hover {
+      border-color: var(--color-trace);
+      background: color-mix(in srgb, var(--color-surface) 94%, var(--color-ink));
+    }
+
+    .card-in:hover::before {
+      opacity: 1;
+    }
+
+    .card-in:hover h3 {
+      transform: translateX(0.12em);
+    }
+
+    .card-in:hover .chips a {
+      border-color: color-mix(in srgb, var(--color-trace) 45%, var(--color-rule));
+      color: var(--color-ink);
+    }
   }
 
   /* A veil that darkens a card as the next ones cover it. */

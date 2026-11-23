@@ -135,6 +135,14 @@ function stackCards(doc: Document): void {
   const cards = Array.from(stack.querySelectorAll<HTMLElement>('[data-stack-card]'));
   const last = cards[cards.length - 1];
   if (!last) return;
+  // The light on a hovered card follows the pointer across it.
+  stack.addEventListener('pointermove', (event) => {
+    const face = (event.target as HTMLElement).closest<HTMLElement>('[data-stack-face]');
+    if (!face) return;
+    const box = face.getBoundingClientRect();
+    face.style.setProperty('--mx', (event.clientX - box.left).toFixed(0) + 'px');
+    face.style.setProperty('--my', (event.clientY - box.top).toFixed(0) + 'px');
+  });
   cards.forEach((card, i) => {
     const face = card.querySelector<HTMLElement>('[data-stack-face]');
     const behind = cards.length - 1 - i; // how many cards end up on top of this one

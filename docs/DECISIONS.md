@@ -198,3 +198,8 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 
 - **From the header to the footer.** Ahmad asked why the trail stopped. Two causes: the project gallery section had its own `z-index` and an opaque background, which hid the line for the whole gallery, and the tip was held at 62 percent of the screen, so the last part of the line could never be drawn. The gallery section no longer sets a `z-index`, and over the last screen of scroll the tip slides to the bottom of the screen. The wrapper now holds the hero too, so the line starts directly under the header and runs off the bottom of the page into the footer.
 - **Thicker.** The line is about 31 pixels wide on a desktop gutter (it was about 17) and 9 on a phone, with a smaller wobble so it still stays inside the gutter.
+
+## 2026-11-23 (ghost numbers and card hover)
+
+- **The gallery number is visible.** The large number behind each project was drawn in the surface color, which on a black ground could not be seen. It now has a dim fill and a faint amber outline.
+- **What I build cards answer the pointer.** On hover a card takes an amber border, a soft amber light follows the pointer across it, its title steps forward, and its project chips brighten. Without JavaScript the light sits in the middle of the card.
