@@ -114,7 +114,7 @@ export class HeroField implements WorldPart {
     );
     const steel = this.mat(new MeshPhysicalMaterial({ color: '#c8ccd1', metalness: 1, roughness: 0.26 }));
     const gold = this.mat(new MeshPhysicalMaterial({ color: '#d2a04a', metalness: 1, roughness: 0.2 }));
-    const accent = this.mat(new MeshPhysicalMaterial({ color: '#4c6fff', roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.05 }));
+    const accent = this.mat(new MeshPhysicalMaterial({ color: '#ffb224', roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.05 }));
     const screen = this.mat(
       new MeshPhysicalMaterial({ color: '#0c1520', emissive: '#0f2233', roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.02 }),
     );
@@ -313,7 +313,7 @@ export class HeroField implements WorldPart {
       });
       this.group.add(obj);
     }
-    this.grid = new HeroGrid('#4c6fff');
+    this.grid = new HeroGrid('#ffb224');
     ctx.scene.add(this.grid.mesh);
     this.group.visible = false;
     ctx.scene.add(this.group);
@@ -399,6 +399,7 @@ export class HeroField implements WorldPart {
       const inside = !rm && input.pointerInside;
       this.grid.update(
         t,
+        dt,
         input.scroll,
         heroH,
         1,

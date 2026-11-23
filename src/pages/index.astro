@@ -57,6 +57,8 @@ const firstRole = ROLES[0];
     </div>
   </section>
 
+  <!-- Everything after the hero shares one wrapper, so the trail line can run down all of it. -->
+  <div class="trail-wrap" data-trail>
   <!-- 2. A moving band of the five things he builds. Decoration: the list below says the same. -->
   <div class="band" aria-hidden="true">
     <div class="band-track">
@@ -128,6 +130,7 @@ const firstRole = ROLES[0];
       </div>
     </div>
   </section>
+  </div>
 </Base>
 
 <style>
@@ -309,9 +312,12 @@ const firstRole = ROLES[0];
   }
 
   /* ---------- band ---------- */
+  .trail-wrap {
+    position: relative;
+  }
+
   .band {
     position: relative;
-    z-index: 2;
     display: flex;
     align-items: center;
     height: clamp(5.5rem, 10vw, 9.5rem);
@@ -358,7 +364,6 @@ const firstRole = ROLES[0];
   .build,
   .cta {
     position: relative;
-    z-index: 2;
     background: var(--color-bg);
     overflow-x: clip;
   }

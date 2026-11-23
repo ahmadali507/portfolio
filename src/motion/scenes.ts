@@ -10,6 +10,7 @@ import type { MotionCore } from './core';
 import { mountChem } from './chem';
 import { mountTyped } from './typed';
 import { mountCarousel } from './carousel';
+import { mountTrail } from './trail';
 
 const EXPO = 'expo.out';
 
@@ -18,6 +19,7 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   mountChem(doc, core);
   mountTyped(doc, core);
   mountCarousel(doc);
+  mountTrail(doc);
   if (motion.reduced) return;
   revealLines(doc);
   rise(doc);
@@ -103,10 +105,11 @@ function heroLeave(doc: Document): void {
   const copy = hero?.querySelector<HTMLElement>('[data-hero-copy]');
   if (!hero || !copy) return;
   gsap.to(copy, {
-    yPercent: 18,
+    // A short drift, gone by the time the foot of the hero would meet it.
+    yPercent: 8,
     opacity: 0,
     ease: 'none',
-    scrollTrigger: { trigger: hero, start: 'top top', end: '78% top', scrub: 0.4 },
+    scrollTrigger: { trigger: hero, start: 'top top', end: '45% top', scrub: 0.4 },
   });
 }
 

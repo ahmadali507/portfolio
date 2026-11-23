@@ -121,7 +121,6 @@ const personLd = {
   <body data-slug={slug} data-focus={focus}>
     <a class="skip-link" href="#main">Skip to content</a>
     <WorldHost />
-    <canvas id="liquid" class="liquid" transition:persist="liquid" aria-hidden="true"></canvas>
     <script type="application/json" id="world-data" set:html={JSON.stringify(worldData)} />
     <SiteHeader current={page} />
     <main id="main" tabindex="-1" transition:name="main">
