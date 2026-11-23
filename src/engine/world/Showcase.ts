@@ -270,14 +270,17 @@ export class Showcase implements WorldPart {
       gx = galX;
       gy = galY;
       gs = galS;
-      show = gallery;
+      // The home gallery shows each project as a spotlight on its screenshots (components/
+      // Spotlight.astro), so the 3D cards stay hidden there.
+      show = false;
     } else {
       // Banner pages: the group sits in the head band and scrolls away with it.
       const feature = motion.page === 'case' && motion.focus >= 0;
       gx = portrait ? 0 : feature ? 2.75 : 2.55;
       gy = (portrait ? 1.35 : 0.35) + input.scroll * worldPerPx;
       gs = portrait ? 0.55 : feature ? 0.72 : 0.5;
-      show = input.scroll < this.viewH * 1.1;
+      // Case studies open on the project's spotlight cover, so the 3D card stays out of the head band.
+      show = motion.page !== 'case' && input.scroll < this.viewH * 1.1;
     }
     this.group.visible = show;
 

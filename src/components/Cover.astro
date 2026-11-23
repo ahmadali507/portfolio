@@ -1,9 +1,7 @@
 ---
-// Project cover. With WebGL, the overlay layer draws a glossy relief plate exactly over this box
-// (data-plate): it tilts toward the pointer and bends with scroll speed, and plays the project's
-// motion graphic over its real screenshots. Without WebGL, the first screenshot (or a generated
-// relief when there are none) is the cover.
-import ProjectVisual from './ProjectVisual.astro';
+// Project cover on a case study: the project's screenshots under a spotlight
+// (components/Spotlight.astro). Projects without screenshots show the generated relief.
+import Spotlight from './Spotlight.astro';
 import type { Tone } from '@/lib/tones';
 
 interface Props {
@@ -19,8 +17,6 @@ const { title, slug, pattern, seed, tone, size = 'feature' } = Astro.props;
 
 <figure
   class:list={['cover', size]}
-  data-plate
-  data-plate-host
   data-slug={slug}
   data-pattern={pattern}
   data-seed={seed.toFixed(3)}
@@ -30,7 +26,7 @@ const { title, slug, pattern, seed, tone, size = 'feature' } = Astro.props;
   style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}
 >
   <div class="frame">
-    <ProjectVisual slug={slug} title={title} pattern={pattern} seed={seed} eager={size === 'hero'} />
+    <Spotlight slug={slug} title={title} pattern={pattern} seed={seed} eager={size === 'hero'} />
   </div>
   <slot />
 </figure>

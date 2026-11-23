@@ -11,6 +11,7 @@ import { mountChem } from './chem';
 import { mountTyped } from './typed';
 import { mountCarousel } from './carousel';
 import { mountTrail } from './trail';
+import { mountSpotlights } from './spotlight';
 
 const EXPO = 'expo.out';
 
@@ -20,6 +21,7 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   mountTyped(doc, core);
   mountCarousel(doc);
   mountTrail(doc);
+  mountSpotlights(doc, core);
   if (motion.reduced) return;
   revealLines(doc);
   rise(doc);

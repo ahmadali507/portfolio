@@ -21,3 +21,18 @@ export function shotsFor(slug: string): Shot[] {
 export function atlasFor(slug: string): string {
   return `/projects/${slug}/atlas.webp`;
 }
+
+/** A short name for what each screenshot shows, read out by the spotlight label. Same order as shots.json. */
+const LABELS: Record<string, readonly string[]> = {
+  'magicalbook-store': ['The cover', 'The reader', 'Art styles'],
+  codesmash: ['The battle', 'The lobby', 'Results'],
+  shocodoc: ['Live comments', 'Your documents'],
+  menumatch: ['The dashboard', 'Menu builder', 'Themes'],
+  prepify: ['Start here', 'Interviews', 'Progress'],
+  echosign: ['Start here', 'Sign to text', 'Text to voice'],
+  hundredpov: ['Live now', 'Streams', 'Match lobby'],
+};
+
+export function labelFor(slug: string, index: number): string {
+  return LABELS[slug]?.[index] ?? 'Detail';
+}

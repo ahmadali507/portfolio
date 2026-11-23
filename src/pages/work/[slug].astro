@@ -98,7 +98,7 @@ const realLinks = d.links.filter((l) => !l.placeholder);
         <figcaption class="label caption">
           {
             shots.length > 0
-              ? 'Motion graphic, played over real screens from the project.'
+              ? 'Real screens from the project, under a moving light.'
               : 'Generated cover, drawn from code for this page.'
           }
           {shots.length === 0 && <Todo when={d.media.placeholder} text="Placeholder media" />}
@@ -297,7 +297,7 @@ const realLinks = d.links.filter((l) => !l.placeholder);
   .head {
     display: grid;
     align-content: end;
-    min-height: clamp(26rem, 72svh, 48rem);
+    min-height: clamp(20rem, 46svh, 32rem);
     padding-block: calc(var(--header-h) + var(--space-6)) var(--space-7);
   }
 

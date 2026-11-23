@@ -2,7 +2,7 @@
 // Featured work as a pinned gallery. With JavaScript, the section pins and scroll turns the 3D
 // spiral of cards (engine/world/Showcase.ts) while this markup shows the project in front.
 // Without JavaScript, or under reduced motion, it is a plain list of projects with their screenshots.
-import ProjectVisual from './ProjectVisual.astro';
+import Spotlight from './Spotlight.astro';
 import Todo from './Todo.astro';
 import { patternFor, seedFor, STATUS_LABEL, toneForProject, type Project } from '@/lib/projects';
 
@@ -57,7 +57,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
                 </a>
               </div>
               <div class="cover" style={`--relief-bg:${tone.base};--relief-ink:${tone.line}`}>
-                <ProjectVisual slug={p.id} title={d.title} pattern={patternFor(p)} seed={seedFor(p)} />
+                <Spotlight slug={p.id} title={d.title} pattern={patternFor(p)} seed={seedFor(p)} />
               </div>
             </li>
           );
@@ -287,7 +287,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     transition-delay: 240ms;
   }
 
-  /* The cover is the 3D card when WebGL runs; otherwise the relief shows on the right. */
+  /* The cover is the project's spotlight (components/Spotlight.astro), on the right. */
   .work[data-live] .cover {
     position: absolute;
     right: 0;
@@ -303,10 +303,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .work[data-live] .item[data-state='active'] .cover {
     opacity: 1;
     transform: translateY(-50%);
-  }
-
-  :global(html:has(#world[data-state='live'])) .work[data-live] .cover {
-    display: none;
   }
 
   .work[data-live] .foot {
