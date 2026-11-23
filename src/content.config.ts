@@ -37,6 +37,16 @@ const projects = defineCollection({
       problem: fact(z.string().min(1)),
       outcome: fact(z.string().min(1)),
       links: z.array(link).default([]),
+      /** One line that sells the project in plain words. Shown as the lead on its case study. */
+      hook: z.string().min(1).optional(),
+      /** The single thing a visitor should remember. */
+      signature: z.object({ title: z.string().min(1), text: z.string().min(1) }).optional(),
+      /** Engineering strengths, each a short title and one or two plain sentences. */
+      strengths: z.array(z.object({ title: z.string().min(1), text: z.string().min(1) })).default([]),
+      /** What a user of the product gets. */
+      features: z.array(z.string().min(1)).default([]),
+      /** What the project shows about Ahmad, in the first person. */
+      proves: z.string().min(1).optional(),
       /** Project imagery is a generative cover rendered in WebGL (SVG without it); a placeholder until real media exists. */
       media: z.object({ placeholder: z.boolean().default(true) }).default({ placeholder: true }),
       public: z.boolean().default(false),

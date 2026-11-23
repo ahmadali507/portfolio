@@ -20,6 +20,7 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   revealLines(doc);
   rise(doc);
   statement(doc);
+  experience(doc);
   workGallery(doc);
   drum(doc, core);
   magnetic(doc);
@@ -88,6 +89,36 @@ function statement(doc: Document): void {
         scrollTrigger: { trigger: el, start: 'top 72%', end: 'bottom 48%', scrub: 0.4 },
       },
     );
+  });
+}
+
+// ---------- Experience: the rail fills with scroll, each chapter rises as its marker lights ----------
+function experience(doc: Document): void {
+  const section = doc.querySelector<HTMLElement>('[data-xp]');
+  if (!section) return;
+  const track = section.querySelector<HTMLElement>('[data-xp-list]');
+  const fill = section.querySelector<HTMLElement>('[data-xp-fill]');
+  if (track && fill) {
+    gsap.fromTo(
+      fill,
+      { scaleY: 0 },
+      { scaleY: 1, ease: 'none', scrollTrigger: { trigger: track, start: 'top 62%', end: 'bottom 62%', scrub: 0.3 } },
+    );
+  }
+  section.querySelectorAll<HTMLElement>('[data-xp-item]').forEach((item) => {
+    const body = item.querySelector<HTMLElement>('[data-xp-body]');
+    if (body) gsap.set(body, { y: 64, opacity: 0, rotateX: 9, transformPerspective: 1000, transformOrigin: '50% 100%' });
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top 62%',
+      onEnter: () => {
+        item.dataset.on = '';
+        if (body) gsap.to(body, { y: 0, opacity: 1, rotateX: 0, duration: 1.3, ease: EXPO, overwrite: true });
+      },
+      onLeaveBack: () => {
+        delete item.dataset.on;
+      },
+    });
   });
 }
 

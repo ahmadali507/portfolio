@@ -1,6 +1,8 @@
 ---
 import Base from '@/layouts/Base.astro';
 import WorkGallery from '@/components/WorkGallery.astro';
+import Experience from '@/components/Experience.astro';
+import Testimonials from '@/components/Testimonials.astro';
 import SplitWords from '@/components/SplitWords.astro';
 import Todo from '@/components/Todo.astro';
 import { CONTACT, FIRST_NAME, FULL_NAME, PERSON, ROLES, SURNAME } from '@/config/site';
@@ -14,33 +16,66 @@ const last = chars(SURNAME, FIRST_NAME.length + 2);
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-// "Seen in" lists only projects whose confirmed stack names one of these tools. Projects whose
-// stack is still a placeholder are never listed.
+// What I build. Each area carries one plain line and up to three proofs: a project and the specific
+// mechanism in it, taken from the Projects Knowledgebase and the CV (docs/CONTENT.md). A proof with
+// an id links to its case study and is dropped if that project is not visible.
 const areas = [
   {
     area: 'Full-stack SaaS',
+    line: 'Products with many roles, live collaboration, permissions, and money, built from the database up.',
     items: ['Next.js', 'React', 'Node.js', 'TypeScript', 'Supabase', 'PostgreSQL'],
-    match: ['Supabase', 'PostgreSQL'],
+    proofs: [
+      { id: 'vakse', text: 'One approval engine behind requests, purchase orders, and payments.' },
+      { id: 'codesmash', text: 'Live coding matches that the server referees.' },
+      { id: 'shocodoc', text: 'Shared editing where simultaneous edits merge.' },
+    ],
   },
-  { area: 'Mobile apps', items: ['React Native'], match: ['React Native'] },
+  {
+    area: 'Mobile apps',
+    line: 'One codebase for iOS and Android, connected to a real backend.',
+    items: ['React Native', 'Expo'],
+    proofs: [
+      { id: 'orderlyflow', text: 'A home management app whose assistant answers from its own records.' },
+      { title: 'At Doerz', text: 'Core features of a React Native app: API integration and state management.' },
+    ],
+  },
   {
     area: 'AI systems',
+    line: 'Language and image models wired into products that have to work every time.',
     items: ['LLM integrations', 'RAG pipelines', 'Multi-agent systems', 'Voice agents'],
-    match: ['Gemini', 'OpenAI'],
+    proofs: [
+      { id: 'magicalbook-store', text: 'Three models, one cast sheet, the same face on every page.' },
+      { id: 'prepify', text: 'A voice agent that runs a mock interview.' },
+      { id: 'xiomara', text: 'Campaign content localized without losing the brand voice.' },
+    ],
   },
   {
     area: 'Cloud',
-    items: ['AWS', 'GCP'],
-    match: ['AWS', 'GCP', 'Google Cloud Tasks', 'Google Cloud Functions', 'Cloud Run', 'BigQuery'],
+    line: 'Pipelines and infrastructure that run on a schedule, recover from failure, and cost little to keep alive.',
+    items: ['AWS', 'GCP', 'Docker'],
+    proofs: [
+      { id: 'scrape-stripe', text: 'A daily Stripe to BigQuery sync into a layered warehouse.' },
+      { id: 'magicalbook-store', text: 'Resumable generation steps on Google Cloud Tasks.' },
+      { id: 'searchx', text: 'A search index sharded into 120 barrels.' },
+    ],
   },
-  { area: 'Automation', items: ['n8n', 'Zapier'], match: ['n8n', 'Zapier'] },
+  {
+    area: 'Automation',
+    line: 'The connecting work: payments, webhooks, schedules, and the tools a business already uses.',
+    items: ['n8n', 'Zapier', 'Stripe', 'Webhooks'],
+    proofs: [
+      { id: 'vakse', text: 'Stripe Connect onboarding and installments that run on a schedule.' },
+      { id: 'scrape-stripe', text: 'New customers pushed to the CRM without a person involved.' },
+      { id: 'menumatch', text: 'Menus imported and exported as CSV, JSON, and PDF.' },
+    ],
+  },
 ];
+const titleOf = new Map(all.map((p) => [p.id, p.data.title]));
 const practice = areas.map((a) => ({
   ...a,
-  seen: all
-    .filter((p) => !p.data.stack.placeholder && p.data.stack.value.some((s) => a.match.includes(s)))
-    .slice(0, 4)
-    .map((p) => ({ id: p.id, title: p.data.title })),
+  proofs: a.proofs
+    .filter((p) => !('id' in p) || titleOf.has(p.id))
+    .map((p) => ('id' in p ? { href: `/work/${p.id}/`, title: titleOf.get(p.id) ?? '', text: p.text } : { href: null, title: p.title, text: p.text })),
 }));
 const firstRole = ROLES[0];
 ---
@@ -99,21 +134,7 @@ const firstRole = ROLES[0];
     </div>
   </section>
 
-  <!-- 2. Work: a pinned gallery. Scroll turns a spiral of glossy cards; each project swings to the front. -->
-  <WorkGallery projects={featured} total={all.length} />
-
-  <!-- 3. Statement: words light up as the reader scrolls. -->
-  <section class="statement page" aria-label="Approach">
-    <p class="label">Approach</p>
-    <SplitWords
-      as="p"
-      mode="statement"
-      class="statement-text"
-      text="I started as a freelancer on Upwork and worked with 38+ clients. Then I co-founded an agency around the same work. I treat every build as if I own it: scope it, build all of it, ship it, and keep it running."
-    />
-  </section>
-
-  <!-- 4. Practice: a sticky track that scrolls sideways. Without JavaScript it is a plain list. -->
+  <!-- 2. What I build: a pinned drum, one face per area. Without JavaScript it is a plain list. -->
   <section class="practice" aria-labelledby="practice-title" data-drum style={`--n:${practice.length}`}>
     <div class="practice-pin">
       <header class="page practice-head">
@@ -135,23 +156,22 @@ const firstRole = ROLES[0];
                   <div class="face-head">
                     <span class="n mono">{pad(i + 1)}</span>
                     <h3>{b.area}</h3>
+                    <p class="face-line">{b.line}</p>
                   </div>
                   <div class="face-body">
+                    <ul role="list" class="proofs">
+                      {b.proofs.map((p) => (
+                        <li>
+                          {p.href ? <a href={p.href}>{p.title}</a> : <span class="proof-t">{p.title}</span>}
+                          <span class="proof-x">{p.text}</span>
+                        </li>
+                      ))}
+                    </ul>
                     <ul role="list" class="items">
                       {b.items.map((it) => (
                         <li class="mono">{it}</li>
                       ))}
                     </ul>
-                    {b.seen.length > 0 && (
-                      <p class="seen">
-                        <span class="label">Seen in</span>
-                        <span class="seen-links">
-                          {b.seen.map((p) => (
-                            <a href={`/work/${p.id}/`}>{p.title}</a>
-                          ))}
-                        </span>
-                      </p>
-                    )}
                   </div>
                 </div>
                 <span class="shade" aria-hidden="true" />
@@ -167,7 +187,27 @@ const firstRole = ROLES[0];
     </div>
   </section>
 
-  <!-- 5. About and the closing call to action. -->
+  <!-- 3. The short version: words light up as the reader scrolls. -->
+  <section class="statement page" aria-label="Approach">
+    <p class="label">The short version</p>
+    <SplitWords
+      as="p"
+      mode="statement"
+      class="statement-text"
+      text="I started as a freelancer on Upwork. I spent fourteen months building AI services and apps at Doerz. Then I co-founded an agency around the same work. I treat every build as if I own it: scope it, build all of it, ship it, and keep it running."
+    />
+  </section>
+
+  <!-- 4. Experience: three chapters on a rail that fills with scroll. -->
+  <Experience />
+
+  <!-- 5. Projects: a pinned gallery. Scroll turns a spiral of glossy cards; each project swings to the front. -->
+  <WorkGallery projects={featured} total={all.length} />
+
+  <!-- 6. Testimonials: a client's recorded endorsement, then Upwork reviews. -->
+  <Testimonials />
+
+  <!-- 7. About and the closing call to action. -->
   <section class="about page" aria-labelledby="about-title">
     <p class="label">About</p>
     <div class="about-grid">
@@ -609,10 +649,46 @@ const firstRole = ROLES[0];
     color: var(--color-ink-muted);
   }
 
+  .face-line {
+    font-size: var(--text-lead);
+    line-height: 1.35;
+    max-width: 30ch;
+    color: var(--color-ink-muted);
+  }
+
   .face-body {
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-4);
     align-content: end;
+  }
+
+  .proofs {
+    display: grid;
+  }
+
+  .proofs li {
+    display: grid;
+    gap: 0.1rem;
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .proofs a,
+  .proof-t {
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+    font-weight: 600;
+    line-height: 1.15;
+    width: fit-content;
+  }
+
+  .proofs a {
+    text-decoration-color: var(--color-rule);
+  }
+
+  .proof-x {
+    font-size: var(--text-small);
+    color: var(--color-ink-muted);
   }
 
   .items {
@@ -622,7 +698,7 @@ const firstRole = ROLES[0];
   }
 
   .items li {
-    padding: 0.45em 0.9em;
+    padding: 0.3em 0.75em;
     border: 1px solid var(--color-rule);
     border-radius: 999px;
     font-size: var(--text-small);

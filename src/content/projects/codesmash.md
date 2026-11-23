@@ -24,6 +24,30 @@ outcome:
   value: 'Two players code side by side while each sees the other type, tests run on every submit, and the winner climbs a ranked leaderboard.'
   placeholder: false
 links: []
+hook: 'Two programmers, one problem, one clock. Everyone else watches the code appear.'
+signature:
+  title: 'A match the server referees'
+  text: 'Both players write in a browser editor while the opponent''s code streams in live. The server owns the game state, and a timer that survives a restart decides the result.'
+strengths:
+  - title: 'A state machine for every match'
+    text: 'Each game moves through waiting, ready, in progress, and finished. A match can end by a win, a forfeit, a timeout, or a draw.'
+  - title: 'Rooms that know who you are'
+    text: 'Each game has its own socket room. Only the host can start, only the challenger can mark ready, and only players can send code or forfeit. Spectators watch.'
+  - title: 'Real code, really run'
+    text: 'Code runs through Judge0 in four languages. Run checks the sample tests and Submit checks the full set. Progress moves only when a submission beats the player''s best.'
+  - title: 'A clock that survives restarts'
+    text: 'Each match has a delayed job in a Redis-backed queue. It resumes when the server starts and, when time runs out, compares passed tests to name a winner or a draw.'
+  - title: 'A score worth playing for'
+    text: 'Players earn points for newly passed tests and for match results. The points feed a leaderboard and profile statistics.'
+features:
+  - 'Invite and open challenges'
+  - 'Spectator mode'
+  - 'JavaScript, Python, C++, and Java'
+  - 'Console and test output panel'
+  - 'Forfeit and timeout handling'
+  - 'Leaderboard and profiles'
+  - 'Challenge history'
+proves: 'I can build real-time multiplayer software where the server stays the single source of truth.'
 media:
   placeholder: false
 public: false

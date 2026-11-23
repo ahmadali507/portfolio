@@ -48,6 +48,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const draft = hasPlaceholders(project);
 const titleChars = [...d.title];
 const shots = shotsFor(project.id);
+// Unconfirmed facts are named once in the draft note. Problem and outcome are left off the page
+// until they are real, so a placeholder sentence never reads as part of the story.
+const missing = [
+  d.role.placeholder && 'role',
+  d.year.placeholder && 'year',
+  d.status.placeholder && 'status',
+  d.stack.placeholder && 'stack',
+  d.problem.placeholder && 'problem',
+  d.outcome.placeholder && 'outcome',
+  d.links.some((l) => l.placeholder) && 'links',
+].filter(Boolean) as string[];
+const draftNote = missing.length > 0 ? 'Not confirmed yet: ' + missing.join(', ') + '.' : 'Some details on this page are not confirmed yet.';
+const realLinks = d.links.filter((l) => !l.placeholder);
 ---
 
 <Base page="case" slug={project.id} focus={focus} title={d.title} description={`${d.title}: ${d.summary.value}`}>
@@ -62,13 +75,19 @@ const shots = shotsFor(project.id);
         </span>
       </h1>
       <p class="lead enter" style="--d:520ms">
-        {d.summary.value} <Todo when={d.summary.placeholder} />
+        {d.hook ?? d.summary.value} <Todo when={!d.hook && d.summary.placeholder} />
       </p>
       {
+        d.hook && (
+          <p class="sub enter" style="--d:620ms">
+            {d.summary.value} <Todo when={d.summary.placeholder} />
+          </p>
+        )
+      }
+      {
         draft && (
-          <p class="draft enter" style="--d:680ms">
-            <span class="placeholder-flag">Draft</span> Fields marked TODO hold placeholder text. They are not facts about
-            this project yet.
+          <p class="draft enter" style="--d:720ms">
+            <span class="placeholder-flag">Draft</span> {draftNote}
           </p>
         )
       }
@@ -99,21 +118,57 @@ const shots = shotsFor(project.id);
           <dt class="label">Status</dt>
           <dd>{STATUS_LABEL[d.status.value]} <Todo when={d.status.placeholder} /></dd>
         </div>
-        <div>
+        <div class="spec-stack">
           <dt class="label">Stack</dt>
-          <dd class="mono">{d.stack.value.join(' / ')} <Todo when={d.stack.placeholder} /></dd>
+          <dd>
+            {
+              d.stack.placeholder ? (
+                <Todo />
+              ) : (
+                <ul role="list" class="chips">
+                  {d.stack.value.map((t) => (
+                    <li class="mono">{t}</li>
+                  ))}
+                </ul>
+              )
+            }
+          </dd>
         </div>
       </dl>
+
+      {
+        d.signature && (
+          <section class="sig" aria-labelledby="sig-title" data-rise>
+            <p class="label sig-label">The part to remember</p>
+            <h2 id="sig-title">{d.signature.title}</h2>
+            <p class="sig-text">{d.signature.text}</p>
+          </section>
+        )
+      }
+
+      {
+        !d.problem.placeholder && (
+          <section class="chapter first" aria-labelledby="problem-title">
+            <p class="label n">Why it exists</p>
+            <SplitWords as="h2" id="problem-title" text="The problem" />
+            <p class="text" data-rise>
+              {d.problem.value}
+            </p>
+          </section>
+        )
+      }
 
       {
         shots.length > 0 && (
           <section class="screens" aria-labelledby="screens-title">
             <div class="screens-head">
-              <p class="label n">Screens</p>
-              <h2 id="screens-title" class="visually-hidden">Screens from {d.title}</h2>
+              <p class="label n">The product</p>
+              <h2 id="screens-title" class="visually-hidden">
+                Screens from {d.title}
+              </h2>
             </div>
             <div class="screens-grid">
-              {shots.map((s, i) => (
+              {shots.map((shot, i) => (
                 <figure class:list={['screen', { wide: i === 0 }]} data-rise>
                   <div class="screen-frame">
                     <span class="screen-bar" aria-hidden="true">
@@ -122,15 +177,15 @@ const shots = shotsFor(project.id);
                       <i />
                     </span>
                     <img
-                      src={s.src}
-                      alt={s.alt}
-                      width={s.width}
-                      height={s.height}
+                      src={shot.src}
+                      alt={shot.alt}
+                      width={shot.width}
+                      height={shot.height}
                       loading="lazy"
                       decoding="async"
                     />
                   </div>
-                  <figcaption class="label">{s.alt}</figcaption>
+                  <figcaption class="label">{shot.alt}</figcaption>
                 </figure>
               ))}
             </div>
@@ -139,33 +194,80 @@ const shots = shotsFor(project.id);
       }
 
       <div class="body">
-        <section class="chapter" aria-labelledby="problem-title">
-          <p class="label n">01</p>
-          <SplitWords as="h2" id="problem-title" text="Problem" />
-          <p class="text" data-rise>{d.problem.value} <Todo when={d.problem.placeholder} /></p>
-        </section>
+        {
+          d.strengths.length > 0 && (
+            <section class="strengths" aria-labelledby="strengths-title">
+              <div class="strengths-head">
+                <p class="label n">Engineering</p>
+                <SplitWords as="h2" id="strengths-title" text="Built to hold" />
+              </div>
+              <ul role="list" class="strength-grid">
+                {d.strengths.map((x) => (
+                  <li class="strength" data-rise>
+                    <h3>{x.title}</h3>
+                    <p>{x.text}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
         <section class="chapter" aria-labelledby="approach-title">
-          <p class="label n">02</p>
-          <SplitWords as="h2" id="approach-title" text="Approach" />
+          <p class="label n">Under the surface</p>
+          <SplitWords as="h2" id="approach-title" text="How it works" />
           <div class="text prose" data-rise>
             <Content />
             <Todo when={d.placeholder} text="Placeholder narrative" />
           </div>
         </section>
-        <section class="chapter" aria-labelledby="outcome-title">
-          <p class="label n">03</p>
-          <SplitWords as="h2" id="outcome-title" text="Outcome" />
-          <p class="text" data-rise>{d.outcome.value} <Todo when={d.outcome.placeholder} /></p>
-        </section>
+
         {
-          d.links.length > 0 && (
+          d.features.length > 0 && (
+            <section class="chapter" aria-labelledby="features-title">
+              <p class="label n">For the user</p>
+              <SplitWords as="h2" id="features-title" text="What you get" />
+              <ul role="list" class="features" data-rise>
+                {d.features.map((x) => (
+                  <li>{x}</li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        {
+          !d.outcome.placeholder && (
+            <section class="chapter" aria-labelledby="outcome-title">
+              <p class="label n">Where it stands</p>
+              <SplitWords as="h2" id="outcome-title" text="Outcome" />
+              <p class="text" data-rise>
+                {d.outcome.value}
+              </p>
+            </section>
+          )
+        }
+
+        {
+          d.proves && (
+            <figure class="proves" data-rise>
+              <figcaption class="label n">What it proves</figcaption>
+              <blockquote>{d.proves}</blockquote>
+            </figure>
+          )
+        }
+
+        {
+          realLinks.length > 0 && (
             <section class="chapter" aria-labelledby="links-title">
-              <p class="label n">04</p>
+              <p class="label n">See it</p>
               <SplitWords as="h2" id="links-title" text="Links" />
               <ul role="list" class="links text" data-rise>
-                {d.links.map((l) => (
+                {realLinks.map((l) => (
                   <li>
-                    <a href={l.url}>{l.label}</a> <Todo when={l.placeholder} />
+                    <a href={l.url}>
+                      {l.label} <span aria-hidden="true">→</span>
+                    </a>
                   </li>
                 ))}
               </ul>
@@ -227,6 +329,16 @@ const shots = shotsFor(project.id);
     align-items: baseline;
   }
 
+  .sub {
+    max-width: 52ch;
+    margin-top: var(--space-4);
+    color: var(--color-ink-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: baseline;
+  }
+
   .draft {
     display: flex;
     flex-wrap: wrap;
@@ -261,7 +373,211 @@ const shots = shotsFor(project.id);
 
   @media (min-width: 56rem) {
     .spec {
-      grid-template-columns: 1.4fr 0.6fr 0.8fr 1.6fr;
+      grid-template-columns: 1.4fr 0.6fr 0.8fr 1.9fr;
+    }
+  }
+
+  .spec-stack {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 56rem) {
+    .spec-stack {
+      grid-column: auto;
+    }
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .chips li {
+    padding: 0.3rem 0.65rem;
+    border: var(--hairline);
+    border-radius: 999px;
+    font-size: var(--text-label);
+    color: var(--color-ink-muted);
+  }
+
+  /* ---------- signature: the one thing to remember, the only filled panel on the page ---------- */
+  .sig {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+    padding: clamp(1.5rem, 5vw, 4.5rem);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    border: var(--hairline);
+  }
+
+  .sig-label {
+    color: var(--color-trace-ink);
+  }
+
+  .sig h2 {
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 700;
+    line-height: 0.96;
+    letter-spacing: -0.035em;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+
+  .sig-text {
+    font-size: var(--text-lead);
+    line-height: 1.45;
+    max-width: 46ch;
+    color: var(--color-ink-muted);
+  }
+
+  @media (min-width: 56rem) {
+    .sig {
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      column-gap: var(--space-7);
+      align-items: end;
+    }
+
+    .sig-label {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .chapter.first {
+    padding-top: var(--space-9);
+  }
+
+  /* ---------- strengths: what the engineering does, one plain claim each ---------- */
+  .strengths {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .strengths-head {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .strengths :global(h2) {
+    font-size: clamp(2.5rem, 6vw, 6rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+  }
+
+  .strength-grid {
+    display: grid;
+    gap: 0 var(--space-7);
+  }
+
+  .strength {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    padding-block: var(--space-5) var(--space-6);
+    border-top: var(--hairline);
+    transition: border-color var(--dur-med) var(--ease-out);
+  }
+
+  .strength h3 {
+    font-size: var(--text-h3);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .strength p {
+    color: var(--color-ink-muted);
+    max-width: 44ch;
+  }
+
+  @media (hover: hover) {
+    .strength:hover {
+      border-top-color: var(--color-ink);
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .strengths {
+      grid-template-columns: 4rem minmax(0, 1fr);
+      column-gap: var(--space-6);
+    }
+
+    .strengths-head,
+    .strength-grid {
+      grid-column: 2;
+    }
+
+    .strength-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* An odd last item takes the full row, so nothing sits alone beside a gap. */
+    .strength:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* ---------- features: what a user of the product gets ---------- */
+  .features {
+    display: grid;
+    max-width: 36rem;
+  }
+
+  .features li {
+    display: flex;
+    gap: var(--space-3);
+    align-items: baseline;
+    padding-block: var(--space-3);
+    border-bottom: var(--hairline);
+  }
+
+  .features li::before {
+    content: '+';
+    font-family: var(--font-mono);
+    color: var(--color-trace-ink);
+  }
+
+  @media (min-width: 56rem) {
+    .features {
+      padding-top: 0.6em;
+    }
+  }
+
+  /* ---------- what it proves: one sentence in the first person ---------- */
+  .proves {
+    margin: 0;
+    display: grid;
+    gap: var(--space-4);
+    padding-block: var(--space-7);
+    border-block: var(--hairline);
+  }
+
+  .proves blockquote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-statement);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+    max-width: 26ch;
+    text-wrap: balance;
+  }
+
+  @media (min-width: 56rem) {
+    .proves {
+      grid-template-columns: 4rem minmax(0, 1fr);
+      column-gap: var(--space-6);
+    }
+
+    .proves figcaption {
+      grid-column: 1 / -1;
+    }
+
+    .proves blockquote {
+      grid-column: 2;
     }
   }
 

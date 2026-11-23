@@ -23,6 +23,10 @@ The only source of facts about Ahmad for this site. Nothing outside this file ma
 | Builds | AI systems (RAG, LLM integrations, multi-agent systems, voice agents), full-stack SaaS, mobile apps (React Native), cloud infrastructure (AWS, GCP), workflow automation (n8n, Zapier). Supplied by Ahmad on 2026-11-15. | Draft only |              |
 | Roles (home hero) | Software Engineer; AI & LLM Engineer; Web & Mobile App Developer; Cloud Solutions Architect (supplied by Ahmad on 2026-11-21). Full-Stack SaaS Developer and Automation Engineer are taken from the Builds row. "AI & LLM Engineer" is one role among several, which keeps the positioning above. | Draft only |              |
 | Freelance history | Started as an Upwork freelancer before co-founding the agency. Supplied by Ahmad on 2026-11-15. | Draft only |              |
+| Experience: Upwork | Freelance AI and full-stack engineer, remote. Work described: RAG chatbots, AI agents, document question answering, MVPs in MERN, Next.js, and React Native, ingestion pipelines, n8n automation, Docker deployments. Top Rated. Source: Ahmad's CV (in the repository root, not committed), read on 2026-11-23. Start year is not stated anywhere. | Draft only |              |
+| Experience: Doerz | AI Engineer and Full-Stack Developer Intern at Doerz, hybrid, Islamabad. Ahmad's brief of 2026-11-23 says 14 months. The CV says June 2024 to September 2025, which is longer. The site shows "14 months, 2024 to 2025" with a verify flag until Ahmad settles it. Work described: FastAPI and Python services, document ingestion and retrieval, OpenAI and Claude APIs with LangChain, AWS EC2 with Docker, production logging, GraphQL, React Native features. Source: CV. | Draft only |              |
+| Experience: OnePercent | Co-founded after Doerz. Clients still arrive through Upwork and the agency delivers (Ahmad's brief of 2026-11-23). Work described in the CV: MagicalBook.Store, a multi-tenant knowledge base on Next.js and PostgreSQL with pgvector and hybrid search, multi-tenant dashboards with live streaming, Google Cloud access security. Start date is not stated. | Draft only |              |
+| Endorsement | A recorded video from a client Ahmad names as Samuel (Drive: OnePercent folder, Testimonials, "AHMAD ENDORSEMENT.mp4"). The site quotes it from the automatic captions, corrected only where a word was plainly misheard: "upward" to Upwork, "Amad" to Ahmad, "on parallel" to unparalleled, "take leads" to tech lead. The quote includes the client's own figures (14 years on Upwork, over $100,000 invested, more than 70 contractors). Ahmad asked for it to be shown on 2026-11-23. Before launch: check every line against the recording, and confirm Samuel's permission and how his name and company may appear. | Draft only |              |
 
 ## Never publish
 
@@ -67,8 +71,9 @@ Summaries, problems, and outcomes for KB projects are condensed from their KB pa
 
 ### Withheld on purpose
 
-- Client names, teammate names, and every figure from the KB (prices, budgets, costs, counts, and KPIs). None are approved here.
-- Folders and categories that fall under the content rules in `CLAUDE.md` (rule 1), and the Testimonials folder (rule 3).
+- Client names, teammate names, and every business figure from the KB and the CV: prices, budgets, costs, user counts, success rates, and percentages. None are approved here.
+- Allowed since 2026-11-23, when Ahmad asked for the case studies to show each project's strengths: design facts that describe how the software is built, such as the number of steps in a wizard, the languages a judge runs, or the number of index shards. These are not claims about results.
+- Folders and categories that fall under the content rules in `CLAUDE.md` (rule 1). The Testimonials folder was withheld until 2026-11-23, when Ahmad asked for the endorsement to be shown (see the Endorsement row).
 - RedeemX: the Drive folder is empty and the KB has no page.
 - Personal details visible in screenshots (photos of people, names, emails) and third-party trademarks or streamer handles.
 - The Codesmash server repository link, because the KB flags its remote code execution surface.
@@ -86,3 +91,9 @@ DocuChat AI, Voice Transfer System, CricPing, AI Interviewer, EAPO, CARTX, Spiki
 - TODO: Ahmad's role on Vakse, Codesmash, and MenuMatch. Their repositories sit under a teammate's GitHub account, so the site says only "Built at OnePercent Technologies".
 - TODO: stack, year, problem, and outcome for Prepify, EchoSign, HundredPov, Xiomara, and OrderlyFlow.
 - TODO: production domain.
+- TODO: the written Upwork reviews, word for word, with the client and project for each. They are not in Drive or Notion, so the site shows a placeholder.
+- TODO: Samuel's video file at `public/media/samuel-endorsement.mp4` (the Drive file is too large to fetch through the connector), his permission, and his surname and company if they may be shown.
+- TODO: Doerz dates (14 months, or June 2024 to September 2025), the Upwork start year, and the OnePercent start date.
+- TODO: graduation year. This file says class of 2026; the CV says expected September 2027.
+- TODO: Upwork score. The CV says 100% in one place and 90+ in another, so the site says only Top Rated.
+- TODO: problem and outcome for Prepify, EchoSign, OrderlyFlow, and Xiomara. Their stack and description now come from the CV; the CV's result figures are withheld.

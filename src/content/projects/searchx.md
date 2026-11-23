@@ -27,6 +27,27 @@ links:
   - label: 'Source'
     url: 'https://github.com/ahmadali507/SearchX'
     placeholder: false
+hook: 'A search engine built from the index up, with no hosted search service underneath.'
+signature:
+  title: 'An inverted index in 120 barrels'
+  text: 'The index is split into 120 shards by word number. A query opens only the shards it needs, so the full index never has to sit in memory.'
+strengths:
+  - title: 'Language handled before indexing'
+    text: 'The lexicon splits text into terms, drops stopwords and links, reduces each word to its base form by part of speech, and gives every term a number.'
+  - title: 'Documents found by byte offset'
+    text: 'A forward index stores frequency, density, and positions for each document, plus the byte offset of its row. A result is read straight from the file, with no database.'
+  - title: 'Shards read in parallel'
+    text: 'Four workers read the relevant barrels at once, using the same tokenizing rules at query time as at index time.'
+  - title: 'Ranking on several signals'
+    text: 'Results are ranked by term frequency, density, how close the query words sit together, and how much of the query they cover.'
+  - title: 'The top of the list, without sorting it all'
+    text: 'A heap pulls out only the results for the requested page.'
+features:
+  - 'Ranked, paginated results'
+  - 'Query time shown in milliseconds'
+  - 'Result cards with stars, forks, and watchers'
+  - 'A health endpoint for the service'
+proves: 'I can implement information retrieval at the level of the algorithm, which matters when a product needs its own ranking or full control of its search.'
 media:
   placeholder: false
 public: false

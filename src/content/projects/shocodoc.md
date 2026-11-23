@@ -30,6 +30,30 @@ links:
   - label: 'Source'
     url: 'https://github.com/ahmadali507/Shocodoc'
     placeholder: false
+hook: 'A document editor where everyone types at once and nobody overwrites anybody.'
+signature:
+  title: 'Live editing, with people and comments in the page'
+  text: 'Several people edit the same document at the same time. Avatars show who is here, and comment threads attach to the exact words they are about.'
+strengths:
+  - title: 'Edits that merge instead of colliding'
+    text: 'Each document is a real-time room. The editor state syncs through a conflict-free data type, so two people typing in the same paragraph both keep their words.'
+  - title: 'One identity across services'
+    text: 'A small bridge turns the signed-in user into a room identity with a name, an avatar, and a cursor color.'
+  - title: 'Three roles, enforced twice'
+    text: 'Creator, editor, and viewer. The server checks access before a document loads, and the interface hides what a role cannot use.'
+  - title: 'Comments, mentions, and an inbox'
+    text: 'Threads anchor to a text selection and can be resolved. Granting access sends an inbox notification, and mentions autocomplete as you type.'
+  - title: 'Watched in production'
+    text: 'Error monitoring with source maps covers both server runtimes, with a global error boundary in front of the user.'
+features:
+  - 'Rich text formatting with headings and quotes'
+  - 'Share by email as editor or viewer'
+  - 'Live collaborator avatars'
+  - 'Mentions with autocomplete'
+  - 'Notification bell with an unread count'
+  - 'Click-to-edit titles'
+  - 'Delete with confirmation'
+proves: 'I can join authentication, real-time infrastructure, and a rich text framework into one deployed product, including the access control that makes shared editing usable.'
 media:
   placeholder: false
 public: false

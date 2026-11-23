@@ -27,6 +27,27 @@ links:
   - label: 'Source'
     url: 'https://github.com/ahmadali507/waynna'
     placeholder: false
+hook: 'A landing page that walks a visitor through an app before the app exists.'
+signature:
+  title: 'Five steps that light up as you scroll'
+  text: 'The page explains the product as a short journey. Each step takes the highlight as it crosses the middle of the screen.'
+strengths:
+  - title: 'A headline on its own clock'
+    text: 'The opening words reveal on a fixed rhythm, independent of scrolling.'
+  - title: 'Sections that replay'
+    text: 'Columns animate in when they enter the screen, and again when the visitor comes back to them.'
+  - title: 'One sign-up, three audiences'
+    text: 'A single registration dialog changes its questions for a customer, a business, or an investor.'
+  - title: 'A separate path for businesses'
+    text: 'Business leads get their own dialog with a type of inquiry, kept apart from the consumer flow.'
+features:
+  - 'Animated headline'
+  - 'Nearby venue showcase'
+  - 'Feature grid'
+  - 'How it works in five steps'
+  - 'Brand story section'
+  - 'Section for business owners'
+proves: 'I can turn a product concept and a regional brand story into an animated page with a clear path for each audience.'
 media:
   placeholder: false
 public: false
