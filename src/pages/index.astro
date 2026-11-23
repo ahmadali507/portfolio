@@ -23,6 +23,8 @@ const firstRole = ROLES[0];
 ---
 
 <Base page="home">
+  <!-- The whole page shares one wrapper, so the trail line can run from under the header to the footer. -->
+  <div class="trail-wrap" data-trail>
   <!-- 1. Hero: the name, one typed role at a time, and one floating object on a grid of cells. -->
   <section class="hero" aria-labelledby="hero-title" data-hero data-world-anchor="hero">
     <div class="page hero-in">
@@ -57,8 +59,6 @@ const firstRole = ROLES[0];
     </div>
   </section>
 
-  <!-- Everything after the hero shares one wrapper, so the trail line can run down all of it. -->
-  <div class="trail-wrap" data-trail>
   <!-- 2. A moving band of the five things he builds. Decoration: the list below says the same. -->
   <div class="band" aria-hidden="true">
     <div class="band-track">

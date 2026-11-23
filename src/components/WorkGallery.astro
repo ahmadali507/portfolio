@@ -74,7 +74,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <style>
   .work {
     position: relative;
-    z-index: 2;
+    /* No z-index here: the trail line must paint above this background and below the pinned content. */
     background: var(--color-bg);
     padding-block: var(--space-9);
   }

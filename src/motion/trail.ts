@@ -1,5 +1,6 @@
-// The trail: one thick line in the accent that runs down the home page and draws itself as the
-// reader scrolls, so its tip always sits a little above the middle of the screen. It keeps to
+// The trail: one thick line in the accent that runs down the home page, from under the header to
+// the footer, and draws itself as the reader scrolls. Its tip sits a little below the middle of
+// the screen and reaches the very end of the line when the page is scrolled to the bottom. It keeps to
 // the page gutters, wobbling gently, and sweeps across the page at each section boundary, where
 // there is only empty padding. So it never runs under a line of text.
 //
@@ -54,10 +55,10 @@ export function mountTrail(doc: Document): void {
     const gutter = page
       ? Math.max(16, page.getBoundingClientRect().left - box.left + parseFloat(getComputedStyle(page).paddingLeft || '0'))
       : 16;
-    const thick = Math.max(5, Math.min(18, gutter * 0.3));
+    const thick = Math.max(9, Math.min(34, gutter * 0.55));
     const left = Math.max(thick, gutter * 0.5);
     const right = width - left;
-    const wobble = Math.min(gutter * 0.3, 18);
+    const wobble = Math.min(gutter * 0.14, 10);
     const edge = (side: number): number => (side > 0 ? right : left);
 
     // Section tops, measured from the top of the wrapper. The line crosses at each one.
@@ -86,8 +87,9 @@ export function mountTrail(doc: Document): void {
       y = b + CROSS;
       pts.push([edge(side), y]);
     }
-    walk(height - 220);
-    pts.push([width * 0.5, height - 28]);
+    walk(height - 120);
+    // The line runs off the bottom of the page, into the footer.
+    pts.push([edge(side), height]);
 
     // Each span is an S curve with vertical ends, so the line only ever travels downward.
     let d = `M${pts[0]![0].toFixed(1)} ${pts[0]![1].toFixed(1)}`;
@@ -134,7 +136,12 @@ export function mountTrail(doc: Document): void {
       apply();
       return;
     }
-    const tip = window.innerHeight * TIP - wrap.getBoundingClientRect().top;
+    // Over the last screen of scroll the tip slides to the bottom of the screen, so the line
+    // is complete when the page ends.
+    const view = window.innerHeight;
+    const room = document.documentElement.scrollHeight - view;
+    const last = Math.min(1, Math.max(0, (window.scrollY - (room - view)) / Math.max(1, view)));
+    const tip = view * (TIP + (1 - TIP) * last) - wrap.getBoundingClientRect().top;
     gsap.to(state, { len: lengthAt(tip), duration: 0.8, ease: 'power3.out', overwrite: true, onUpdate: apply });
   };
 
