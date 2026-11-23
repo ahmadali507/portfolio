@@ -1,22 +1,22 @@
 /* Design tokens. Values come from DESIGN.md section 2. Components use these, never raw hex. */
 
 :root {
-  /* Color: dark throughout. Contrast on --color-bg: ink 16.8:1, muted 7.4:1, accent 4.7:1 (large text and marks). */
-  --color-bg: #0a0b0c;
-  --color-surface: #131516;
-  --color-ink: #ededeb;
-  --color-ink-muted: #9a9fa2;
-  --color-rule: #2a2d2f;
-  --color-trace: #e2401c;
+  /* Color: black and white with one cobalt accent. Contrast on --color-bg: ink 21:1, muted 8.6:1, accent 4.9:1, accent ink 7.8:1. */
+  --color-bg: #000000;
+  --color-surface: #0c0c0c;
+  --color-ink: #ffffff;
+  --color-ink-muted: #a6a6a6;
+  --color-rule: #232323;
+  --color-trace: #4c6fff;
   /* Small accent text on dark. */
-  --color-trace-ink: #f0805f;
+  --color-trace-ink: #7d95ff;
   /* Deep accent for fills under light text. */
-  --color-trace-deep: #b02e0e;
+  --color-trace-deep: #2f4fd6;
 
   /* Type families. Fallback faces are metric-matched in fonts.css to limit layout shift. */
-  --font-display: 'Familjen Grotesk', 'Familjen Fallback', sans-serif;
+  --font-display: 'Syne', 'Syne Fallback', sans-serif;
   --font-body: 'Public Sans', 'Public Sans Fallback', sans-serif;
-  --font-mono: 'Commit Mono', 'Commit Mono Fallback', ui-monospace, monospace;
+  --font-mono: 'Public Sans', 'Public Sans Fallback', sans-serif;
 
   /* Type scale */
   --text-label: 0.75rem;
@@ -30,8 +30,8 @@
   --text-giant: clamp(3.5rem, 12.5vw, 13rem);
   --text-statement: clamp(1.75rem, 4.2vw, 4.25rem);
 
-  --tracking-display: -0.02em;
-  --tracking-label: 0.06em;
+  --tracking-display: -0.03em;
+  --tracking-label: 0.12em;
   --leading-display: 0.95;
   --leading-heading: 1.05;
   --leading-body: 1.55;

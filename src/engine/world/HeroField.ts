@@ -18,20 +18,19 @@ import {
 } from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { motion } from '../../motion/state';
-import { HeroKeyboard, KB_WIDTH, KEY_TOP } from './HeroKeyboard';
+import { HeroGrid } from './HeroGrid';
 import type { EngineContext, FrameInput, Tier, WorldPart } from '../types';
 
 /**
- * The home hero's 3D background: one object per role in the typed line (code brackets, a chip, a
- * phone, a cloud, a laptop, a gear), modelled from simple solids in physical materials and lit by
- * the room environment the Showcase installs. They float around the edges of the hero, clear of
- * the name, and lean with the pointer. Under them all lies a full keyboard (HeroKeyboard) that
- * presses each key the typed line strikes and takes the objects' soft shadows. The object for the role being typed comes forward and turns
- * to face the reader, so the background follows the words rather than decorating them.
+ * The home hero's 3D: one object at a time, floating beside the name on a grid of cells. There is
+ * one object per role in the typed line (code brackets, a chip, a phone, a cloud, a laptop, a
+ * gear), modelled from simple solids in physical materials and lit by the room environment the
+ * Showcase installs. When the typed role changes, the object on screen shrinks away with a turn
+ * and the next one grows in its place. It turns slowly and leans toward the pointer.
  *
  * The world canvas normally sits above the page. While the hero is in view this part lowers it
  * beneath the page content (the hero has no background of its own), and raises it again as the work
- * section arrives and the objects have sunk away. Holds still under reduced motion.
+ * section arrives and the object has sunk away. Holds still under reduced motion.
  */
 
 const CAM_Z = 11;
@@ -52,23 +51,23 @@ interface Item {
   appear: number;
 }
 
-// Placements: [fx, fy, z, size] for wide and for tall screens. Kept to the edges, away from the name.
+// Placement: [fx, fy, z, size]. Wide screens put the object in the right half, beside the copy.
 const WIDE: Array<[number, number, number, number]> = [
-  [-0.76, 0.36, -0.6, 0.9], // code
-  [0.78, 0.4, -1.2, 0.85], // chip
-  [-0.8, -0.42, 0.2, 0.9], // phone
-  [0.6, 0.68, -3.2, 1.15], // cloud
-  [0.78, -0.38, -0.4, 1.0], // laptop
-  [-0.56, 0.7, -3.4, 0.95], // gear
+  [0.5, 0.02, -0.6, 2.3], // code
+  [0.5, 0.02, -0.6, 2.2], // chip
+  [0.5, 0.02, -0.6, 2.3], // phone
+  [0.5, 0.02, -0.6, 2.9], // cloud
+  [0.5, 0.0, -0.6, 2.4], // laptop
+  [0.5, 0.02, -0.6, 2.4], // gear
 ];
-// Tall screens: one object at a time, in the band between the header and the name.
+// Tall screens: the object sits in the band between the header and the name.
 const TALL: Array<[number, number, number, number]> = [
-  [0, 0.7, -1, 0.62],
-  [0, 0.7, -1, 0.6],
-  [0, 0.7, -1, 0.62],
-  [0, 0.7, -1, 0.75],
-  [0, 0.7, -1, 0.62],
-  [0, 0.7, -1, 0.66],
+  [0, 0.6, -1, 0.85],
+  [0, 0.6, -1, 0.8],
+  [0, 0.6, -1, 0.85],
+  [0, 0.6, -1, 1.0],
+  [0, 0.6, -1, 0.85],
+  [0, 0.6, -1, 0.88],
 ];
 
 const smooth = (t: number) => {
@@ -88,8 +87,6 @@ export class HeroField implements WorldPart {
   private readonly geometries: BufferGeometry[] = [];
   private readonly materials: Material[] = [];
   private host: HTMLElement | null = null;
-  /** The section after the hero. It is opaque, so the keyboard fades out above its top edge. */
-  private next: Element | null = null;
   private under = false;
   private aspect = 1;
   private viewH = 1;
@@ -99,12 +96,13 @@ export class HeroField implements WorldPart {
   private wasShown = false;
   private compiled = false;
   private readyAt = -1;
-  /** Tall screens show only the current role's object, above the name, so nothing sits behind the copy. */
+  /** True on tall screens, where the object sits above the name and not beside it. */
   private solo = false;
   private readonly v = new Vector3();
-  private readonly kb: HeroKeyboard;
-  private readonly kbInv = new Matrix4();
-  private keySeq = motion.keySeq;
+  private readonly grid: HeroGrid;
+  private hero: HTMLElement | null = null;
+  private viewW = 1;
+  private gridOn = false;
 
   constructor(ctx: EngineContext, tier: Tier) {
     this.ctx = ctx;
@@ -116,7 +114,7 @@ export class HeroField implements WorldPart {
     );
     const steel = this.mat(new MeshPhysicalMaterial({ color: '#c8ccd1', metalness: 1, roughness: 0.26 }));
     const gold = this.mat(new MeshPhysicalMaterial({ color: '#d2a04a', metalness: 1, roughness: 0.2 }));
-    const accent = this.mat(new MeshPhysicalMaterial({ color: '#e2401c', roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.05 }));
+    const accent = this.mat(new MeshPhysicalMaterial({ color: '#4c6fff', roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.05 }));
     const screen = this.mat(
       new MeshPhysicalMaterial({ color: '#0c1520', emissive: '#0f2233', roughness: 0.08, clearcoat: 1, clearcoatRoughness: 0.02 }),
     );
@@ -291,12 +289,12 @@ export class HeroField implements WorldPart {
     ];
 
     const rests: Array<[number, number, number]> = [
-      [0.15, 0.45, -0.12],
-      [0.7, -0.5, 0.25],
-      [0.12, 0.55, 0.18],
-      [0.1, -0.2, 0],
-      [0.05, -0.55, 0],
-      [0.55, 0.35, 0.2],
+      [0.05, 0, 0],
+      [0.12, 0, 0],
+      [0.05, 0, 0],
+      [0.05, 0, 0],
+      [0.4, 0, 0],
+      [0.1, 0, 0],
     ];
     for (let i = 0; i < ROLE_COUNT; i++) {
       const obj = builders[i]!();
@@ -315,8 +313,8 @@ export class HeroField implements WorldPart {
       });
       this.group.add(obj);
     }
-    this.kb = new HeroKeyboard(tier === 1 ? 3 : 2, Math.min(8, ctx.renderer.capabilities.getMaxAnisotropy()));
-    this.group.add(this.kb.root);
+    this.grid = new HeroGrid('#4c6fff');
+    ctx.scene.add(this.grid.mesh);
     this.group.visible = false;
     ctx.scene.add(this.group);
     // Compile the programs off the main thread where the GPU allows it, so the first hero frames do
@@ -346,7 +344,9 @@ export class HeroField implements WorldPart {
 
   resize(width: number, height: number): void {
     this.aspect = width / Math.max(1, height);
+    this.viewW = width;
     this.viewH = height;
+    this.grid.resize(width, height, this.ctx.renderer.getPixelRatio());
     this.solo = this.aspect < 0.9;
     const layout = this.solo ? TALL : WIDE;
     for (let i = 0; i < this.items.length; i++) {
@@ -361,12 +361,13 @@ export class HeroField implements WorldPart {
 
   mount(doc: Document): void {
     this.host = doc.getElementById('world');
-    this.next = doc.querySelector('[data-hero]')?.nextElementSibling ?? null;
+    this.hero = doc.querySelector<HTMLElement>('[data-hero]');
     this.ctx.invalidate();
   }
 
   unmount(): void {
-    this.next = null;
+    this.hero = null;
+    this.grid.mesh.visible = false;
     this.setUnder(false);
   }
 
@@ -381,104 +382,87 @@ export class HeroField implements WorldPart {
   update(input: FrameInput): boolean {
     const rm = input.reducedMotion;
     const dt = input.dt;
+    const t = input.time;
     const home = motion.page === 'home';
-    // Sink the objects away as the work section rises, then hand the canvas back above the page.
+    // Sink the object away as the work section rises, then hand the canvas back above the page.
     const goal = home ? smooth((motion.workIn - 0.12) / 0.3) : 1;
     this.hide = rm ? goal : damp(this.hide, goal, 6, dt);
-    if (this.compiled && this.readyAt < 0) this.readyAt = input.time;
+    if (this.compiled && this.readyAt < 0) this.readyAt = t;
+    const under = home && motion.workIn < 0.45;
+    this.setUnder(under);
+
+    // The grid belongs to the hero, and shows only while the canvas sits beneath the page.
+    const heroH = this.hero ? this.hero.offsetHeight : this.viewH;
+    const gridOn = under && input.scroll < heroH;
+    this.grid.mesh.visible = gridOn;
+    if (gridOn) {
+      const inside = !rm && input.pointerInside;
+      this.grid.update(
+        t,
+        input.scroll,
+        heroH,
+        1,
+        rm ? 99 : t - motion.mountedAt,
+        rm,
+        inside ? (input.pointerX * 0.5 + 0.5) * this.viewW : -1,
+        inside ? (0.5 - input.pointerY * 0.5) * this.viewH : -1,
+      );
+    }
+    const gridChanged = gridOn !== this.gridOn;
+    this.gridOn = gridOn;
+
     const shown = home && this.compiled && this.hide < 0.999 && input.scroll < this.viewH * 1.4;
-    this.setUnder(home && motion.workIn < 0.45);
     this.group.visible = shown;
     if (!shown) {
-      const changed = this.wasShown;
+      const changed = this.wasShown || gridChanged;
       this.wasShown = false;
-      return changed;
+      return changed || gridOn;
     }
     this.wasShown = true;
 
     const tanH = Math.tan(MathUtils.degToRad(this.ctx.camera.fov / 2));
     const worldPerPx = (2 * tanH * CAM_Z) / Math.max(1, this.viewH);
-    const t = input.time;
     // Rise in after the page mounts and the programs are ready, whichever is later.
     const since = t - Math.max(motion.mountedAt, this.readyAt);
+    const appear = rm ? 1 : backOut((since - 0.3) / 1.2);
     const pointerOn = !rm && input.pointerInside;
-    this.tiltX = rm ? 0 : damp(this.tiltX, pointerOn ? -input.pointerY * 0.08 : 0, 2.5, dt);
-    this.tiltY = rm ? 0 : damp(this.tiltY, pointerOn ? input.pointerX * 0.12 : 0, 2.5, dt);
-    this.group.rotation.set(this.tiltX, this.tiltY, 0);
-    // The objects scroll away with the hero, as if they hung in the page.
-    this.group.position.y = input.scroll * worldPerPx;
+    this.tiltX = rm ? 0 : damp(this.tiltX, pointerOn ? -input.pointerY * 0.26 : 0, 3, dt);
+    this.tiltY = rm ? 0 : damp(this.tiltY, pointerOn ? input.pointerX * 0.42 : 0, 3, dt);
+    this.group.rotation.set(0, 0, 0);
+    // The object leaves a little slower than the page, so it reads as hanging in front of the grid.
+    this.group.position.y = input.scroll * worldPerPx * 0.82;
 
     const sink = this.hide;
-
-    // The keyboard: wide enough to run off both edges, low in the view, tilted toward the reader.
-    const kb = this.kb;
-    const kbZ = this.solo ? -3 : -4;
-    const kbHalfH = (CAM_Z - kbZ) * tanH;
-    const unit = MathUtils.clamp((kbHalfH * this.aspect * 2 * (this.solo ? 1.2 : 0.98)) / KB_WIDTH, 0.18, 1.15);
-    const kbAppear = rm ? 1 : smooth((since - 0.1) / 1.4);
-    // As the reader scrolls, the keyboard draws back and fades, so it is gone before the work
-    // section's edge would cut across it.
-    const leave = smooth(input.scroll / (this.viewH * 0.4));
-    kb.root.scale.setScalar(unit);
-    kb.root.position.set(0, -kbHalfH * (this.solo ? 0.8 : 0.7) - sink * 2.5 - (1 - kbAppear) * 1.2, kbZ - leave * 3);
-    kb.root.rotation.set(0.72, 0, 0);
-    kb.uniforms.uShow.value = kbAppear * (1 - sink) * (1 - leave);
-    kb.uniforms.uTime.value = t;
-    const dpr = this.ctx.renderer.getPixelRatio();
-    const top = this.next ? this.next.getBoundingClientRect().top : this.viewH * 4;
-    kb.uniforms.uCut.value.set((this.viewH - top) * dpr, 180 * dpr);
-    if (this.keySeq !== motion.keySeq) {
-      this.keySeq = motion.keySeq;
-      if (!rm) kb.strike(motion.key, t);
-    }
-    kb.root.updateMatrix();
-    this.kbInv.copy(kb.root.matrix).invert();
     for (let i = 0; i < this.items.length; i++) {
       const it = this.items[i]!;
       const o = it.obj;
       const active = i === motion.role ? 1 : 0;
-      it.lift = rm ? active : damp(it.lift, active, 3, dt);
-      it.appear = rm ? 1 : backOut((since - 0.35 - i * 0.11) / 1.3);
+      it.lift = rm ? active : damp(it.lift, active, 5, dt);
+      // The outgoing object shrinks away before the next one grows in its place.
+      const show = smooth(Math.max(0, it.lift * 2 - 1));
 
-      const depth = it.z + it.lift * 1.1 - sink * 3;
+      const depth = it.z - sink * 3;
       const halfH = (CAM_Z - depth) * tanH;
-      const halfW = halfH * this.aspect;
-      const bob = rm ? 0 : Math.sin(t * 0.7 + it.phase) * 0.12;
-      const sway = rm ? 0 : Math.cos(t * 0.45 + it.phase * 1.7) * 0.06;
-      // Positions are fractions of the view at the object's own depth, so coming forward keeps its
-      // place on screen and only grows it.
-      this.v.set(
-        it.fx * halfW + sway + (pointerOn ? input.pointerX * 0.18 * (1 + depth * 0.08) : 0),
-        it.fy * halfH + bob - sink * 1.5 + (1 - it.appear) * -1.2,
-        depth,
-      );
+      const bob = rm ? 0 : Math.sin(t * 0.8 + it.phase) * 0.1;
+      this.v.set(it.fx * halfH * this.aspect, it.fy * halfH + bob - sink * 1.5, depth);
       o.position.copy(this.v);
 
-      const wob = rm ? 0 : 1;
-      const face = it.lift;
+      const sway = rm ? 0 : Math.sin(t * 0.32 + it.phase) * 0.16;
       o.rotation.set(
-        MathUtils.lerp(it.rest.x + Math.sin(t * 0.5 + it.phase) * 0.18 * wob, 0.12, face),
-        MathUtils.lerp(it.rest.y + Math.cos(t * 0.4 + it.phase) * 0.25 * wob, -it.fx * 0.35, face),
-        it.spin ? it.rest.z + (rm ? 0 : t * it.spin) : MathUtils.lerp(it.rest.z, 0, face),
+        it.rest.x + this.tiltX + (rm ? 0 : Math.sin(t * 0.5 + it.phase) * 0.05),
+        -0.38 + this.tiltY + sway + (1 - show) * -1.4,
+        it.spin && !rm ? t * it.spin : 0,
       );
-      // Solo: the outgoing object shrinks away before the next one grows in its place.
-      const solo = this.solo ? Math.max(0, it.lift * 2 - 1) : 1;
-      const s = it.size * (1 + it.lift * 0.12) * Math.max(0.0001, it.appear * solo) * (1 - sink * 0.6);
+      const s = it.size * Math.max(0.0001, appear * show) * (1 - sink * 0.6);
       o.visible = s > 0.002;
       o.scale.setScalar(s);
-
-      // A soft shadow straight down onto the keys, wider and fainter the higher the object hangs.
-      this.v.copy(o.position).applyMatrix4(this.kbInv);
-      const h = Math.max(0, this.v.y - KEY_TOP);
-      const sh = kb.uniforms.uShadow.value[i]!;
-      sh.set(this.v.x, this.v.z, (0.5 * s) / unit + 0.16 * h, o.visible ? 0.5 * Math.min(1, it.appear) * MathUtils.clamp(1 - h / 16, 0, 1) : 0);
     }
     return true;
   }
 
   dispose(): void {
     this.setUnder(false);
-    this.kb.dispose();
+    this.grid.dispose();
     this.ctx.scene.remove(this.group);
     for (const g of this.geometries) g.dispose();
     for (const m of this.materials) m.dispose();

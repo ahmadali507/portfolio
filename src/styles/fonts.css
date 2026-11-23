@@ -1,20 +1,19 @@
 /* Self-hosted, Latin-subset fonts from @fontsource (SIL OFL 1.1, see docs/DECISIONS.md).
-   Each import is one weight with font-display: swap. */
-@import '@fontsource/familjen-grotesk/latin-600.css';
-@import '@fontsource/familjen-grotesk/latin-700.css';
+   Each import is one weight with font-display: swap. Syne is the display face; Public Sans sets
+   body text and labels. */
+@import '@fontsource/syne/latin-600.css';
+@import '@fontsource/syne/latin-700.css';
+@import '@fontsource/syne/latin-800.css';
 @import '@fontsource/public-sans/latin-400.css';
-@import '@fontsource/public-sans/latin-600.css';
-@import '@fontsource/commit-mono/latin-400.css';
+@import '@fontsource/public-sans/latin-700.css';
 
-/* Metric-matched fallbacks. Ascent and descent come from each font's hhea table.
-   size-adjust is measured in Chromium against the local fallback (scripts/font-fallback.mjs);
-   the overrides are divided by size-adjust because Chromium scales them by it. */
+/* Metric-matched fallback for Syne, so headings keep their place while the face loads. */
 @font-face {
-  font-family: 'Familjen Fallback';
+  font-family: 'Syne Fallback';
   src: local('Arial'), local('Helvetica'), local('Liberation Sans');
-  size-adjust: 91.27%;
-  ascent-override: 112.3%;
-  descent-override: 24.65%;
+  size-adjust: 98.47%;
+  ascent-override: 93.93%;
+  descent-override: 27.93%;
   line-gap-override: 0%;
 }
 
@@ -24,14 +23,5 @@
   size-adjust: 103.66%;
   ascent-override: 91.65%;
   descent-override: 21.71%;
-  line-gap-override: 0%;
-}
-
-@font-face {
-  font-family: 'Commit Mono Fallback';
-  src: local('Courier New'), local('Courier'), local('Liberation Mono');
-  size-adjust: 100%;
-  ascent-override: 90%;
-  descent-override: 20%;
   line-gap-override: 0%;
 }

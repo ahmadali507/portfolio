@@ -7,10 +7,10 @@ This file binds every human and agent working on the site. If a skill, a tutoria
 Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2026-11-16. Request Path and Kinetic Field are retired. See `docs/DECISIONS.md`.
 
 - **Visual persona:** dark, clean, glossy, and minimal. Giant grotesk type on a near-black ground and a single hero object finished like lacquer and porcelain. Every motion is staged as a beat: entrance, hold, exit.
-- **The home hero is about Ahmad:** his name, centered, with the chemistry phenomena in its letters; its letters float, each bobbing and tilting in depth on its own phase. Under it a typed line cycles through his roles, each after an adverb ("Thoughtfully" over "Software Engineer"): the adverb in the accent ink, light and slanted, the role in full ink. A row names every role with the current one marked, then the positioning line and the actions. Behind it all, a 3D field of six objects, one per role (code brackets, a chip, a phone, a cloud, a laptop, a gear), in physical materials; the object for the role being typed comes forward. The whole hero stands on a full keyboard laid under it like a desk under a lamp: every key the typed line strikes goes down and springs back (capitals hold shift, the clear is delete), the objects cast soft shadows on the keys, and the board falls off into the page colour at its edges and draws back as the reader scrolls. On tall screens only that object shows, above the name. No cards in the hero (Ahmad, 2026-11-21).
+- **The home hero is about Ahmad:** his name in heavy capitals on the left, one typed line under it (an adverb in the accent, then the role), one sentence, and two actions. On the right, one 3D object at a time floats on a grid of cells and swaps when the typed role changes. The name holds still: no fill effect, no floating letters. On tall screens the object sits above the name (Ahmad, 2026-11-23).
 - **The project object:** a deck of glossy cards, one per featured project. Each card face is a live motion graphic over the project's real, edited screenshots, with the project's name on it. The cards rise from below the fold into the work gallery as it scrolls in, and each comes to the front, large, in turn.
 - **Chemistry in the name:** the letters of the main heading fill with a sequence of twelve procedural phenomena (foam, reaction-diffusion stripes, ink in water, crystallisation, boiling, oxidation, acid etch, ferrofluid, smoke, dividing cells, mercury, frost). Each grows through the word as a reaction front and replaces the last. The text stays real and readable.
-- **Home page order:** hero, What I build, the short version, Experience, projects, Testimonials, About, contact (Ahmad, 2026-11-23). Experience is three chapters on one rail that fills with scroll. Testimonials quote a real client recording and real reviews only.
+- **Home page order:** hero, a moving band of the five capabilities, What I build (five one-line rows), Experience (three chapters under a line that fills), projects, Reviews (a centred carousel), and the closing call to action (Ahmad, 2026-11-23). Copy stays short: no block on the home page runs past two lines.
 - **Case study order:** hook, cover, facts, the part to remember (the only filled panel on the page), the problem, screens, engineering strengths, how it works, what the user gets, outcome, what it proves, links.
 - **Continuity:** the canvas persists across navigation. On a case study, that project's card takes the banner; on the work index the deck fans beside the heading. Moving between pages, the cards fly to their new poses.
 - **Liquid splash:** the pointer leaves a fluid trail that inverts everything beneath it: type, cards, and header flip to the light theme inside the splash and flow back to dark as it drains. A tap makes one splash on touch screens.
@@ -21,7 +21,7 @@ Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2
 ### Banned UI patterns (immediate reject)
 
 - No `Inter`, `Roboto`, `Arial`, or `system-ui` as a primary font.
-- No purple, indigo, or violet gradients or primaries (`from-purple-500`, `to-indigo-600`, `#6366f1`, `#7c3aed`, and similar).
+- The accent is cobalt `#4C6FFF`, chosen by Ahmad on 2026-11-23 from four candidates. It is a flat color, used sparingly. Still banned: purple, indigo, or violet gradients and other primaries (`from-purple-500`, `to-indigo-600`, `#6366f1`, `#7c3aed`, and similar).
 - No generic three-column symmetrical feature or project cards with `rounded-xl` plus `shadow-lg`. Full-width stacking cards are the only card pattern.
 - No glowing neon borders. No glassmorphism (`backdrop-blur`) on cards. Gloss comes from real reflections in WebGL and one-pixel highlights in CSS, never from blur.
 - No decorative floating 3D primitives. No aimlessly spinning torus knots, icosahedrons, or wireframe spheres. The only 3D object is the project deck.
@@ -42,9 +42,9 @@ Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2
 
 | Role                                     | Family           | License     | Settings                                                                                                     |
 | ---------------------------------------- | ---------------- | ----------- | ------------------------------------------------------------------------------------------------------------ |
-| Display                                  | Familjen Grotesk | SIL OFL 1.1 | Weight 600 to 700, tracking `-0.02em`, line-height `0.95`, sizes from `clamp(2.5rem, 7vw, 6.5rem)`           |
-| Body                                     | Public Sans      | SIL OFL 1.1 | Weight 400 and 600, tracking `0`, line-height `1.55`, base `1rem` to `1.125rem`, measure 60 to 72 characters |
-| Mono (labels, metadata, code-like text)  | Commit Mono      | SIL OFL 1.1 | Weight 400, uppercase labels at `0.75rem` with tracking `+0.06em`; span names in sentence case at `0.875rem` |
+| Display                                  | Syne             | SIL OFL 1.1 | Weight 700 to 800, tracking `-0.03em`. Section titles are two lines of capitals, the first one dimmed            |
+| Body                                     | Public Sans      | SIL OFL 1.1 | Weight 400 and 700, line-height `1.55`, base `1rem` to `1.125rem`, measure 60 to 72 characters                   |
+| Labels and metadata                      | Public Sans      | SIL OFL 1.1 | Uppercase at `0.75rem` with tracking `+0.12em`. The `--font-mono` token now points at the same sans            |
 
 - Licenses must be confirmed against the LICENSE file shipped with each download before the fonts are committed. Font files are not installed yet.
 - Subset to Latin plus the punctuation in use. Preload only the display weight used above the fold. `font-display: swap` with metric-matched fallbacks to limit layout shift.
@@ -53,14 +53,14 @@ Direction: **Glass Deck, dark.** Set by Ahmad's instructions on 2026-11-15 and 2
 
 | Token                | Value     | Use                                                       | Contrast                        |
 | -------------------- | --------- | --------------------------------------------------------- | ------------------------------- |
-| `--color-bg`         | `#0A0B0C` | Page ground                                               | Base                            |
-| `--color-surface`    | `#131516` | Raised panels, the mat around the hero frame              | 1.1:1 against bg                |
-| `--color-ink`        | `#EDEDEB` | Primary text                                              | 16.8:1 on bg, 15.6:1 on surface |
-| `--color-ink-muted`  | `#9A9FA2` | Secondary text, captions                                  | 7.4:1 on bg, 6.9:1 on surface   |
-| `--color-rule`       | `#2A2D2F` | Hairlines only, never text                                | decorative                      |
-| `--color-trace`      | `#E2401C` | The accent: the vermilion card, active marks, focus rings | 4.7:1 on bg                     |
-| `--color-trace-ink`  | `#F0805F` | Small accent text                                         | 7.5:1 on bg, 6.9:1 on surface   |
-| `--color-trace-deep` | `#B02E0E` | Button hover fill under `--color-ink` text                | 5.5:1 with ink                  |
+| `--color-bg`         | `#000000` | Page ground                                               | Base                            |
+| `--color-surface`    | `#0C0C0C` | Raised panels and cards                                   | 1.1:1 against bg                |
+| `--color-ink`        | `#FFFFFF` | Primary text                                              | 21:1 on bg                      |
+| `--color-ink-muted`  | `#A6A6A6` | Secondary text, captions                                  | 8.6:1 on bg                     |
+| `--color-rule`       | `#232323` | Hairlines only, never text                                | decorative                      |
+| `--color-trace`      | `#4C6FFF` | The accent, cobalt: marks, the caret, lines, the main call to action | 4.9:1 on bg          |
+| `--color-trace-ink`  | `#7D95FF` | Small accent text                                         | 7.8:1 on bg                     |
+| `--color-trace-deep` | `#2F4FD6` | Fills under `--color-ink` text (the typed selection)      | 6.3:1 with ink                  |
 
 - The trace accent covers under 5 percent of any viewport. It marks the one thing that is live right now and nothing else.
 - No gradients on UI surfaces. Depth comes from real reflections in the 3D scene and restrained shadows under the stacking cards.

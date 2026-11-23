@@ -21,7 +21,7 @@ export const ENDORSEMENT = {
     { title: 'Available', text: "He's always available. He's always there for us." },
     {
       title: 'Work ethic',
-      text: "Most important above everything else: his work ethic is unparalleled. He's into accomplishing the work objective, regardless of money. A quality any client values.",
+      text: "His work ethic is unparalleled. He's into accomplishing the work objective, regardless of money.",
     },
   ],
   close: 'We deeply appreciate his work. I plan on keeping him as our tech lead for years to come.',

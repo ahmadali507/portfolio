@@ -373,3 +373,26 @@ a {
   mix-blend-mode: darken;
   pointer-events: none;
 }
+
+/* ---------- section headings: two lines of heavy capitals, the first one dimmed ---------- */
+.sec-head {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.sec-title {
+  font-size: clamp(2.25rem, 8.4vw, 7.5rem);
+  font-weight: 800;
+  line-height: 0.92;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.sec-title span {
+  display: block;
+}
+
+.sec-title .dim {
+  color: var(--color-ink-muted);
+  opacity: 0.45;
+}

@@ -63,11 +63,12 @@ export const CONTACT: readonly ContactHandle[] = [
   { label: 'Email', handle: 'hello@ahmad.example', href: 'mailto:hello@ahmad.example', placeholder: true },
   { label: 'GitHub', handle: 'github.com/ahmad-handle', href: '#', placeholder: true },
   { label: 'LinkedIn', handle: 'linkedin.com/in/ahmad-handle', href: '#', placeholder: true },
-  { label: 'Upwork', handle: 'upwork.com/freelancers/ahmad-handle', href: '#', placeholder: true },
+  { label: 'Upwork', handle: 'upwork.com/freelancers/~0114ef753317b334f4', href: 'https://www.upwork.com/freelancers/~0114ef753317b334f4', placeholder: false },
 ];
 
 export const NAV = [
   { label: 'Work', href: '/work/' },
   { label: 'About', href: '/about/' },
+  { label: 'Estimate', href: '/estimate/' },
   { label: 'Contact', href: '/contact/' },
 ] as const;

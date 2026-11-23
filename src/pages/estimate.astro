@@ -1,0 +1,557 @@
+---
+// Estimate: eight questions, a live price range and timeline as the reader answers.
+// The questions, prices, and formula match the estimate page on the OnePercent Technologies site
+// (config/estimate.ts). The form is ordinary inputs; scripts/estimate.ts adds the running total.
+import Base from '@/layouts/Base.astro';
+import Todo from '@/components/Todo.astro';
+import { CONTACT } from '@/config/site';
+import { AI, DESIGN, INTEGRATIONS, PLATFORMS, SCREENS, SCREEN_PRESETS, TIMELINES, TYPES, money, type Option } from '@/config/estimate';
+
+const email = CONTACT.find((c) => c.label === 'Email');
+const pad = (n: number) => String(n).padStart(2, '0');
+
+interface Group {
+  name: string;
+  kind: 'radio' | 'checkbox';
+  options: readonly Option[];
+  cols: 2 | 3;
+  suffix?: string;
+  checked?: string;
+}
+const groups: Record<string, Group> = {
+  type: { name: 'type', kind: 'radio', options: TYPES, cols: 3 },
+  platforms: { name: 'platforms', kind: 'checkbox', options: PLATFORMS, cols: 3 },
+  design: { name: 'design', kind: 'radio', options: DESIGN, cols: 2, suffix: ' per screen' },
+  integrations: { name: 'integrations', kind: 'checkbox', options: INTEGRATIONS, cols: 2 },
+  ai: { name: 'ai', kind: 'checkbox', options: AI, cols: 2 },
+  timeline: { name: 'timeline', kind: 'radio', options: TIMELINES, cols: 2, checked: 'standard' },
+};
+const questions = [
+  { title: 'What are we building?', note: 'Pick the one that fits best.', group: 'type' },
+  { title: 'Where will it run?', note: 'Choose everything that applies.', group: 'platforms' },
+  { title: 'How many screens?', note: 'A screen is one distinct page or view, like a dashboard, settings, or checkout.', group: 'screens' },
+  { title: 'Do you need design?', note: 'Designing each screen costs more than building from finished designs.', group: 'design' },
+  { title: 'What does it connect to?', note: 'Choose any that apply, or skip this one.', group: 'integrations' },
+  { title: 'Any AI features?', note: 'Choose any that apply, or skip this one.', group: 'ai' },
+  { title: 'How soon do you need it?', note: 'Rush adds people to the project, not hours to the week.', group: 'timeline' },
+  { title: 'Where should I send it?', note: 'I review every estimate and reply with a fixed quote.', group: 'contact' },
+];
+const summary = [
+  ['project', 'Project', 'Not chosen'],
+  ['platforms', 'Platforms', 'Not chosen'],
+  ['screens', 'Screens', String(SCREENS.start)],
+  ['design', 'Design', 'Not chosen'],
+  ['integrations', 'Integrations', 'None'],
+  ['ai', 'AI', 'None'],
+  ['timeline', 'Timeline', 'Standard'],
+];
+---
+
+<Base
+  page="contact"
+  title="Get an estimate"
+  description="Eight quick questions give a live price range and timeline for a software project."
+>
+  <section class="top page" aria-labelledby="est-title">
+    <p class="label enter" style="--d:100ms">Estimate</p>
+    <h1 class="sec-title enter" id="est-title" style="--d:200ms"><span class="dim">Get an</span><span>estimate</span></h1>
+    <p class="lead enter" style="--d:360ms">
+      Eight quick questions. A price range and a timeline appear as you answer. Send it over and I will reply with a
+      fixed quote.
+    </p>
+  </section>
+
+  <form class="page est" data-estimate data-mail={email?.handle ?? ''}>
+    <ol class="qs" role="list">
+      {
+        questions.map((q, i) => {
+          const g = groups[q.group];
+          return (
+            <li class="q" data-rise>
+              <span class="label n">{pad(i + 1)}</span>
+              <fieldset>
+                <legend>{q.title}</legend>
+                <p class="note">{q.note}</p>
+
+                {g && (
+                  <div class:list={['opts', `cols-${g.cols}`]}>
+                    {g.options.map((o) => (
+                      <label class="opt">
+                        <input type={g.kind} name={g.name} value={o.id} checked={g.checked === o.id} />
+                        <span class="opt-top">
+                          <span class:list={['mark', g.kind]} aria-hidden="true" />
+                          {o.price ? (
+                            <span class="price">
+                              +{money(o.price)}
+                              {g.suffix ?? ''}
+                            </span>
+                          ) : null}
+                        </span>
+                        <span class="opt-label">{o.label}</span>
+                        <span class="opt-hint">{o.hint}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {q.group === 'screens' && (
+                  <div class="screens">
+                    <p class="screens-out" data-screens-out aria-hidden="true">
+                      {SCREENS.start}
+                    </p>
+                    <input
+                      type="range"
+                      name="screens"
+                      min={SCREENS.min}
+                      max={SCREENS.max}
+                      value={SCREENS.start}
+                      aria-label="Number of screens"
+                    />
+                    <div class="presets">
+                      {SCREEN_PRESETS.map((p) => (
+                        <button type="button" data-preset={p.value} aria-pressed={p.value === SCREENS.start ? 'true' : 'false'}>
+                          {p.label}, {p.value}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {q.group === 'contact' && (
+                  <div class="fields">
+                    <label>
+                      Name
+                      <input name="name" required autocomplete="name" />
+                    </label>
+                    <label>
+                      Email
+                      <input name="email" type="email" required autocomplete="email" />
+                    </label>
+                    <label class="wide">
+                      Company (optional)
+                      <input name="company" autocomplete="organization" />
+                    </label>
+                    <label class="wide">
+                      Anything else I should know? (optional)
+                      <textarea name="notes" rows="4" />
+                    </label>
+                  </div>
+                )}
+              </fieldset>
+            </li>
+          );
+        })
+      }
+    </ol>
+
+    <aside class="sum" id="estimate-summary" aria-label="Your estimate">
+      <div class="sum-in">
+        <p class="label">Your estimate</p>
+        <p class="sum-price" data-price data-empty aria-live="polite">Start with question 1</p>
+        <p class="sum-weeks" data-weeks></p>
+        <dl>
+          {
+            summary.map(([key, label, start]) => (
+              <div>
+                <dt class="label">{label}</dt>
+                <dd data-sum={key}>{start}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <button type="submit" class="send" data-send disabled>Send my estimate</button>
+        <p class="sum-hint" data-send-hint>Answer questions 1, 2 and 4 to send your estimate.</p>
+        {email?.placeholder && <Todo text="Contact email" />}
+      </div>
+    </aside>
+  </form>
+
+  <div class="bar" data-estimate-bar>
+    <p data-bar-price>No estimate yet</p>
+    <a href="#estimate-summary">Review</a>
+  </div>
+</Base>
+
+<script>
+  import '@/scripts/estimate';
+</script>
+
+<style>
+  .top {
+    display: grid;
+    gap: var(--space-4);
+    padding-block: calc(var(--header-h) + var(--space-8)) var(--space-8);
+  }
+
+  .top .sec-title {
+    font-size: clamp(2.25rem, 6.4vw, 5.75rem);
+  }
+
+  .lead {
+    max-width: 34rem;
+    margin-top: var(--space-3);
+    font-size: var(--text-lead);
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+  }
+
+  .est {
+    display: grid;
+    gap: var(--space-8);
+    padding-bottom: var(--space-9);
+  }
+
+  .q {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-block: var(--space-7);
+    border-top: var(--hairline);
+  }
+
+  .q .n {
+    padding-top: 0.6em;
+    color: var(--color-ink-muted);
+  }
+
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    padding: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .note {
+    margin-top: var(--space-2);
+    color: var(--color-ink-muted);
+  }
+
+  .opts {
+    display: grid;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+  }
+
+  .opt {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-4);
+    border: 1px solid var(--color-rule);
+    border-radius: 1rem;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-med) var(--ease-out),
+      background-color var(--dur-med) var(--ease-out);
+  }
+
+  .opt:hover {
+    border-color: var(--color-ink-muted);
+  }
+
+  .opt input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .opt:has(input:checked) {
+    border-color: var(--color-trace);
+    background: var(--color-surface);
+  }
+
+  .opt:has(input:focus-visible) {
+    outline: 2px solid var(--color-trace-ink);
+    outline-offset: 3px;
+  }
+
+  .opt-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-height: 1.25rem;
+  }
+
+  .mark {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid var(--color-ink-muted);
+    border-radius: 0.3rem;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out);
+  }
+
+  .mark.radio {
+    border-radius: 50%;
+  }
+
+  .opt:has(input:checked) .mark {
+    border-color: var(--color-trace);
+    background: var(--color-trace);
+    box-shadow: inset 0 0 0 0.22rem var(--color-surface);
+  }
+
+  .price {
+    font-size: var(--text-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  .opt-label {
+    font-weight: 700;
+  }
+
+  .opt-hint {
+    font-size: var(--text-small);
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  .screens {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+  }
+
+  .screens-out {
+    font-size: clamp(3rem, 7vw, 5rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type='range'] {
+    width: 100%;
+    accent-color: var(--color-trace);
+  }
+
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .presets button {
+    min-height: 2.5rem;
+    padding-inline: var(--space-4);
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-ink-muted);
+    font: inherit;
+    font-size: var(--text-small);
+    cursor: pointer;
+    transition:
+      border-color var(--dur-med) var(--ease-out),
+      color var(--dur-med) var(--ease-out);
+  }
+
+  .presets button:hover,
+  .presets button[aria-pressed='true'] {
+    border-color: var(--color-trace);
+    color: var(--color-ink);
+  }
+
+  .fields {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+  }
+
+  .fields label {
+    display: grid;
+    gap: var(--space-2);
+    font-size: var(--text-small);
+    color: var(--color-ink-muted);
+  }
+
+  .fields input,
+  .fields textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: var(--text-body);
+    transition: border-color var(--dur-med) var(--ease-out);
+  }
+
+  .fields textarea {
+    border-radius: 1rem;
+    resize: vertical;
+  }
+
+  .fields input:focus,
+  .fields textarea:focus {
+    outline: none;
+    border-color: var(--color-trace);
+  }
+
+  /* ---------- the running total ---------- */
+  .sum-in {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    border: var(--hairline);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .sum-price {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sum-price[data-empty] {
+    font-family: var(--font-body);
+    font-size: var(--text-lead);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--color-ink-muted);
+  }
+
+  .sum-weeks {
+    min-height: 1.5em;
+    color: var(--color-trace-ink);
+  }
+
+  dl {
+    display: grid;
+    margin: 0;
+  }
+
+  dl div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-top: var(--hairline);
+  }
+
+  dt {
+    flex: none;
+    color: var(--color-ink-muted);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    font-size: var(--text-small);
+  }
+
+  .send {
+    min-height: 3.25rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-trace);
+    color: var(--color-bg);
+    font: inherit;
+    font-size: var(--text-label);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-med) var(--ease-out),
+      opacity var(--dur-med) var(--ease-out);
+  }
+
+  .send:hover:not(:disabled) {
+    background: var(--color-ink);
+  }
+
+  .send:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  .sum-hint {
+    font-size: var(--text-small);
+    color: var(--color-ink-muted);
+  }
+
+  /* On small screens the total rides in a bar at the bottom until the summary is reached. */
+  .bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--page-gutter);
+    border-top: var(--hairline);
+    background: var(--color-bg);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bar a {
+    font-size: var(--text-label);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-underline-offset: 0.4em;
+    text-decoration-color: var(--color-trace);
+  }
+
+  @media (min-width: 40rem) {
+    .opts.cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .opts.cols-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .fields {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fields .wide {
+      grid-column: 1 / -1;
+    }
+
+    .q {
+      grid-template-columns: 3.5rem minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .est {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      align-items: start;
+      column-gap: var(--space-8);
+    }
+
+    .sum {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-5));
+    }
+
+    .bar {
+      display: none;
+    }
+  }
+</style>

@@ -1,356 +1,234 @@
 ---
-// Testimonials: one client's recorded endorsement, then written Upwork reviews.
-// Nothing here is invented. The endorsement is transcribed from the client's video; the review
-// list stays an honest placeholder until the real review text is added (config/testimonials.ts).
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import SplitWords from './SplitWords.astro';
+// Reviews: a centred carousel of client quotes that advances by itself (motion/carousel.ts).
+// Nothing here is invented. Each slide is a line the client says in his recorded endorsement, and
+// written Upwork reviews join the same carousel once their text is added (config/testimonials.ts).
+// Without JavaScript the cards are a row the reader scrolls sideways.
 import Todo from './Todo.astro';
 import { ENDORSEMENT as E, UPWORK_REVIEWS } from '@/config/testimonials';
 import { CONTACT } from '@/config/site';
 
-// The video is self-hosted. Until the file is in public/, the frame says so instead of breaking.
-const hasVideo = existsSync(join(process.cwd(), 'public', E.video));
+const slides = [
+  { text: E.pull, name: E.name, meta: E.role, check: E.placeholder },
+  ...E.reasons.map((r) => ({ text: r.text, name: E.name, meta: E.role, check: E.placeholder })),
+  { text: E.close, name: E.name, meta: E.role, check: E.placeholder },
+  ...UPWORK_REVIEWS.map((r) => ({ text: r.text, name: r.client, meta: r.project, check: false })),
+];
 const upwork = CONTACT.find((c) => c.label === 'Upwork');
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<section class="said" id="testimonials" aria-labelledby="said-title">
-  <div class="page">
-    <header class="said-head">
-      <p class="label">Testimonials</p>
-      <SplitWords as="h2" id="said-title" text="In a client's words" />
-    </header>
+<section class="said" id="reviews" aria-labelledby="said-title">
+  <header class="sec-head said-head page">
+    <p class="label">Reviews</p>
+    <h2 class="sec-title" id="said-title"><span class="dim">In their</span><span>words</span></h2>
+  </header>
 
-    <figure class="endorse">
-      <div class="endorse-main">
-        <blockquote class="pull" data-rise>
-          <p>{E.pull}</p>
-        </blockquote>
-        <p class="context" data-rise>{E.context}</p>
-        <figcaption class="who" data-rise>
-          <span class="who-name">{E.name}</span>
-          <span class="label">{E.role}, in a recorded video</span>
-          <Todo when={E.placeholder} text="Verify wording and name" />
-        </figcaption>
-
-        <div class="frame" data-rise>
-          {
-            hasVideo ? (
-              <video controls preload="metadata" playsinline src={E.video} aria-label={`Video endorsement from ${E.name}`} />
-            ) : (
-              <div class="frame-empty">
-                <span class="play" aria-hidden="true" />
-                <p class="label">Video endorsement</p>
-                <Todo text="Add the video file" />
-              </div>
-            )
-          }
-        </div>
-      </div>
-
-      <div class="endorse-side">
-        <p class="label why-label">Five reasons he gives</p>
-        <ol class="why" role="list">
-          {
-            E.reasons.map((r, i) => (
-              <li data-rise>
-                <span class="mono why-n">{String(i + 1).padStart(2, '0')}</span>
-                <div>
-                  <h3>{r.title}</h3>
-                  <p>{r.text}</p>
-                </div>
-              </li>
-            ))
-          }
-        </ol>
-        <p class="close" data-rise>{E.close}</p>
-      </div>
-    </figure>
-
-    <div class="reviews">
-      <div class="reviews-head">
-        <p class="label">Upwork</p>
-        <h3>Top Rated on Upwork</h3>
+  <div class="car" data-carousel aria-roledescription="carousel" aria-label="Client reviews">
+    <div class="car-view">
+      <ul class="car-track" role="list" data-car-track>
         {
-          upwork && (
-            <p class="reviews-link">
-              <a class="mono" href={upwork.href}>
-                See the profile <span aria-hidden="true">→</span>
-              </a>
-              <Todo when={upwork.placeholder} text="Profile link" />
-            </p>
-          )
+          slides.map((s) => (
+            <li class="card">
+              <figure>
+                <blockquote>{s.text}</blockquote>
+                <figcaption>
+                  <span class="sq" aria-hidden="true" />
+                  <span class="who">{s.name}</span>
+                  <span class="label meta">{s.meta}</span>
+                  <Todo when={s.check} text="Verify" />
+                </figcaption>
+              </figure>
+            </li>
+          ))
         }
-      </div>
-      {
-        UPWORK_REVIEWS.length > 0 ? (
-          <ul role="list" class="review-list">
-            {UPWORK_REVIEWS.map((r) => (
-              <li class="review" data-rise>
-                <blockquote>{r.text}</blockquote>
-                <p class="label">
-                  {r.client} / {r.project}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p class="reviews-empty" data-rise>
-            <Todo text="Upwork reviews" />
-            <span>
-              The written reviews go here, word for word from the Upwork profile. None are shown yet because a review
-              is never written from memory.
-            </span>
-          </p>
-        )
-      }
+      </ul>
+    </div>
+    <div class="car-nav">
+      <button type="button" class="car-btn" data-car-prev aria-label="Previous review">←</button>
+      <p class="label car-count" aria-hidden="true"><span data-car-count>01</span> / {pad(slides.length)}</p>
+      <button type="button" class="car-btn" data-car-next aria-label="Next review">→</button>
     </div>
   </div>
+
+  <p class="label said-foot page">
+    Top Rated on Upwork
+    {upwork && !upwork.placeholder && <a href={upwork.href}>See the profile</a>}
+    <Todo when={UPWORK_REVIEWS.length === 0} text="Upwork reviews to add" />
+  </p>
 </section>
 
 <style>
   .said {
     position: relative;
     z-index: 2;
-    background: var(--color-bg);
+    display: grid;
+    gap: var(--space-8);
     padding-block: var(--space-9);
+    background: var(--color-bg);
     border-top: var(--hairline);
+    overflow: hidden;
   }
 
   .said-head {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .car {
+    --cw: min(35rem, 78vw);
     display: grid;
-    gap: var(--space-4);
-    margin-bottom: var(--space-8);
+    gap: var(--space-6);
   }
 
-  .said-head :global(h2) {
-    font-size: clamp(2.5rem, 8vw, 8rem);
-    font-weight: 700;
-    line-height: 0.9;
-    letter-spacing: -0.04em;
+  /* Without JavaScript: a row that scrolls sideways and snaps. */
+  .car-view {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-inline: var(--page-gutter);
   }
 
-  .endorse {
-    margin: 0;
-    display: grid;
-    gap: var(--space-8);
-  }
-
-  .endorse-main {
-    display: grid;
-    gap: var(--space-5);
-    align-content: start;
-    min-width: 0;
-  }
-
-  .pull {
-    margin: 0;
-  }
-
-  .pull p {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 7vw, 6.5rem);
-    font-weight: 700;
-    line-height: 0.94;
-    letter-spacing: -0.04em;
-    max-width: 11ch;
-    text-wrap: balance;
-  }
-
-  .pull p::before {
-    content: '\201C';
-    color: var(--color-trace);
-  }
-
-  .pull p::after {
-    content: '\201D';
-    color: var(--color-trace);
-  }
-
-  .context {
-    font-size: var(--text-lead);
-    line-height: 1.4;
-    max-width: 36ch;
-    color: var(--color-ink-muted);
-  }
-
-  .who {
+  .car-track {
     display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--space-2) var(--space-4);
+    gap: var(--space-5);
+    width: max-content;
   }
 
-  .who-name {
-    font-family: var(--font-display);
-    font-size: var(--text-h3);
-    font-weight: 600;
+  .card {
+    box-sizing: border-box;
+    width: var(--cw);
+    scroll-snap-align: center;
   }
 
-  .frame {
-    overflow: hidden;
-    margin-top: var(--space-4);
-    max-width: 40rem;
-    border-radius: var(--radius-card);
+  .card figure {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-6);
+    box-sizing: border-box;
+    height: 100%;
+    min-height: 19rem;
+    margin: 0;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
     border: var(--hairline);
+    border-radius: var(--radius-card);
     background: var(--color-surface);
   }
 
-  .frame video {
-    display: block;
-    width: 100%;
-    max-height: 70svh;
-    background: var(--color-bg);
-  }
-
-  .frame-empty {
-    display: grid;
-    justify-items: center;
-    align-content: center;
-    gap: var(--space-3);
-    aspect-ratio: 16 / 9;
-    color: var(--color-ink-muted);
-  }
-
-  .play {
-    width: 3.5rem;
-    height: 3.5rem;
-    border: var(--hairline);
-    border-radius: 50%;
-    background:
-      linear-gradient(var(--color-ink-muted), var(--color-ink-muted)) 54% 50% / 0 0 no-repeat,
-      var(--color-bg);
-    position: relative;
-  }
-
-  .play::after {
-    content: '';
-    position: absolute;
-    left: 54%;
-    top: 50%;
-    translate: -50% -50%;
-    border-style: solid;
-    border-width: 0.55rem 0 0.55rem 0.9rem;
-    border-color: transparent transparent transparent var(--color-ink-muted);
-  }
-
-  .why-label {
-    color: var(--color-ink-muted);
-    margin-bottom: var(--space-3);
-  }
-
-  .why {
-    display: grid;
+  .card blockquote {
     margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .why li {
-    display: grid;
-    grid-template-columns: 2.5rem minmax(0, 1fr);
-    gap: var(--space-3);
-    padding-block: var(--space-4);
-    border-top: var(--hairline);
-  }
-
-  .why-n {
-    color: var(--color-trace-ink);
-    padding-top: 0.35em;
-  }
-
-  .why h3 {
-    font-size: var(--text-h3);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
-
-  .why p {
-    margin-top: var(--space-2);
-    color: var(--color-ink-muted);
-    max-width: 44ch;
-  }
-
-  .close {
-    margin-top: var(--space-5);
-    padding-top: var(--space-5);
-    border-top: var(--hairline);
     font-family: var(--font-display);
-    font-size: var(--text-h3);
-    font-weight: 600;
-    line-height: 1.2;
-    max-width: 28ch;
-  }
-
-  .reviews {
-    display: grid;
-    gap: var(--space-6);
-    margin-top: var(--space-9);
-    padding-top: var(--space-7);
-    border-top: var(--hairline);
-  }
-
-  .reviews-head {
-    display: grid;
-    gap: var(--space-3);
-    align-content: start;
-  }
-
-  .reviews-head h3 {
-    font-size: var(--text-h2);
+    font-size: clamp(1.375rem, 2.5vw, 2.125rem);
     font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.03em;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
   }
 
-  .reviews-link {
+  .card figcaption {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
-    align-items: baseline;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
   }
 
-  .review-list {
-    display: grid;
-    gap: var(--space-6);
+  .sq {
+    width: 0.625rem;
+    height: 0.625rem;
+    background: var(--color-trace);
   }
 
-  .review {
-    display: grid;
-    gap: var(--space-3);
-    padding-top: var(--space-4);
-    border-top: var(--hairline);
+  .who {
+    font-weight: 600;
   }
 
-  .review blockquote {
-    margin: 0;
-    font-size: var(--text-lead);
-    line-height: 1.45;
-    max-width: 48ch;
-  }
-
-  .reviews-empty {
-    display: grid;
-    gap: var(--space-3);
-    max-width: 52ch;
+  .meta {
     color: var(--color-ink-muted);
   }
 
-  @media (min-width: 60rem) {
-    .endorse {
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-      column-gap: var(--space-8);
-      align-items: start;
-    }
+  .car-nav {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-5);
+  }
 
-    .reviews {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-      column-gap: var(--space-8);
-    }
+  .car-btn {
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 50%;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-size: 1.125rem;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-med) var(--ease-out),
+      background-color var(--dur-med) var(--ease-out),
+      color var(--dur-med) var(--ease-out);
+  }
 
-    .review-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+  .car-btn:hover {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-bg);
+  }
+
+  .car-count {
+    min-width: 4.5rem;
+    text-align: center;
+    color: var(--color-ink-muted);
+  }
+
+  .car-count span {
+    color: var(--color-trace-ink);
+  }
+
+  .said-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2) var(--space-4);
+    color: var(--color-ink-muted);
+  }
+
+  .said-foot a {
+    color: var(--color-ink);
+    text-underline-offset: 0.4em;
+    text-decoration-color: var(--color-trace);
+  }
+
+  /* With JavaScript: the track slides so the current card sits in the centre. */
+  .car[data-live] .car-view {
+    overflow: hidden;
+    padding-inline: 0;
+  }
+
+  .car[data-live] .car-track {
+    margin-left: 50%;
+    transition: transform 900ms var(--ease-expo);
+  }
+
+  .car[data-live] .card {
+    opacity: 0.3;
+    transform: scale(0.92);
+    transition:
+      opacity 600ms var(--ease-out),
+      transform 800ms var(--ease-expo);
+  }
+
+  .car[data-live] .card[data-on] {
+    opacity: 1;
+    transform: none;
+  }
+
+  .car[data-live] .car-nav {
+    display: flex;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .car[data-live] .car-track,
+    .car[data-live] .card {
+      transition: none;
     }
   }
 </style>

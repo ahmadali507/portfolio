@@ -5,10 +5,13 @@ interface Props {
   current: string;
 }
 const { current } = Astro.props;
+// The estimate page shares the contact framing in the engine, so the nav reads the address.
+const onEstimate = Astro.url.pathname.startsWith('/estimate');
 const isCurrent = (href: string) =>
   (href === '/work/' && (current === 'work' || current === 'case')) ||
   (href === '/about/' && current === 'about') ||
-  (href === '/contact/' && current === 'contact');
+  (href === '/contact/' && current === 'contact' && !onEstimate) ||
+  (href === '/estimate/' && onEstimate);
 ---
 
 <header class="site-header" transition:name="site-header" transition:animate="none">
