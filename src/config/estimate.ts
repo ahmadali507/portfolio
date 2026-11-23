@@ -1,6 +1,6 @@
-// The estimate calculator. Questions, prices, and the formula are taken from the estimate page of
-// the OnePercent Technologies site (docs/CONTENT.md, row "Estimate"), so both sites quote the same
-// range for the same answers. Prices are in US dollars.
+// The estimate calculator. The questions and the shape of the formula come from the estimate page
+// of the OnePercent Technologies site (docs/CONTENT.md, row "Estimate"). The prices are Ahmad's
+// own: about a quarter of the agency's, set on 2026-11-23. Timelines are unchanged. US dollars.
 
 export interface Option {
   id: string;
@@ -10,41 +10,41 @@ export interface Option {
 }
 
 export const TYPES: readonly Option[] = [
-  { id: 'new', label: 'New build', hint: 'Starting from scratch', price: 4000 },
-  { id: 'redesign', label: 'Redesign', hint: 'Rework an existing product', price: 2500 },
-  { id: 'extend', label: 'Add to existing', hint: 'New features on a live app', price: 1500 },
+  { id: 'new', label: 'New build', hint: 'Starting from scratch', price: 1000 },
+  { id: 'redesign', label: 'Redesign', hint: 'Rework an existing product', price: 600 },
+  { id: 'extend', label: 'Add to existing', hint: 'New features on a live app', price: 400 },
 ];
 
 export const PLATFORMS: readonly Option[] = [
   { id: 'web', label: 'Web app', hint: 'Runs in the browser, on any device' },
-  { id: 'mobile', label: 'Mobile app', hint: 'iOS and Android, released to the stores', price: 2500 },
-  { id: 'backend', label: 'Backend or API', hint: 'Server, database and business logic', price: 3000 },
+  { id: 'mobile', label: 'Mobile app', hint: 'iOS and Android, released to the stores', price: 600 },
+  { id: 'backend', label: 'Backend or API', hint: 'Server, database and business logic', price: 750 },
 ];
 
 /** Price per screen. */
 export const DESIGN: readonly Option[] = [
-  { id: 'design', label: 'Yes, design it', hint: 'UX, UI and a clickable prototype for every screen', price: 450 },
-  { id: 'spec', label: 'No, build to spec', hint: 'You bring finished designs', price: 250 },
+  { id: 'design', label: 'Yes, design it', hint: 'UX, UI and a clickable prototype for every screen', price: 110 },
+  { id: 'spec', label: 'No, build to spec', hint: 'You bring finished designs', price: 60 },
 ];
 
 export const INTEGRATIONS: readonly Option[] = [
-  { id: 'db', label: 'Database', hint: 'Supabase, Postgres or similar', price: 800 },
-  { id: 'auth', label: 'Auth and accounts', hint: 'Sign-up, login, roles', price: 900 },
-  { id: 'billing', label: 'Stripe billing', hint: 'Subscriptions and invoices', price: 1400 },
-  { id: 'connect', label: 'Stripe Connect', hint: 'Marketplace payouts', price: 2800 },
-  { id: 'email', label: 'Email and notifications', hint: 'Transactional email, push', price: 500 },
-  { id: 'cms', label: 'CMS', hint: 'Content your team edits', price: 1200 },
-  { id: 'maps', label: 'Maps and location', hint: 'Search, routes, geofencing', price: 1000 },
-  { id: 'realtime', label: 'Realtime and chat', hint: 'Live updates, messaging', price: 1800 },
-  { id: 'analytics', label: 'Analytics', hint: 'Events, funnels, dashboards', price: 400 },
-  { id: 'api', label: 'Other API', hint: 'Any third-party service', price: 900 },
+  { id: 'db', label: 'Database', hint: 'Supabase, Postgres or similar', price: 200 },
+  { id: 'auth', label: 'Auth and accounts', hint: 'Sign-up, login, roles', price: 225 },
+  { id: 'billing', label: 'Stripe billing', hint: 'Subscriptions and invoices', price: 350 },
+  { id: 'connect', label: 'Stripe Connect', hint: 'Marketplace payouts', price: 700 },
+  { id: 'email', label: 'Email and notifications', hint: 'Transactional email, push', price: 125 },
+  { id: 'cms', label: 'CMS', hint: 'Content your team edits', price: 300 },
+  { id: 'maps', label: 'Maps and location', hint: 'Search, routes, geofencing', price: 250 },
+  { id: 'realtime', label: 'Realtime and chat', hint: 'Live updates, messaging', price: 450 },
+  { id: 'analytics', label: 'Analytics', hint: 'Events, funnels, dashboards', price: 100 },
+  { id: 'api', label: 'Other API', hint: 'Any third-party service', price: 225 },
 ];
 
 export const AI: readonly Option[] = [
-  { id: 'chat', label: 'AI chat or assistant', hint: 'Conversational help inside your product', price: 2500 },
-  { id: 'rag', label: 'Knowledge base search', hint: 'Answers from your own documents, with sources', price: 4000 },
-  { id: 'agent', label: 'AI agent or automation', hint: 'Takes actions across your tools', price: 4500 },
-  { id: 'vision', label: 'Vision and image AI', hint: 'Reads, sorts or generates images', price: 3000 },
+  { id: 'chat', label: 'AI chat or assistant', hint: 'Conversational help inside your product', price: 600 },
+  { id: 'rag', label: 'Knowledge base search', hint: 'Answers from your own documents, with sources', price: 1000 },
+  { id: 'agent', label: 'AI agent or automation', hint: 'Takes actions across your tools', price: 1100 },
+  { id: 'vision', label: 'Vision and image AI', hint: 'Reads, sorts or generates images', price: 750 },
 ];
 
 export const TIMELINES: readonly Option[] = [
@@ -91,16 +91,17 @@ export function estimate(a: Answers): Estimate | null {
   const rush = a.timeline === 'rush';
   const base = priceOf(TYPES, a.type) + sum(PLATFORMS, a.platforms) + screens + sum(INTEGRATIONS, a.integrations) + sum(AI, a.ai);
   const total = base * (rush ? 1.3 : 1);
-  const weeks = base / 3500 / (rush ? 1.45 : 1);
+  // One week of work for every 875 dollars of scope, which keeps the agency's timelines.
+  const weeks = base / 875 / (rush ? 1.45 : 1);
   return {
-    low: roundTo(0.9 * total, 500),
-    high: roundTo(1.25 * total, 500),
+    low: roundTo(0.9 * total, 100),
+    high: roundTo(1.25 * total, 100),
     weeksLow: Math.max(1, Math.round(0.85 * weeks)),
     weeksHigh: Math.max(2, Math.ceil(1.2 * weeks)),
   };
 }
 
-/** $4K, $2.5K, $450. */
+/** $1K, $2.5K, $450. */
 export const money = (n: number): string => (n >= 1000 ? `$${(n / 1000).toFixed(n % 1000 ? 1 : 0)}K` : `$${n}`);
 
 /** True when enough is answered to send: a project type, a platform, and the design question. */

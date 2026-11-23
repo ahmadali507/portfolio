@@ -24,7 +24,8 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   statement(doc);
   heroLeave(doc);
   slideTitles(doc);
-  growLines(doc);
+  stackCards(doc);
+  journey(doc);
   workGallery(doc);
   drum(doc, core);
   magnetic(doc);
@@ -124,14 +125,52 @@ function slideTitles(doc: Document): void {
   });
 }
 
-// ---------- Lines: a rule fills from the left as it crosses the screen ----------
-function growLines(doc: Document): void {
-  doc.querySelectorAll<HTMLElement>('[data-grow]').forEach((el) => {
+// ---------- What I build: as each card is covered by the next, it shrinks back and dims ----------
+function stackCards(doc: Document): void {
+  const stack = doc.querySelector<HTMLElement>('[data-stack]');
+  if (!stack) return;
+  const cards = Array.from(stack.querySelectorAll<HTMLElement>('[data-stack-card]'));
+  const last = cards[cards.length - 1];
+  if (!last) return;
+  cards.forEach((card, i) => {
+    const face = card.querySelector<HTMLElement>('[data-stack-face]');
+    const behind = cards.length - 1 - i; // how many cards end up on top of this one
+    if (!face || behind === 0) return;
+    gsap.to(face, {
+      scale: 1 - behind * 0.035,
+      '--veil': Math.min(0.62, behind * 0.2),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: cards[i + 1] ?? card,
+        start: 'top bottom',
+        endTrigger: last,
+        end: 'top 28%',
+        scrub: 0.5,
+      },
+    });
+  });
+}
+
+// ---------- Experience: the line fills slowly down the chapters and lights each marker in turn ----------
+function journey(doc: Document): void {
+  const track = doc.querySelector<HTMLElement>('[data-journey]');
+  if (!track) return;
+  const fill = track.querySelector<HTMLElement>('[data-journey-fill]');
+  if (fill) {
+    // A long scrub, so the line trails the scroll and keeps filling after the reader stops.
     gsap.fromTo(
-      el,
-      { scaleX: 0 },
-      { scaleX: 1, ease: 'none', scrollTrigger: { trigger: el, start: 'top 88%', end: 'top 42%', scrub: 0.5 } },
+      fill,
+      { scaleY: 0 },
+      { scaleY: 1, ease: 'none', scrollTrigger: { trigger: track, start: 'top 62%', end: 'bottom 62%', scrub: 1.8 } },
     );
+  }
+  track.querySelectorAll<HTMLElement>('[data-journey-item]').forEach((item) => {
+    ScrollTrigger.create({
+      trigger: item,
+      start: 'top 56%',
+      onEnter: () => (item.dataset.on = ''),
+      onLeaveBack: () => delete item.dataset.on,
+    });
   });
 }
 

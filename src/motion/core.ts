@@ -44,6 +44,25 @@ function mount(): void {
   ctx = gsap.context(() => mountScenes(document, core!));
   // Fonts change line heights; measure triggers after they settle.
   void document.fonts.ready.then(() => ScrollTrigger.refresh());
+  watchHeight();
+}
+
+// Scroll positions are measured once. If the page grows or shrinks afterwards (a late image, a
+// font swap, a style change), every trigger is off by that much and the 3D gallery can start in
+// the wrong place. So the page height is watched and the triggers measured again when it moves.
+let heightWatch: ResizeObserver | null = null;
+function watchHeight(): void {
+  heightWatch?.disconnect();
+  let last = document.documentElement.scrollHeight;
+  let timer = 0;
+  heightWatch = new ResizeObserver(() => {
+    const height = document.documentElement.scrollHeight;
+    if (Math.abs(height - last) < 2) return;
+    last = height;
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => ScrollTrigger.refresh(), 160);
+  });
+  heightWatch.observe(document.body);
 }
 
 export function initCore(): MotionCore {

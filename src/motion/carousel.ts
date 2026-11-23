@@ -1,11 +1,14 @@
-// The reviews carousel on the home page. The current card sits in the centre; the track slides to
-// bring the next one in. It advances by itself while it is on screen and the reader is not using
-// it, and stops for good once the reader takes over with the buttons. Under reduced motion it
-// never moves by itself. Without this script the cards are a plain row that scrolls sideways.
+// The reviews carousel on the home page: cards on an arc. Each card is placed by its distance
+// from the current one (CSS reads --d and --a), so the current card faces the reader and the
+// others lean in from the sides. The ring turns by itself while it is on screen and the reader is
+// not using it, and stops for good once the reader takes over. A side card can be clicked to
+// bring it forward. Under reduced motion it never moves by itself. Without this script the cards
+// are a plain row that scrolls sideways.
 
 import { motion } from './state';
 
-const EVERY = 4200; // milliseconds a card stays in the centre
+const EVERY = 3800; // milliseconds a card stays in front
+const REACH = 2; // cards shown on each side of the current one
 
 let stop: (() => void) | null = null;
 
@@ -16,29 +19,40 @@ export function mountCarousel(doc: Document): void {
   const track = root?.querySelector<HTMLElement>('[data-car-track]');
   if (!root || !track) return;
   const cards = Array.from(track.children) as HTMLElement[];
-  if (cards.length === 0) return;
+  const n = cards.length;
+  if (n === 0) return;
   const count = root.querySelector<HTMLElement>('[data-car-count]');
   const prev = root.querySelector<HTMLButtonElement>('[data-car-prev]');
   const next = root.querySelector<HTMLButtonElement>('[data-car-next]');
+  const places = new Array<number>(n).fill(0);
 
   let index = 0;
   let timer = 0;
   let visible = false;
-  let hands = false; // the reader has used the buttons
+  let hands = false; // the reader has taken over
 
-  const show = (): void => {
-    const card = cards[index]!;
-    track.style.transform = `translate3d(${-(card.offsetLeft + card.offsetWidth / 2)}px, 0, 0)`;
-    for (let i = 0; i < cards.length; i++) {
-      const on = i === index;
-      cards[i]!.toggleAttribute('data-on', on);
-      cards[i]!.setAttribute('aria-hidden', on ? 'false' : 'true');
+  const show = (first: boolean): void => {
+    for (let i = 0; i < n; i++) {
+      // Distance around the ring, wrapped to the nearest side.
+      let d = (((i - index) % n) + n) % n;
+      if (d > n / 2) d -= n;
+      const card = cards[i]!;
+      // A card that wraps from one end of the ring to the other moves without a transition;
+      // it is hidden at both ends, so the jump is never seen.
+      const jump = !first && Math.abs(d - places[i]!) > 1.5;
+      card.toggleAttribute('data-jump', jump);
+      card.style.setProperty('--d', String(d));
+      card.style.setProperty('--a', String(Math.abs(d)));
+      card.toggleAttribute('data-on', d === 0);
+      card.toggleAttribute('data-far', Math.abs(d) > REACH);
+      card.setAttribute('aria-hidden', d === 0 ? 'false' : 'true');
+      places[i] = d;
     }
     if (count) count.textContent = String(index + 1).padStart(2, '0');
   };
-  const go = (step: number): void => {
-    index = (index + step + cards.length) % cards.length;
-    show();
+  const go = (to: number): void => {
+    index = ((to % n) + n) % n;
+    show(false);
   };
   const pause = (): void => {
     window.clearInterval(timer);
@@ -46,40 +60,44 @@ export function mountCarousel(doc: Document): void {
   };
   const play = (): void => {
     pause();
-    if (motion.reduced || hands || !visible || doc.hidden) return;
-    timer = window.setInterval(() => go(1), EVERY);
+    if (motion.reduced || hands || !visible || doc.hidden || n < 2) return;
+    timer = window.setInterval(() => go(index + 1), EVERY);
   };
-  const take = (step: number): void => {
+  const take = (to: number): void => {
     hands = true;
     pause();
-    go(step);
+    go(to);
   };
 
-  const onPrev = (): void => take(-1);
-  const onNext = (): void => take(1);
+  const onPrev = (): void => take(index - 1);
+  const onNext = (): void => take(index + 1);
+  const onCard = (event: Event): void => {
+    const card = (event.target as HTMLElement).closest<HTMLElement>('[data-car-track] > *');
+    const i = card ? cards.indexOf(card) : -1;
+    if (i >= 0 && i !== index) take(i);
+  };
   const onVisibility = (): void => play();
   const io = new IntersectionObserver((entries) => {
     visible = entries[entries.length - 1]?.isIntersecting ?? false;
     play();
   });
-  const ro = new ResizeObserver(show);
 
   root.dataset.live = '';
-  show();
+  show(true);
   prev?.addEventListener('click', onPrev);
   next?.addEventListener('click', onNext);
+  track.addEventListener('click', onCard);
   root.addEventListener('pointerenter', pause);
   root.addEventListener('pointerleave', play);
   doc.addEventListener('visibilitychange', onVisibility);
   io.observe(root);
-  ro.observe(root);
 
   stop = () => {
     pause();
     io.disconnect();
-    ro.disconnect();
     prev?.removeEventListener('click', onPrev);
     next?.removeEventListener('click', onNext);
+    track.removeEventListener('click', onCard);
     root.removeEventListener('pointerenter', pause);
     root.removeEventListener('pointerleave', play);
     doc.removeEventListener('visibilitychange', onVisibility);

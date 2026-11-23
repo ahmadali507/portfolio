@@ -1,29 +1,36 @@
 ---
-// Experience: three chapters under one line. The line fills as the section scrolls into view
-// (motion/scenes.ts). Without JavaScript or under reduced motion the line is simply full.
+// Experience: three chapters down one vertical line. The heading stays in place while the
+// chapters scroll past it, and the line fills slowly from the top, lighting each marker as it
+// reaches it (motion/scenes.ts). Without JavaScript or under reduced motion the line is full.
 import Todo from './Todo.astro';
 import { EXPERIENCE } from '@/config/experience';
+
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <section class="xp" id="experience" aria-labelledby="xp-title">
   <div class="page xp-in">
-    <header class="sec-head">
+    <header class="sec-head xp-head">
       <p class="label">Experience</p>
-      <h2 class="sec-title" id="xp-title" data-slide><span class="dim">The path</span><span>so far</span></h2>
+      <h2 class="sec-title" id="xp-title"><span class="dim">The path</span><span>so far</span></h2>
     </header>
 
-    <div class="xp-body">
-      <div class="xp-line" aria-hidden="true"><span data-grow></span></div>
+    <div class="xp-track" data-journey>
+      <span class="xp-rail" aria-hidden="true"><span data-journey-fill></span></span>
       <ol class="xp-list" role="list">
         {
-          EXPERIENCE.map((x) => (
-            <li class="xp-item" data-rise>
-              <p class="label xp-when">
-                {x.when.value} {x.when.flag && <Todo text={x.when.flag} />}
-              </p>
-              <h3>{x.org}</h3>
-              <p class="label xp-role">{x.role}</p>
-              <p class="xp-sum">{x.summary}</p>
+          EXPERIENCE.map((x, i) => (
+            <li class="xp-item" data-journey-item>
+              <span class="xp-node" aria-hidden="true" />
+              <div class="xp-body" data-rise>
+                <p class="label xp-when">
+                  <span class="xp-n">{pad(i + 1)}</span>
+                  {x.when.value} {x.when.flag && <Todo text={x.when.flag} />}
+                </p>
+                <h3>{x.org}</h3>
+                <p class="label xp-role">{x.role}</p>
+                <p class="xp-sum">{x.summary}</p>
+              </div>
             </li>
           ))
         }
@@ -38,7 +45,6 @@ import { EXPERIENCE } from '@/config/experience';
     z-index: 2;
     background: var(--color-bg);
     border-top: var(--hairline);
-    overflow-x: clip;
   }
 
   .xp-in {
@@ -47,50 +53,86 @@ import { EXPERIENCE } from '@/config/experience';
     padding-block: var(--space-9);
   }
 
-  .xp-body {
-    display: grid;
-    gap: var(--space-6);
+  .xp-track {
+    position: relative;
+    min-width: 0;
   }
 
-  .xp-line {
-    position: relative;
-    height: 2px;
+  /* The line runs the full height of the list; its fill grows from the top. */
+  .xp-rail {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0;
+    left: 5px;
+    width: 2px;
     background: var(--color-rule);
   }
 
-  .xp-line span {
+  .xp-rail span {
     position: absolute;
     inset: 0;
     background: var(--color-trace);
-    transform-origin: 0 50%;
+    transform-origin: 50% 0;
   }
 
   .xp-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: var(--space-7) var(--space-6);
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(5rem, 22svh, 13rem);
+    padding-bottom: clamp(3rem, 12svh, 8rem);
   }
 
   .xp-item {
+    position: relative;
+    min-width: 0;
+    padding-left: var(--space-7);
+  }
+
+  .xp-node {
+    position: absolute;
+    left: 0;
+    top: 0.3rem;
+    width: 12px;
+    height: 12px;
+    box-sizing: border-box;
+    border: 2px solid var(--color-ink-muted);
+    background: var(--color-bg);
+    transition:
+      background-color 400ms var(--ease-out),
+      border-color 400ms var(--ease-out),
+      transform 700ms var(--ease-expo);
+  }
+
+  .xp-item[data-on] .xp-node {
+    border-color: var(--color-trace);
+    background: var(--color-trace);
+    transform: rotate(45deg) scale(1.2);
+  }
+
+  .xp-body {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
     align-content: start;
-    min-width: 0;
   }
 
   .xp-when {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    gap: var(--space-2) var(--space-3);
     color: var(--color-trace-ink);
   }
 
+  .xp-n {
+    color: var(--color-ink-muted);
+  }
+
   .xp-item h3 {
-    font-size: clamp(1.375rem, 2.05vw, 1.85rem);
-    overflow-wrap: break-word;
+    font-size: clamp(1.5rem, 6.4vw, 4.5rem);
     font-weight: 800;
     line-height: 0.95;
     text-transform: uppercase;
+    overflow-wrap: break-word;
   }
 
   .xp-role {
@@ -99,7 +141,31 @@ import { EXPERIENCE } from '@/config/experience';
 
   .xp-sum {
     margin-top: var(--space-2);
-    max-width: 19rem;
+    max-width: 26rem;
+    font-size: var(--text-lead);
+    line-height: 1.45;
     color: var(--color-ink-muted);
+  }
+
+  /* Wide screens: the heading holds its place on the left while the chapters pass on the right. */
+  @media (min-width: 62rem) {
+    .xp-in {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+      column-gap: var(--space-8);
+      align-items: start;
+    }
+
+    .xp-head {
+      position: sticky;
+      top: calc(var(--header-h) + var(--space-7));
+    }
+
+    .xp-head .sec-title {
+      font-size: clamp(2rem, 4.4vw, 4.25rem);
+    }
+
+    .xp-item h3 {
+      font-size: clamp(1.75rem, 3.2vw, 3rem);
+    }
   }
 </style>

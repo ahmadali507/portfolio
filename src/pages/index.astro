@@ -73,27 +73,35 @@ const firstRole = ROLES[0];
     </div>
   </div>
 
-  <!-- 3. What I build: five rows, each with one line and its proof. -->
+  <!-- 3. What I build: five cards that stack on top of each other as the reader scrolls. -->
   <section class="build" aria-labelledby="build-title">
     <div class="page build-in">
       <header class="sec-head">
         <p class="label">Capabilities</p>
         <h2 class="sec-title" id="build-title" data-slide><span class="dim">What I</span><span>build</span></h2>
       </header>
-      <ol class="rows" role="list">
+      <ol class="stack" role="list" data-stack>
         {
           areas.map((a, i) => (
-            <li class="row" data-rise>
-              <span class="label n">{pad(i + 1)}</span>
-              <h3>{a.area}</h3>
-              <p class="line">{a.line}</p>
-              <ul class="chips" role="list" aria-label={`Seen in`}>
-                {a.proofs.map((p) => (
-                  <li>
-                    <a href={`/work/${p.id}/`}>{p.title}</a>
-                  </li>
-                ))}
-              </ul>
+            <li class="card" style={`--i:${i}`} data-stack-card>
+              <div class="card-in" data-stack-face>
+                <div class="card-top">
+                  <span class="label n">
+                    {pad(i + 1)} / {pad(areas.length)}
+                  </span>
+                  <ul class="chips" role="list" aria-label="Seen in">
+                    {a.proofs.map((p) => (
+                      <li>
+                        <a href={`/work/${p.id}/`}>{p.title}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div class="card-main">
+                  <h3>{a.area}</h3>
+                  <p class="line">{a.line}</p>
+                </div>
+              </div>
             </li>
           ))
         }
@@ -361,31 +369,71 @@ const firstRole = ROLES[0];
     padding-block: var(--space-9);
   }
 
-  .row {
+  /* Each card sticks a little lower than the one before it, so they pile up as the page scrolls.
+     motion/scenes.ts shrinks and dims the cards underneath; without it they still stack. */
+  .stack {
     display: grid;
-    gap: var(--space-3) var(--space-6);
+    gap: var(--space-6);
+  }
+
+  .card {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-5) + var(--i) * 1.15rem);
+  }
+
+  .card-in {
+    position: relative;
+    display: grid;
+    align-content: space-between;
+    gap: var(--space-7);
+    min-height: clamp(17rem, 50svh, 26rem);
+    padding: clamp(1.5rem, 4vw, 3.25rem);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    transform-origin: 50% 0;
+    overflow: hidden;
+  }
+
+  /* A veil that darkens a card as the next ones cover it. */
+  .card-in::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-bg);
+    opacity: var(--veil, 0);
+    pointer-events: none;
+  }
+
+  .card-top {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    padding-block: var(--space-5);
-    border-top: var(--hairline);
-    transition: padding-left 500ms var(--ease-expo);
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-5);
   }
 
-  .row:last-child {
-    border-bottom: var(--hairline);
+  .card-top .n {
+    color: var(--color-trace-ink);
   }
 
-  .row .n {
-    color: var(--color-ink-muted);
-    transition: color var(--dur-med) var(--ease-out);
+  .card-main {
+    display: grid;
+    gap: var(--space-4) var(--space-7);
+    align-items: end;
   }
 
-  .row h3 {
-    font-size: clamp(1.625rem, 3.2vw, 2.75rem);
-    font-weight: 700;
-    line-height: 1;
+  .card h3 {
+    font-size: clamp(2rem, 4.6vw, 4rem);
+    font-weight: 800;
+    line-height: 0.95;
+    overflow-wrap: normal;
   }
 
-  .row .line {
+  .card .line {
+    max-width: 26rem;
+    font-size: var(--text-lead);
+    line-height: 1.45;
     color: var(--color-ink-muted);
   }
 
@@ -416,23 +464,12 @@ const firstRole = ROLES[0];
   }
 
   @media (min-width: 62rem) {
-    .row {
-      grid-template-columns: 3.5rem minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 0.9fr);
-      min-height: 8rem;
+    .card-main {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     }
 
-    .chips {
-      justify-content: flex-end;
-    }
-  }
-
-  @media (hover: hover) {
-    .row:hover {
-      padding-left: var(--space-4);
-    }
-
-    .row:hover .n {
-      color: var(--color-trace-ink);
+    .card .line {
+      justify-self: end;
     }
   }
 

@@ -1,20 +1,21 @@
 ---
-// Reviews: a centred carousel of client quotes that advances by itself (motion/carousel.ts).
-// Nothing here is invented. Each slide is a line the client says in his recorded endorsement, and
-// written Upwork reviews join the same carousel once their text is added (config/testimonials.ts).
-// Without JavaScript the cards are a row the reader scrolls sideways.
+// Reviews: cards floating on an arc. The current card faces the reader; the others lean in from
+// the sides and fade with distance. The ring turns by itself (motion/carousel.ts) and a card can
+// be clicked to bring it forward. Without JavaScript the cards are a row that scrolls sideways.
+// Nothing here is invented; see config/testimonials.ts for where each line comes from.
 import Todo from './Todo.astro';
-import { ENDORSEMENT as E, UPWORK_REVIEWS } from '@/config/testimonials';
+import { REVIEWS, REVIEWS_UNVERIFIED, UPWORK_REVIEWS } from '@/config/testimonials';
 import { CONTACT } from '@/config/site';
 
-const slides = [
-  { text: E.pull, name: E.name, meta: E.role, check: E.placeholder },
-  ...E.reasons.map((r) => ({ text: r.text, name: E.name, meta: E.role, check: E.placeholder })),
-  { text: E.close, name: E.name, meta: E.role, check: E.placeholder },
-  ...UPWORK_REVIEWS.map((r) => ({ text: r.text, name: r.client, meta: r.project, check: false })),
-];
+const slides = [...REVIEWS, ...UPWORK_REVIEWS];
 const upwork = CONTACT.find((c) => c.label === 'Upwork');
 const pad = (n: number) => String(n).padStart(2, '0');
+const initials = (name: string) =>
+  name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2);
 ---
 
 <section class="said" id="reviews" aria-labelledby="said-title">
@@ -24,25 +25,28 @@ const pad = (n: number) => String(n).padStart(2, '0');
   </header>
 
   <div class="car" data-carousel aria-roledescription="carousel" aria-label="Client reviews">
-    <div class="car-view">
-      <ul class="car-track" role="list" data-car-track>
-        {
-          slides.map((s) => (
-            <li class="card">
-              <figure>
-                <blockquote>{s.text}</blockquote>
-                <figcaption>
-                  <span class="sq" aria-hidden="true" />
-                  <span class="who">{s.name}</span>
-                  <span class="label meta">{s.meta}</span>
-                  <Todo when={s.check} text="Verify" />
-                </figcaption>
-              </figure>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
+    <ul class="car-stage" role="list" data-car-track>
+      {
+        slides.map((s, i) => (
+          <li class="card" style={`--i:${i}`}>
+            <figure>
+              <p class="stat">{s.stat}</p>
+              <p class="cap">{s.cap}</p>
+              <blockquote>“{s.text}”</blockquote>
+              <figcaption>
+                <span class="avatar" aria-hidden="true">
+                  {initials(s.name)}
+                </span>
+                <span class="who">
+                  <b>{s.name}</b>
+                  <span>{s.role}</span>
+                </span>
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ul>
     <div class="car-nav">
       <button type="button" class="car-btn" data-car-prev aria-label="Previous review">←</button>
       <p class="label car-count" aria-hidden="true"><span data-car-count>01</span> / {pad(slides.length)}</p>
@@ -53,6 +57,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <p class="label said-foot page">
     Top Rated on Upwork
     {upwork && !upwork.placeholder && <a href={upwork.href}>See the profile</a>}
+    <Todo when={REVIEWS_UNVERIFIED} text="Verify wording" />
     <Todo when={UPWORK_REVIEWS.length === 0} text="Upwork reviews to add" />
   </p>
 </section>
@@ -75,25 +80,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   .car {
-    --cw: min(35rem, 78vw);
+    --cw: min(29rem, 80vw);
     display: grid;
-    gap: var(--space-6);
+    gap: var(--space-7);
   }
 
   /* Without JavaScript: a row that scrolls sideways and snaps. */
-  .car-view {
+  .car-stage {
+    display: flex;
+    gap: var(--space-5);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     padding-inline: var(--page-gutter);
   }
 
-  .car-track {
-    display: flex;
-    gap: var(--space-5);
-    width: max-content;
-  }
-
   .card {
+    flex: none;
     box-sizing: border-box;
     width: var(--cw);
     scroll-snap-align: center;
@@ -102,46 +104,69 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .card figure {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: var(--space-6);
+    gap: var(--space-3);
     box-sizing: border-box;
     height: 100%;
-    min-height: 19rem;
+    min-height: 24rem;
     margin: 0;
-    padding: clamp(1.5rem, 4vw, 2.75rem);
-    border: var(--hairline);
+    padding: clamp(1.5rem, 3.4vw, 2.5rem);
+    border: 1px solid var(--color-rule);
     border-radius: var(--radius-card);
     background: var(--color-surface);
   }
 
-  .card blockquote {
-    margin: 0;
+  .stat {
     font-family: var(--font-display);
-    font-size: clamp(1.375rem, 2.5vw, 2.125rem);
-    font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
+    font-size: clamp(1.5rem, 2.5vw, 2.125rem);
+    font-weight: 800;
+    line-height: 1;
+    overflow-wrap: normal;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  .cap {
+    font-size: var(--text-small);
+    color: var(--color-ink-muted);
+  }
+
+  .card blockquote {
+    flex: 1;
+    margin: var(--space-4) 0 0;
+    font-size: clamp(1.0625rem, 1.5vw, 1.3125rem);
+    line-height: 1.45;
+    text-wrap: pretty;
   }
 
   .card figcaption {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-2) var(--space-3);
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-rule);
   }
 
-  .sq {
-    width: 0.625rem;
-    height: 0.625rem;
+  .avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
     background: var(--color-trace);
+    color: var(--color-bg);
+    font-size: var(--text-label);
+    font-weight: 700;
+    letter-spacing: 0.04em;
   }
 
   .who {
-    font-weight: 600;
+    display: grid;
+    gap: 0.1rem;
   }
 
-  .meta {
+  .who span {
+    font-size: var(--text-small);
     color: var(--color-ink-muted);
   }
 
@@ -197,36 +222,67 @@ const pad = (n: number) => String(n).padStart(2, '0');
     text-decoration-color: var(--color-trace);
   }
 
-  /* With JavaScript: the track slides so the current card sits in the centre. */
-  .car[data-live] .car-view {
-    overflow: hidden;
+  /* With JavaScript: every card shares one cell and is placed on an arc by its distance from
+     the current card. --d is that distance in cards (negative to the left), --a its size. */
+  .car[data-live] .car-stage {
+    display: grid;
+    justify-items: center;
+    overflow: visible;
     padding-inline: 0;
-  }
-
-  .car[data-live] .car-track {
-    margin-left: 50%;
-    transition: transform 900ms var(--ease-expo);
+    perspective: 1700px;
+    transform-style: preserve-3d;
   }
 
   .car[data-live] .card {
-    opacity: 0.3;
-    transform: scale(0.92);
+    --step: calc(var(--cw) * 0.76);
+    grid-area: 1 / 1;
+    z-index: calc(10 - var(--a, 0));
+    opacity: calc(1 - var(--a, 0) * 0.3);
+    transform: translateX(calc(var(--d, 0) * var(--step))) translateZ(calc(var(--a, 0) * -110px))
+      rotateY(calc(var(--d, 0) * -15deg)) scale(calc(1 - var(--a, 0) * 0.08));
     transition:
-      opacity 600ms var(--ease-out),
-      transform 800ms var(--ease-expo);
+      transform 1000ms var(--ease-expo),
+      opacity 700ms var(--ease-out);
+    cursor: pointer;
   }
 
   .car[data-live] .card[data-on] {
-    opacity: 1;
-    transform: none;
+    cursor: default;
+  }
+
+  .car[data-live] .card[data-far] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .car[data-live] .card[data-jump] {
+    transition: none;
   }
 
   .car[data-live] .car-nav {
     display: flex;
   }
 
+  /* Each card drifts on its own slow rhythm, so the ring never sits dead still. */
+  @media (prefers-reduced-motion: no-preference) {
+    .car[data-live] .card figure {
+      animation: drift 7s ease-in-out infinite;
+      animation-delay: calc(var(--i) * -1.7s);
+    }
+  }
+
+  @keyframes drift {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .car[data-live] .car-track,
     .car[data-live] .card {
       transition: none;
     }
