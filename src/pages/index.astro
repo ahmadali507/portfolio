@@ -475,8 +475,7 @@ const firstRole = ROLES[0];
     inset: 0;
     pointer-events: none;
     background:
-      linear-gradient(to top, var(--color-surface) 14%, color-mix(in srgb, var(--color-surface) 70%, transparent) 34%, transparent 60%),
-      linear-gradient(to right, var(--color-surface) 4%, transparent 38%);
+      linear-gradient(to right, var(--color-surface) 30%, transparent 48%);
   }
 
   .card-top,
@@ -492,6 +491,12 @@ const firstRole = ROLES[0];
 
     .card-in:hover .art-lit {
       opacity: 1;
+    }
+  }
+
+  @media (max-width: 62rem) {
+    .art-scrim {
+      background: linear-gradient(to top, var(--color-surface) 30%, transparent 52%);
     }
   }
 
@@ -578,12 +583,13 @@ const firstRole = ROLES[0];
   }
 
   @media (min-width: 62rem) {
+    /* Title and line stack on the left; the illustration has the right half to itself. */
     .card-main {
-      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      max-width: 44%;
     }
 
     .card .line {
-      justify-self: end;
+      max-width: 24rem;
     }
   }
 

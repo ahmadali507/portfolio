@@ -1,214 +1,471 @@
 ---
-// The picture behind a "What I build" card: what that kind of work looks like. Real project
-// screenshots where they exist (SaaS, AI, automation); where there are none, drawn mockups that
-// make no claim to be a real product (phone screens, a pipeline diagram). Rendered twice by the
-// card, once dim and once in full color under the pointer's light. Decorative.
+// The picture behind a "What I build" card: an original technical illustration of that kind of
+// work, drawn to show its depth (the architecture, the data flow, the failure handling), not a
+// screenshot of any project. Rendered twice by the card, once dim and once in full color under
+// the pointer's light. Decorative. Flat fills only, no ids, so the two copies cannot clash.
 
 interface Props {
   kind: 'saas' | 'mobile' | 'ai' | 'cloud' | 'automation';
 }
 const { kind } = Astro.props;
-const shot = (slug: string, n: number) => `/projects/${slug}/${n}.webp`;
+
+const C = {
+  panel: '#111111',
+  raised: '#181818',
+  line: '#2e2e2e',
+  soft: '#3d3d3d',
+  ink: '#e8e8e8',
+  mute: '#7a7a7a',
+  dim: '#4a4a4a',
+  amber: '#ffb224',
+  amberSoft: 'rgba(255,178,36,0.16)',
+};
+const sans = 'Public Sans, Arial, sans-serif';
+const mono = 'ui-monospace, Menlo, Consolas, monospace';
+
+// A labelled node used by the diagrams.
+interface Node {
+  x: number;
+  y: number;
+  w?: number;
+  t: string;
+  s?: string;
+  on?: boolean;
+}
 ---
 
 <div class:list={['art', kind]} aria-hidden="true">
-  {
-    kind === 'saas' && (
-      <>
-        <figure class="win" style="--x:36%;--y:8%;--w:36%;--r:-5deg">
-          <span class="bar" />
-          <img src={shot('codesmash', 1)} alt="" loading="lazy" decoding="async" />
-        </figure>
-        <figure class="win" style="--x:60%;--y:16%;--w:36%;--r:4deg">
-          <span class="bar" />
-          <img src={shot('menumatch', 1)} alt="" loading="lazy" decoding="async" />
-        </figure>
-        <figure class="win" style="--x:47%;--y:46%;--w:32%;--r:-1deg">
-          <span class="bar" />
-          <img src={shot('shocodoc', 1)} alt="" loading="lazy" decoding="async" />
-        </figure>
-      </>
-    )
-  }
-
-  {
-    kind === 'ai' && (
-      <>
-        <figure class="win" style="--x:34%;--y:10%;--w:34%;--r:-4deg">
-          <span class="bar" />
-          <img src={shot('magicalbook-store', 2)} alt="" loading="lazy" decoding="async" />
-        </figure>
-        <figure class="win" style="--x:60%;--y:6%;--w:34%;--r:5deg">
-          <span class="bar" />
-          <img src={shot('magicalbook-store', 3)} alt="" loading="lazy" decoding="async" />
-        </figure>
-        <figure class="win" style="--x:48%;--y:44%;--w:32%;--r:-2deg">
-          <span class="bar" />
-          <img src={shot('prepify', 2)} alt="" loading="lazy" decoding="async" />
-        </figure>
-      </>
-    )
-  }
-
-  {
-    kind === 'mobile' && (
-      <svg class="draw" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid meet">
-          <g transform="translate(40 78) scale(0.8)">
-        {[
-          { x: 430, y: 30, r: -8, screen: 'list' },
-          { x: 590, y: 10, r: 0, screen: 'chart' },
-          { x: 750, y: 40, r: 8, screen: 'chat' },
-        ].map((p) => (
-          <g transform={`translate(${p.x} ${p.y}) rotate(${p.r} 70 150)`}>
-            <rect x="0" y="0" width="140" height="290" rx="24" fill="#141414" stroke="#3a3a3a" stroke-width="2" />
-            <rect x="9" y="10" width="122" height="270" rx="17" fill="#0b0b0b" />
-            <rect x="52" y="16" width="36" height="8" rx="4" fill="#262626" />
-            <rect x="20" y="38" width="62" height="9" rx="4" fill="#e6e6e6" />
-            <rect x="20" y="52" width="40" height="6" rx="3" fill="#6b6b6b" />
-            {p.screen === 'list' &&
-              [0, 1, 2, 3].map((i) => (
-                <g transform={`translate(20 ${72 + i * 44})`}>
-                  <rect width="100" height="36" rx="8" fill="#1c1c1c" />
-                  <rect x="8" y="8" width="20" height="20" rx="6" fill={i === 0 ? '#ffb224' : '#333'} />
-                  <rect x="36" y="10" width="50" height="6" rx="3" fill="#cfcfcf" />
-                  <rect x="36" y="21" width="34" height="5" rx="2.5" fill="#5a5a5a" />
-                </g>
-              ))}
-            {p.screen === 'chart' && (
-              <g>
-                <rect x="20" y="72" width="100" height="70" rx="10" fill="#1c1c1c" />
-                <polyline points="28,128 44,112 60,118 76,96 92,102 112,82" fill="none" stroke="#ffb224" stroke-width="3" stroke-linejoin="round" />
-                {[0, 1, 2].map((i) => (
-                  <rect x={20 + i * 35} y="152" width="30" height="44" rx="8" fill="#1c1c1c" />
-                ))}
-                <rect x="20" y="206" width="100" height="28" rx="14" fill="#ffb224" />
-              </g>
-            )}
-            {p.screen === 'chat' && (
-              <g>
-                <rect x="20" y="74" width="70" height="26" rx="10" fill="#1c1c1c" />
-                <rect x="50" y="108" width="70" height="26" rx="10" fill="#ffb224" />
-                <rect x="20" y="142" width="80" height="34" rx="10" fill="#1c1c1c" />
-                <rect x="50" y="184" width="70" height="26" rx="10" fill="#ffb224" />
-                <rect x="20" y="236" width="100" height="24" rx="12" fill="#1c1c1c" stroke="#333" />
-              </g>
-            )}
-            <rect x="50" y="268" width="40" height="4" rx="2" fill="#3a3a3a" />
-          </g>
-        ))}
-        </g>
-      </svg>
-    )
-  }
-
-  {
-    kind === 'cloud' && (
-      <svg class="draw" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid meet">
-          <g transform="translate(40 78) scale(0.8)">
-        <g fill="none" stroke="#4a4a4a" stroke-width="2">
-          <path d="M520 110 C 580 110, 580 70, 640 70" />
-          <path d="M520 110 C 580 110, 580 170, 640 170" />
-          <path d="M780 70 C 830 70, 830 120, 860 120" />
-          <path d="M780 170 C 830 170, 830 120, 860 120" />
-          <path d="M450 230 L 450 150" stroke-dasharray="6 6" />
-        </g>
-        {[
-          { x: 380, y: 82, w: 140, t: 'Stripe', s: 'billing data', on: true },
-          { x: 640, y: 42, w: 140, t: 'Cloud Function', s: 'daily sync' },
-          { x: 640, y: 142, w: 140, t: 'Cloud Run Job', s: 'long sync' },
-          { x: 860, y: 92, w: 120, t: 'BigQuery', s: 'warehouse', on: true },
-          { x: 380, y: 230, w: 140, t: 'Scheduler', s: '0 6 * * *' },
-        ].map((n) => (
-          <g transform={`translate(${n.x} ${n.y})`}>
-            <rect width={n.w} height="56" rx="12" fill="#141414" stroke={n.on ? '#ffb224' : '#3a3a3a'} stroke-width="2" />
-            <circle cx="18" cy="28" r="5" fill={n.on ? '#ffb224' : '#6b6b6b'} />
-            <text x="32" y="25" fill="#e6e6e6" font-size="15" font-family="Public Sans, Arial, sans-serif" font-weight="700">{n.t}</text>
-            <text x="32" y="43" fill="#7a7a7a" font-size="12" font-family="Public Sans, Arial, sans-serif">{n.s}</text>
-          </g>
-        ))}
-        </g>
-      </svg>
-    )
-  }
-
-  {
-    kind === 'automation' && (
-      <>
-        <figure class="win" style="--x:62%;--y:30%;--w:32%;--r:4deg">
-          <span class="bar" />
-          <img src={shot('menumatch', 2)} alt="" loading="lazy" decoding="async" />
-        </figure>
-        <svg class="draw" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid meet">
-          <g transform="translate(40 78) scale(0.8)">
-          <g fill="none" stroke="#4a4a4a" stroke-width="2">
-            <path d="M490 70 L 560 70" />
-            <path d="M700 70 L 770 70" />
-            <path d="M630 98 L 630 150" />
-          </g>
-          {[
-            { x: 350, y: 42, t: 'Webhook', s: 'order.paid', on: true },
-            { x: 560, y: 42, t: 'Approval', s: 'level 1 of 2' },
-            { x: 770, y: 42, t: 'Stripe', s: 'pay vendor', on: true },
-            { x: 560, y: 150, t: 'Email', s: 'notify buyer' },
-          ].map((n) => (
-            <g transform={`translate(${n.x} ${n.y})`}>
-              <rect width="140" height="56" rx="12" fill="#141414" stroke={n.on ? '#ffb224' : '#3a3a3a'} stroke-width="2" />
-              <circle cx="18" cy="28" r="5" fill={n.on ? '#ffb224' : '#6b6b6b'} />
-              <text x="32" y="25" fill="#e6e6e6" font-size="15" font-family="Public Sans, Arial, sans-serif" font-weight="700">{n.t}</text>
-              <text x="32" y="43" fill="#7a7a7a" font-size="12" font-family="Public Sans, Arial, sans-serif">{n.s}</text>
+  <svg viewBox="0 0 660 300" preserveAspectRatio="xMaxYMid meet">
+    {
+      kind === 'saas' && (
+        <g font-family={sans}>
+          {/* The product: a multi-tenant dashboard. */}
+          <rect x="0" y="8" width="402" height="284" rx="14" fill={C.panel} stroke={C.line} />
+          <rect x="0" y="8" width="402" height="30" rx="14" fill={C.raised} />
+          <rect x="0" y="30" width="402" height="8" fill={C.raised} />
+          {[16, 28, 40].map((x) => (
+            <circle cx={x} cy="23" r="3.5" fill={C.soft} />
+          ))}
+          <rect x="140" y="16" width="120" height="14" rx="7" fill={C.panel} />
+          {/* Live presence. */}
+          {[350, 362, 374].map((x, i) => (
+            <circle cx={x} cy="23" r="8" fill={i === 0 ? C.amber : C.soft} stroke={C.raised} stroke-width="2" />
+          ))}
+          <text x="320" y="27" fill={C.mute} font-size="9">live</text>
+          {/* Sidebar. */}
+          <rect x="0" y="38" width="74" height="254" fill="#0d0d0d" />
+          {[0, 1, 2, 3, 4].map((i) => (
+            <rect x="12" y={56 + i * 22} width={i === 1 ? 50 : 42} height="10" rx="5" fill={i === 1 ? C.amber : C.line} />
+          ))}
+          <rect x="12" y="262" width="50" height="16" rx="8" fill={C.raised} stroke={C.line} />
+          {/* KPI tiles with sparklines. */}
+          {[0, 1, 2].map((i) => (
+            <g transform={`translate(${88 + i * 102} 52)`}>
+              <rect width="94" height="56" rx="9" fill={C.raised} stroke={C.line} />
+              <rect x="10" y="10" width="34" height="6" rx="3" fill={C.mute} />
+              <rect x="10" y="22" width="44" height="12" rx="4" fill={C.ink} />
+              <polyline
+                points={['10,48 26,44 40,46 56,38 70,40 84,32', '10,44 26,46 40,40 56,42 70,36 84,38', '10,46 26,42 40,43 56,36 70,30 84,28'][i]}
+                fill="none"
+                stroke={i === 2 ? C.amber : C.dim}
+                stroke-width="2"
+                stroke-linejoin="round"
+              />
             </g>
           ))}
+          {/* Revenue bars. */}
+          <rect x="88" y="118" width="196" height="88" rx="9" fill={C.raised} stroke={C.line} />
+          <rect x="100" y="128" width="50" height="6" rx="3" fill={C.mute} />
+          {[30, 44, 36, 52, 40, 60, 48, 66].map((h, i) => (
+            <rect x={102 + i * 22} y={196 - h} width="12" height={h} rx="3" fill={i === 7 ? C.amber : C.soft} />
+          ))}
+          {/* Approval state machine. */}
+          <rect x="292" y="118" width="100" height="88" rx="9" fill={C.raised} stroke={C.line} />
+          <text x="302" y="134" fill={C.mute} font-size="9">Approval</text>
+          {['Draft', 'Review', 'Approved'].map((t, i) => (
+            <g transform={`translate(302 ${142 + i * 20})`}>
+              <circle cx="5" cy="6" r="4" fill={i < 2 ? C.amber : 'none'} stroke={C.amber} stroke-width="1.5" />
+              {i < 2 && <line x1="5" y1="10" x2="5" y2="22" stroke={C.amber} stroke-width="1.5" />}
+              <text x="16" y="9" fill={i < 2 ? C.ink : C.mute} font-size="10">{t}</text>
+            </g>
+          ))}
+          {/* Members and roles. */}
+          <rect x="88" y="214" width="304" height="68" rx="9" fill={C.raised} stroke={C.line} />
+          {[
+            ['Owner', true],
+            ['Buyer', false],
+            ['Vendor', false],
+          ].map(([role, on], i) => (
+            <g transform={`translate(100 ${224 + i * 19})`}>
+              <circle cx="6" cy="6" r="6" fill={C.soft} />
+              <rect x="20" y="2" width={[70, 56, 64][i]} height="8" rx="4" fill={C.dim} />
+              <rect x="210" y="-1" width="58" height="14" rx="7" fill={on ? C.amberSoft : C.panel} stroke={on ? C.amber : C.line} />
+              <text x="239" y="9" text-anchor="middle" fill={on ? C.amber : C.mute} font-size="9">{role}</text>
+            </g>
+          ))}
+          {/* Behind it: the data model, scoped per tenant. */}
+          {[
+            { x: 430, y: 14, t: 'orgs', f: ['id', 'plan'] },
+            { x: 560, y: 14, t: 'users', f: ['org_id', 'role'], rls: true },
+            { x: 430, y: 160, t: 'orders', f: ['org_id', 'status'] },
+            { x: 560, y: 160, t: 'payments', f: ['order_id', 'state'], rls: true },
+          ].map((tb) => (
+            <g transform={`translate(${tb.x} ${tb.y})`}>
+              <rect width="96" height="92" rx="9" fill={C.panel} stroke={C.line} />
+              <rect width="96" height="24" rx="9" fill={C.raised} />
+              <text x="10" y="16" fill={C.ink} font-size="10" font-family={mono}>{tb.t}</text>
+              {tb.rls && (
+                <>
+                  <rect x="58" y="6" width="30" height="13" rx="6.5" fill={C.amber} />
+                  <text x="73" y="15.5" text-anchor="middle" fill="#000" font-size="8" font-weight="700">RLS</text>
+                </>
+              )}
+              {['id', ...tb.f].map((f, i) => (
+                <text x="10" y={42 + i * 16} fill={i === 0 ? C.amber : C.mute} font-size="9" font-family={mono}>{f}</text>
+              ))}
+            </g>
+          ))}
+          <g fill="none" stroke={C.soft} stroke-width="1.5">
+            <path d="M526 58 H 560" />
+            <path d="M478 106 V 160" />
+            <path d="M526 204 H 560" />
+            <path d="M608 106 C 608 132, 500 132, 500 160" stroke-dasharray="4 4" />
           </g>
-        </svg>
-      </>
-    )
-  }
+          <path d="M402 150 C 416 150, 416 60, 430 60" fill="none" stroke={C.amber} stroke-width="1.5" stroke-dasharray="3 5" />
+        </g>
+      )
+    }
+
+    {
+      kind === 'mobile' && (
+        <g font-family={sans}>
+          {/* The API the apps share, with offline sync. */}
+          <rect x="520" y="70" width="136" height="70" rx="12" fill={C.panel} stroke={C.amber} />
+          <text x="536" y="94" fill={C.ink} font-size="12" font-weight="700">API</text>
+          <text x="536" y="110" fill={C.mute} font-size="9">REST and GraphQL</text>
+          <text x="536" y="125" fill={C.mute} font-size="9">auth, push, storage</text>
+          <rect x="520" y="156" width="136" height="44" rx="12" fill={C.panel} stroke={C.line} />
+          <path d="M538 178 a8 8 0 1 1 3 6" fill="none" stroke={C.amber} stroke-width="1.8" />
+          <text x="556" y="182" fill={C.ink} font-size="10">Offline sync</text>
+          <g fill="none" stroke={C.soft} stroke-width="1.5" stroke-dasharray="4 5">
+            <path d="M486 110 H 520" />
+            <path d="M486 178 H 520" />
+          </g>
+          {/* Three screens of one app. */}
+          {[
+            { x: 10, y: 34, r: -6 },
+            { x: 172, y: 14, r: 0 },
+            { x: 334, y: 34, r: 6 },
+          ].map((p, i) => (
+            <g transform={`translate(${p.x} ${p.y}) rotate(${p.r} 66 134)`}>
+              <rect width="132" height="268" rx="24" fill="#141414" stroke={C.soft} stroke-width="2" />
+              <rect x="8" y="9" width="116" height="250" rx="17" fill="#0b0b0b" />
+              <rect x="48" y="15" width="36" height="9" rx="4.5" fill="#000" />
+              {i === 0 && (
+                <g>
+                  <circle cx="66" cy="96" r="38" fill="none" stroke={C.line} stroke-width="8" />
+                  <circle cx="66" cy="96" r="38" fill="none" stroke={C.amber} stroke-width="8" stroke-dasharray="168 240" transform="rotate(-90 66 96)" stroke-linecap="round" />
+                  <rect x="46" y="88" width="40" height="12" rx="4" fill={C.ink} />
+                  <rect x="22" y="152" width="88" height="10" rx="5" fill={C.ink} />
+                  <rect x="30" y="168" width="72" height="7" rx="3.5" fill={C.dim} />
+                  <rect x="22" y="210" width="88" height="28" rx="14" fill={C.amber} />
+                </g>
+              )}
+              {i === 1 && (
+                <g>
+                  <rect x="18" y="38" width="60" height="9" rx="4.5" fill={C.ink} />
+                  <rect x="18" y="52" width="40" height="6" rx="3" fill={C.dim} />
+                  <rect x="18" y="68" width="96" height="62" rx="10" fill="#1b1b1b" />
+                  <polyline points="26,118 40,104 54,110 68,92 82,98 104,78" fill="none" stroke={C.amber} stroke-width="2.4" stroke-linejoin="round" />
+                  {[0, 1, 2, 3].map((k) => (
+                    <g transform={`translate(18 ${140 + k * 26})`}>
+                      <rect width="96" height="20" rx="7" fill="#1b1b1b" />
+                      <circle cx="11" cy="10" r="5" fill={k === 0 ? C.amber : C.soft} />
+                      <rect x="22" y="7" width={[44, 52, 38, 48][k]} height="6" rx="3" fill={C.mute} />
+                    </g>
+                  ))}
+                  <rect x="18" y="246" width="96" height="1" fill={C.line} />
+                </g>
+              )}
+              {i === 2 && (
+                <g>
+                  <rect x="18" y="38" width="96" height="70" rx="10" fill="#1b1b1b" />
+                  <path d="M18 92 C 40 70, 60 96, 82 76 S 110 70, 114 66" fill="none" stroke={C.dim} stroke-width="2" />
+                  <circle cx="82" cy="76" r="6" fill={C.amber} />
+                  <rect x="18" y="118" width="70" height="9" rx="4.5" fill={C.ink} />
+                  <rect x="18" y="133" width="50" height="6" rx="3" fill={C.dim} />
+                  {[0, 1].map((k) => (
+                    <rect x="18" y={150 + k * 30} width="96" height="22" rx="8" fill="#1b1b1b" />
+                  ))}
+                  <rect x="18" y="216" width="96" height="26" rx="13" fill={C.amber} />
+                </g>
+              )}
+              {/* Tab bar. */}
+              {[0, 1, 2, 3].map((k) => (
+                <circle cx={30 + k * 24} cy="250" r="3" fill={k === 0 ? C.amber : C.soft} />
+              ))}
+            </g>
+          ))}
+          {/* A push notification arriving. */}
+          <g transform="translate(250 230)">
+            <rect width="186" height="44" rx="12" fill="#1f1f1f" stroke={C.soft} />
+            <rect x="10" y="10" width="24" height="24" rx="7" fill={C.amber} />
+            <rect x="44" y="12" width="90" height="7" rx="3.5" fill={C.ink} />
+            <rect x="44" y="25" width="120" height="6" rx="3" fill={C.dim} />
+          </g>
+          {[
+            ['iOS', 520],
+            ['Android', 572],
+          ].map(([t, x]) => (
+            <g transform={`translate(${x} 222)`}>
+              <rect width={t === 'iOS' ? 44 : 84} height="20" rx="10" fill={C.panel} stroke={C.line} />
+              <text x={t === 'iOS' ? 22 : 42} y="13.5" text-anchor="middle" fill={C.mute} font-size="9.5">{t}</text>
+            </g>
+          ))}
+        </g>
+      )
+    }
+
+    {
+      kind === 'ai' && (
+        <g font-family={sans}>
+          {/* Retrieval: documents become chunks, then vectors; the query finds its neighbours. */}
+          {[0, 1, 2].map((i) => (
+            <g transform={`translate(${6 + i * 6} ${96 - i * 6})`}>
+              <rect width="62" height="80" rx="6" fill={i === 2 ? C.raised : C.panel} stroke={C.line} />
+              {i === 2 && [0, 1, 2, 3, 4].map((k) => <rect x="10" y={14 + k * 11} width={[42, 36, 42, 30, 38][k]} height="4" rx="2" fill={C.dim} />)}
+            </g>
+          ))}
+          <text x="12" y="198" fill={C.mute} font-size="9">Documents</text>
+          <path d="M84 126 H 100" stroke={C.soft} stroke-width="1.5" />
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <rect x={104 + (i % 2) * 22} y={94 + Math.floor(i / 2) * 22} width="16" height="16" rx="4" fill={i === 3 ? C.amber : C.raised} stroke={C.line} />
+          ))}
+          <text x="104" y="198" fill={C.mute} font-size="9">Chunks</text>
+          <path d="M150 126 H 168" stroke={C.soft} stroke-width="1.5" />
+          <rect x="170" y="36" width="150" height="160" rx="12" fill={C.panel} stroke={C.line} />
+          {[
+            [190, 60], [204, 74], [186, 92], [214, 98], [240, 58], [262, 70], [252, 92], [290, 66], [300, 90], [280, 112], [196, 128], [216, 146], [238, 136], [262, 150], [292, 140], [304, 170], [276, 176], [228, 172], [198, 170], [248, 116],
+          ].map(([x, y]) => (
+            <circle cx={x} cy={y} r="3" fill={C.soft} />
+          ))}
+          <g stroke={C.amber} stroke-width="1.2">
+            <line x1="252" y1="122" x2="262" y2="150" />
+            <line x1="252" y1="122" x2="238" y2="136" />
+            <line x1="252" y1="122" x2="280" y2="112" />
+          </g>
+          {[[262, 150], [238, 136], [280, 112]].map(([x, y]) => (
+            <circle cx={x} cy={y} r="4" fill={C.amber} />
+          ))}
+          <circle cx="252" cy="122" r="6" fill="none" stroke={C.amber} stroke-width="2" />
+          <text x="182" y="54" fill={C.mute} font-size="9">Embeddings</text>
+          {/* Agents: a planner, a writer, a critic around one model. */}
+          <path d="M320 116 H 344" stroke={C.soft} stroke-width="1.5" />
+          <rect x="346" y="92" width="76" height="48" rx="12" fill={C.raised} stroke={C.amber} stroke-width="1.5" />
+          <text x="384" y="113" text-anchor="middle" fill={C.ink} font-size="11" font-weight="700">LLM</text>
+          <text x="384" y="128" text-anchor="middle" fill={C.mute} font-size="8.5">routed per task</text>
+          {[
+            { t: 'Planner', y: 22 },
+            { t: 'Critic', y: 190 },
+          ].map((a) => (
+            <g>
+              <rect x="350" y={a.y} width="68" height="30" rx="15" fill={C.panel} stroke={C.line} />
+              <text x="384" y={a.y + 19} text-anchor="middle" fill={C.mute} font-size="9.5">{a.t}</text>
+              <path d={a.y < 92 ? `M384 ${a.y + 30} V 92` : `M384 140 V ${a.y}`} stroke={C.soft} stroke-width="1.5" stroke-dasharray="3 4" />
+            </g>
+          ))}
+          {/* A guardrail before anything reaches the user. */}
+          <path d="M422 116 H 444" stroke={C.soft} stroke-width="1.5" />
+          <path d="M446 98 L 466 92 L 486 98 V 116 C 486 130, 476 138, 466 142 C 456 138, 446 130, 446 116 Z" fill={C.panel} stroke={C.amber} stroke-width="1.5" />
+          <path d="M457 116 l6 6 l12 -12" fill="none" stroke={C.amber} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="466" y="160" text-anchor="middle" fill={C.mute} font-size="9">Guardrail</text>
+          <path d="M488 116 H 506" stroke={C.soft} stroke-width="1.5" />
+          {/* The answer, with its sources. */}
+          <rect x="508" y="46" width="150" height="160" rx="12" fill={C.raised} stroke={C.line} />
+          <text x="520" y="66" fill={C.mute} font-size="9">Answer</text>
+          {[0, 1, 2, 3, 4].map((k) => (
+            <rect x="520" y={78 + k * 13} width={[120, 108, 124, 96, 70][k]} height="6" rx="3" fill={C.dim} />
+          ))}
+          {['1', '2', '3'].map((n, k) => (
+            <g transform={`translate(${520 + k * 30} 150)`}>
+              <rect width="24" height="16" rx="5" fill={C.amberSoft} stroke={C.amber} />
+              <text x="12" y="11.5" text-anchor="middle" fill={C.amber} font-size="9" font-weight="700">{n}</text>
+            </g>
+          ))}
+          <text x="520" y="186" fill={C.mute} font-size="8.5">Grounded in 3 sources</text>
+          <rect x="520" y="192" width="126" height="4" rx="2" fill={C.line} />
+          <rect x="520" y="192" width="104" height="4" rx="2" fill={C.amber} />
+        </g>
+      )
+    }
+
+    {
+      kind === 'cloud' && (
+        <g font-family={sans}>
+          {/* Traffic in. */}
+          <g transform="translate(6 120)">
+            {[0, 1, 2].map((i) => (
+              <circle cx={10 + i * 14} cy="12" r="7" fill={C.soft} />
+            ))}
+            <text x="0" y="40" fill={C.mute} font-size="9">Users</text>
+          </g>
+          <path d="M54 132 H 86" stroke={C.soft} stroke-width="1.5" />
+          {/* The region. */}
+          <rect x="88" y="10" width="460" height="282" rx="16" fill="none" stroke={C.line} stroke-dasharray="6 6" />
+          <text x="102" y="30" fill={C.mute} font-size="9" font-family={mono}>region</text>
+          {/* Load balancer. */}
+          <rect x="104" y="108" width="60" height="48" rx="10" fill={C.raised} stroke={C.line} />
+          <path d="M120 132 h28 M134 118 v28" stroke={C.mute} stroke-width="1.8" />
+          <text x="134" y="172" text-anchor="middle" fill={C.mute} font-size="9">Gateway</text>
+          {/* Services that scale out. */}
+          <g fill="none" stroke={C.soft} stroke-width="1.5">
+            <path d="M164 132 C 180 132, 180 74, 196 74" />
+            <path d="M164 132 C 180 132, 180 148, 196 148" />
+            <path d="M164 132 C 180 132, 180 222, 196 222" />
+            <path d="M416 148 C 434 148, 434 72, 452 72" />
+            <path d="M416 148 C 434 148, 434 222, 452 222" />
+          </g>
+          {[0, 1, 2].map((i) => (
+            <g transform={`translate(196 ${46 + i * 74})`}>
+              <rect width="122" height="56" rx="10" fill={C.panel} stroke={C.line} />
+              <text x="10" y="17" fill={C.ink} font-size="10" font-weight="700">{['api', 'worker', 'scheduler'][i]}</text>
+              {[0, 1, 2, 3].map((k) => (
+                <rect x={10 + k * 26} y="26" width="20" height="20" rx="5" fill={k < ([4, 3, 1][i] ?? 0) ? (k === 0 && i === 0 ? C.amber : C.soft) : 'none'} stroke={C.line} stroke-dasharray={k < ([4, 3, 1][i] ?? 0) ? '0' : '3 3'} />
+              ))}
+            </g>
+          ))}
+          <g transform="translate(266 34)">
+            <rect width="52" height="16" rx="8" fill={C.amber} />
+            <text x="26" y="11.5" text-anchor="middle" fill="#000" font-size="8.5" font-weight="700">autoscale</text>
+          </g>
+          {/* A queue with retries. */}
+          <path d="M318 148 H 344" stroke={C.soft} stroke-width="1.5" />
+          <rect x="346" y="118" width="70" height="60" rx="10" fill={C.panel} stroke={C.line} />
+          {[0, 1, 2, 3].map((k) => (
+            <rect x={356 + k * 13} y="134" width="9" height="28" rx="3" fill={k === 3 ? C.amber : C.soft} />
+          ))}
+          <text x="381" y="194" text-anchor="middle" fill={C.mute} font-size="9">Queue, retries</text>
+          {/* Data stores. */}
+          {[
+            { y: 46, t: 'Postgres' },
+            { y: 196, t: 'Warehouse' },
+          ].map((d, i) => (
+            <g transform={`translate(452 ${d.y})`}>
+              <ellipse cx="38" cy="8" rx="38" ry="8" fill={C.raised} stroke={C.line} />
+              <path d="M0 8 V 44 C 0 50, 76 50, 76 44 V 8" fill={C.panel} stroke={C.line} />
+              <ellipse cx="38" cy="8" rx="38" ry="8" fill={C.raised} stroke={i === 0 ? C.amber : C.line} />
+              <text x="38" y="34" text-anchor="middle" fill={C.ink} font-size="9.5">{d.t}</text>
+            </g>
+          ))}
+          {/* Watching it run. */}
+          <rect x="558" y="20" width="98" height="110" rx="12" fill={C.panel} stroke={C.line} />
+          <text x="568" y="38" fill={C.mute} font-size="9">Latency</text>
+          <polyline points="568,104 580,96 592,100 604,84 616,90 628,72 644,76" fill="none" stroke={C.amber} stroke-width="2" stroke-linejoin="round" />
+          <line x1="568" y1="86" x2="646" y2="86" stroke={C.dim} stroke-dasharray="3 4" />
+          <text x="568" y="122" fill={C.mute} font-size="8.5">alert above line</text>
+          <rect x="558" y="142" width="98" height="64" rx="12" fill={C.panel} stroke={C.line} />
+          <text x="568" y="160" fill={C.mute} font-size="9">Deploys</text>
+          {[0, 1, 2, 3, 4, 5].map((k) => (
+            <rect x={568 + k * 13} y="172" width="9" height="20" rx="3" fill={k === 5 ? C.amber : C.soft} />
+          ))}
+          <rect x="558" y="218" width="98" height="64" rx="12" fill={C.panel} stroke={C.line} />
+          <text x="568" y="236" fill={C.mute} font-size="9">Secrets</text>
+          <rect x="568" y="248" width="20" height="16" rx="4" fill="none" stroke={C.amber} stroke-width="1.5" />
+          <path d="M572 248 v-5 a6 6 0 0 1 12 0 v5" fill="none" stroke={C.amber} stroke-width="1.5" />
+          <rect x="596" y="252" width="50" height="7" rx="3.5" fill={C.dim} />
+        </g>
+      )
+    }
+
+    {
+      kind === 'automation' && (
+        <g font-family={sans}>
+          {/* The canvas: a dot grid. */}
+          {Array.from({ length: 12 }, (_, r) =>
+            Array.from({ length: 22 }, (_, c) => <circle cx={10 + c * 30} cy={12 + r * 25} r="1" fill={C.line} />),
+          )}
+          <g fill="none" stroke={C.soft} stroke-width="1.6">
+            <path d="M104 148 H 128" />
+            <path d="M222 148 H 246" />
+            <path d="M300 148 C 316 148, 316 70, 336 70" />
+            <path d="M300 148 C 316 148, 316 226, 336 226" />
+            <path d="M430 70 H 454" />
+            <path d="M430 226 H 454" />
+            <path d="M548 70 C 566 70, 566 148, 584 148" />
+            <path d="M548 226 C 566 226, 566 148, 584 148" />
+            <path d="M58 52 V 124" stroke-dasharray="3 4" />
+          </g>
+          {(
+            [
+              { x: 10, y: 22, t: 'Schedule', s: 'every morning' },
+              { x: 10, y: 126, t: 'Webhook', s: 'payment event', on: true },
+              { x: 128, y: 126, t: 'Validate', s: 'signature, schema' },
+              { x: 336, y: 48, t: 'Create invoice', s: 'billing' },
+              { x: 454, y: 48, t: 'Notify team', s: 'message, email', on: true },
+              { x: 336, y: 204, t: 'Retry', s: '3 times, backoff' },
+              { x: 454, y: 204, t: 'Alert owner', s: 'on final failure' },
+            ] as Node[]
+          ).map((n) => (
+            <g transform={`translate(${n.x} ${n.y})`}>
+              <rect width="94" height="44" rx="10" fill={C.panel} stroke={n.on ? C.amber : C.line} stroke-width={n.on ? 1.6 : 1} />
+              <rect x="8" y="10" width="8" height="24" rx="4" fill={n.on ? C.amber : C.soft} />
+              <text x="24" y="20" fill={C.ink} font-size="10" font-weight="700">{n.t}</text>
+              <text x="24" y="33" fill={C.mute} font-size="8.5">{n.s}</text>
+            </g>
+          ))}
+          {/* The branch. */}
+          <g transform="translate(273 148)">
+            <path d="M0 -26 L 27 0 L 0 26 L -27 0 Z" fill={C.raised} stroke={C.amber} stroke-width="1.6" />
+            <text x="0" y="3.5" text-anchor="middle" fill={C.ink} font-size="9" font-weight="700">paid?</text>
+            <text x="20" y="-34" fill={C.amber} font-size="8.5">yes</text>
+            <text x="20" y="42" fill={C.mute} font-size="8.5">no</text>
+          </g>
+          {/* Everything lands in the CRM. */}
+          <g transform="translate(584 120)">
+            <rect width="72" height="56" rx="12" fill={C.raised} stroke={C.amber} stroke-width="1.6" />
+            <text x="36" y="25" text-anchor="middle" fill={C.ink} font-size="10.5" font-weight="700">CRM</text>
+            <text x="36" y="40" text-anchor="middle" fill={C.mute} font-size="8.5">synced</text>
+          </g>
+          {/* The run log. */}
+          <g transform="translate(128 254)">
+            <rect width="420" height="34" rx="10" fill={C.panel} stroke={C.line} />
+            {[0, 1, 2, 3, 4, 5, 6].map((k) => (
+              <g transform={`translate(${14 + k * 30} 9)`}>
+                <rect width="22" height="16" rx="4" fill={k === 4 ? C.raised : C.amberSoft} stroke={k === 4 ? C.dim : C.amber} />
+                <path d={k === 4 ? 'M8 5 l6 6 M14 5 l-6 6' : 'M6 8.5 l3 3 l7 -7'} fill="none" stroke={k === 4 ? C.mute : C.amber} stroke-width="1.5" stroke-linecap="round" />
+              </g>
+            ))}
+            <text x="236" y="21" fill={C.mute} font-size="9">Runs, newest last; one retried and recovered</text>
+          </g>
+        </g>
+      )
+    }
+  </svg>
 </div>
 
 <style>
+  /* The illustration sits in the right of the card, below the project chips. */
   .art {
     position: absolute;
-    inset: 0;
+    left: 46%;
+    right: 3%;
+    top: 20%;
+    bottom: 6%;
   }
 
-  .win {
-    position: absolute;
-    left: var(--x);
-    top: var(--y);
-    width: var(--w);
-    margin: 0;
-    overflow: hidden;
-    border-radius: 10px;
-    background: #141414;
-    border: 1px solid #2c2c2c;
-    box-shadow: 0 24px 50px -20px rgb(0 0 0 / 0.9);
-    transform: rotate(var(--r));
-  }
-
-  .bar {
+  .art svg {
     display: block;
-    height: 14px;
-    background: #161616;
-    border-bottom: 1px solid #262626;
-  }
-
-  .win img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .draw {
-    position: absolute;
-    inset: 0;
     width: 100%;
     height: 100%;
   }
 
   @media (max-width: 62rem) {
-    .win {
-      left: calc(var(--x) - 22%);
-      width: calc(var(--w) * 1.7);
+    .art {
+      left: 5%;
+      right: 5%;
+      top: 24%;
+      bottom: 40%;
     }
+
   }
 </style>
