@@ -214,3 +214,9 @@ Dated decision log. Newest entries at the bottom. Each entry states the decision
 ## 2026-11-24 (reviews drift continuously)
 
 - **The reviews ring glides instead of stepping.** Ahmad asked for it to move right on its own at a soothing pace without skipping. The ring's position is now a continuous number that falls a little every frame, about one card every seven seconds, so cards travel left to right across the arc. A card wraps from one end to the other only while fully faded, so none is ever skipped or seen to jump. The drift eases to a stop while the pointer is over the carousel; the buttons and a click on a side card glide one card and the drift resumes. Under reduced motion there is no drift. It runs on the shared frame loop and only while on screen.
+
+## 2026-11-24 (pictures behind the capability cards)
+
+- **Each What I build card has a picture of its kind of work** (`components/CapabilityArt.astro`), a faint grey trace at rest and in full color inside a light that follows the pointer on hover, the same spotlight idea as the project screenshots. Asked for by Ahmad.
+- **Real where real exists, drawn where it does not.** Full-stack SaaS shows Codesmash, MenuMatch, and Shocodoc screenshots; AI systems shows MagicalBook.Store and Prepify; Automation shows the MenuMatch menu editor beside a drawn workflow. There are no mobile or pipeline screenshots, so Mobile apps shows three drawn phone screens and Cloud a drawn diagram of the Scrape-Stripe pipeline (Stripe, Cloud Function, Cloud Run Job, BigQuery, Scheduler). The drawn pictures are generic and make no claim to be a real product's interface.
+- **Readability.** A scrim darkens the bottom and left of each card under the title and description, and the project chips have a solid backing. On touch screens a soft, still light rests on the picture.

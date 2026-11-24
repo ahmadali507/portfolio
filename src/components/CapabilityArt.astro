@@ -1,0 +1,214 @@
+---
+// The picture behind a "What I build" card: what that kind of work looks like. Real project
+// screenshots where they exist (SaaS, AI, automation); where there are none, drawn mockups that
+// make no claim to be a real product (phone screens, a pipeline diagram). Rendered twice by the
+// card, once dim and once in full color under the pointer's light. Decorative.
+
+interface Props {
+  kind: 'saas' | 'mobile' | 'ai' | 'cloud' | 'automation';
+}
+const { kind } = Astro.props;
+const shot = (slug: string, n: number) => `/projects/${slug}/${n}.webp`;
+---
+
+<div class:list={['art', kind]} aria-hidden="true">
+  {
+    kind === 'saas' && (
+      <>
+        <figure class="win" style="--x:36%;--y:8%;--w:36%;--r:-5deg">
+          <span class="bar" />
+          <img src={shot('codesmash', 1)} alt="" loading="lazy" decoding="async" />
+        </figure>
+        <figure class="win" style="--x:60%;--y:16%;--w:36%;--r:4deg">
+          <span class="bar" />
+          <img src={shot('menumatch', 1)} alt="" loading="lazy" decoding="async" />
+        </figure>
+        <figure class="win" style="--x:47%;--y:46%;--w:32%;--r:-1deg">
+          <span class="bar" />
+          <img src={shot('shocodoc', 1)} alt="" loading="lazy" decoding="async" />
+        </figure>
+      </>
+    )
+  }
+
+  {
+    kind === 'ai' && (
+      <>
+        <figure class="win" style="--x:34%;--y:10%;--w:34%;--r:-4deg">
+          <span class="bar" />
+          <img src={shot('magicalbook-store', 2)} alt="" loading="lazy" decoding="async" />
+        </figure>
+        <figure class="win" style="--x:60%;--y:6%;--w:34%;--r:5deg">
+          <span class="bar" />
+          <img src={shot('magicalbook-store', 3)} alt="" loading="lazy" decoding="async" />
+        </figure>
+        <figure class="win" style="--x:48%;--y:44%;--w:32%;--r:-2deg">
+          <span class="bar" />
+          <img src={shot('prepify', 2)} alt="" loading="lazy" decoding="async" />
+        </figure>
+      </>
+    )
+  }
+
+  {
+    kind === 'mobile' && (
+      <svg class="draw" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid meet">
+          <g transform="translate(40 78) scale(0.8)">
+        {[
+          { x: 430, y: 30, r: -8, screen: 'list' },
+          { x: 590, y: 10, r: 0, screen: 'chart' },
+          { x: 750, y: 40, r: 8, screen: 'chat' },
+        ].map((p) => (
+          <g transform={`translate(${p.x} ${p.y}) rotate(${p.r} 70 150)`}>
+            <rect x="0" y="0" width="140" height="290" rx="24" fill="#141414" stroke="#3a3a3a" stroke-width="2" />
+            <rect x="9" y="10" width="122" height="270" rx="17" fill="#0b0b0b" />
+            <rect x="52" y="16" width="36" height="8" rx="4" fill="#262626" />
+            <rect x="20" y="38" width="62" height="9" rx="4" fill="#e6e6e6" />
+            <rect x="20" y="52" width="40" height="6" rx="3" fill="#6b6b6b" />
+            {p.screen === 'list' &&
+              [0, 1, 2, 3].map((i) => (
+                <g transform={`translate(20 ${72 + i * 44})`}>
+                  <rect width="100" height="36" rx="8" fill="#1c1c1c" />
+                  <rect x="8" y="8" width="20" height="20" rx="6" fill={i === 0 ? '#ffb224' : '#333'} />
+                  <rect x="36" y="10" width="50" height="6" rx="3" fill="#cfcfcf" />
+                  <rect x="36" y="21" width="34" height="5" rx="2.5" fill="#5a5a5a" />
+                </g>
+              ))}
+            {p.screen === 'chart' && (
+              <g>
+                <rect x="20" y="72" width="100" height="70" rx="10" fill="#1c1c1c" />
+                <polyline points="28,128 44,112 60,118 76,96 92,102 112,82" fill="none" stroke="#ffb224" stroke-width="3" stroke-linejoin="round" />
+                {[0, 1, 2].map((i) => (
+                  <rect x={20 + i * 35} y="152" width="30" height="44" rx="8" fill="#1c1c1c" />
+                ))}
+                <rect x="20" y="206" width="100" height="28" rx="14" fill="#ffb224" />
+              </g>
+            )}
+            {p.screen === 'chat' && (
+              <g>
+                <rect x="20" y="74" width="70" height="26" rx="10" fill="#1c1c1c" />
+                <rect x="50" y="108" width="70" height="26" rx="10" fill="#ffb224" />
+                <rect x="20" y="142" width="80" height="34" rx="10" fill="#1c1c1c" />
+                <rect x="50" y="184" width="70" height="26" rx="10" fill="#ffb224" />
+                <rect x="20" y="236" width="100" height="24" rx="12" fill="#1c1c1c" stroke="#333" />
+              </g>
+            )}
+            <rect x="50" y="268" width="40" height="4" rx="2" fill="#3a3a3a" />
+          </g>
+        ))}
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    kind === 'cloud' && (
+      <svg class="draw" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid meet">
+          <g transform="translate(40 78) scale(0.8)">
+        <g fill="none" stroke="#4a4a4a" stroke-width="2">
+          <path d="M520 110 C 580 110, 580 70, 640 70" />
+          <path d="M520 110 C 580 110, 580 170, 640 170" />
+          <path d="M780 70 C 830 70, 830 120, 860 120" />
+          <path d="M780 170 C 830 170, 830 120, 860 120" />
+          <path d="M450 230 L 450 150" stroke-dasharray="6 6" />
+        </g>
+        {[
+          { x: 380, y: 82, w: 140, t: 'Stripe', s: 'billing data', on: true },
+          { x: 640, y: 42, w: 140, t: 'Cloud Function', s: 'daily sync' },
+          { x: 640, y: 142, w: 140, t: 'Cloud Run Job', s: 'long sync' },
+          { x: 860, y: 92, w: 120, t: 'BigQuery', s: 'warehouse', on: true },
+          { x: 380, y: 230, w: 140, t: 'Scheduler', s: '0 6 * * *' },
+        ].map((n) => (
+          <g transform={`translate(${n.x} ${n.y})`}>
+            <rect width={n.w} height="56" rx="12" fill="#141414" stroke={n.on ? '#ffb224' : '#3a3a3a'} stroke-width="2" />
+            <circle cx="18" cy="28" r="5" fill={n.on ? '#ffb224' : '#6b6b6b'} />
+            <text x="32" y="25" fill="#e6e6e6" font-size="15" font-family="Public Sans, Arial, sans-serif" font-weight="700">{n.t}</text>
+            <text x="32" y="43" fill="#7a7a7a" font-size="12" font-family="Public Sans, Arial, sans-serif">{n.s}</text>
+          </g>
+        ))}
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    kind === 'automation' && (
+      <>
+        <figure class="win" style="--x:62%;--y:30%;--w:32%;--r:4deg">
+          <span class="bar" />
+          <img src={shot('menumatch', 2)} alt="" loading="lazy" decoding="async" />
+        </figure>
+        <svg class="draw" viewBox="0 0 1000 420" preserveAspectRatio="xMaxYMid meet">
+          <g transform="translate(40 78) scale(0.8)">
+          <g fill="none" stroke="#4a4a4a" stroke-width="2">
+            <path d="M490 70 L 560 70" />
+            <path d="M700 70 L 770 70" />
+            <path d="M630 98 L 630 150" />
+          </g>
+          {[
+            { x: 350, y: 42, t: 'Webhook', s: 'order.paid', on: true },
+            { x: 560, y: 42, t: 'Approval', s: 'level 1 of 2' },
+            { x: 770, y: 42, t: 'Stripe', s: 'pay vendor', on: true },
+            { x: 560, y: 150, t: 'Email', s: 'notify buyer' },
+          ].map((n) => (
+            <g transform={`translate(${n.x} ${n.y})`}>
+              <rect width="140" height="56" rx="12" fill="#141414" stroke={n.on ? '#ffb224' : '#3a3a3a'} stroke-width="2" />
+              <circle cx="18" cy="28" r="5" fill={n.on ? '#ffb224' : '#6b6b6b'} />
+              <text x="32" y="25" fill="#e6e6e6" font-size="15" font-family="Public Sans, Arial, sans-serif" font-weight="700">{n.t}</text>
+              <text x="32" y="43" fill="#7a7a7a" font-size="12" font-family="Public Sans, Arial, sans-serif">{n.s}</text>
+            </g>
+          ))}
+          </g>
+        </svg>
+      </>
+    )
+  }
+</div>
+
+<style>
+  .art {
+    position: absolute;
+    inset: 0;
+  }
+
+  .win {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    margin: 0;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #141414;
+    border: 1px solid #2c2c2c;
+    box-shadow: 0 24px 50px -20px rgb(0 0 0 / 0.9);
+    transform: rotate(var(--r));
+  }
+
+  .bar {
+    display: block;
+    height: 14px;
+    background: #161616;
+    border-bottom: 1px solid #262626;
+  }
+
+  .win img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .draw {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 62rem) {
+    .win {
+      left: calc(var(--x) - 22%);
+      width: calc(var(--w) * 1.7);
+    }
+  }
+</style>

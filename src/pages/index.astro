@@ -3,6 +3,7 @@ import Base from '@/layouts/Base.astro';
 import WorkGallery from '@/components/WorkGallery.astro';
 import Experience from '@/components/Experience.astro';
 import Testimonials from '@/components/Testimonials.astro';
+import CapabilityArt from '@/components/CapabilityArt.astro';
 import { FIRST_NAME, FULL_NAME, PERSON, ROLES, SURNAME } from '@/config/site';
 import { visibleProjects } from '@/lib/projects';
 
@@ -13,12 +14,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
 // A project that is not visible is dropped from its row.
 const titleOf = new Map(all.map((p) => [p.id, p.data.title]));
 const areas = [
-  { area: 'Full-stack SaaS', line: 'Roles, permissions, payments, live collaboration.', ids: ['vakse', 'codesmash', 'shocodoc'] },
-  { area: 'Mobile apps', line: 'One codebase for iOS and Android.', ids: ['orderlyflow'] },
-  { area: 'AI systems', line: 'Models inside products that must work every time.', ids: ['magicalbook-store', 'prepify', 'xiomara'] },
-  { area: 'Cloud', line: 'Pipelines that run on schedule and recover from failure.', ids: ['scrape-stripe', 'searchx'] },
-  { area: 'Automation', line: 'Payments, webhooks, and the tools a business already uses.', ids: ['vakse', 'menumatch'] },
-].map((a) => ({ ...a, proofs: a.ids.filter((id) => titleOf.has(id)).map((id) => ({ id, title: titleOf.get(id) ?? '' })) }));
+  { area: 'Full-stack SaaS', art: 'saas', line: 'Roles, permissions, payments, live collaboration.', ids: ['vakse', 'codesmash', 'shocodoc'] },
+  { area: 'Mobile apps', art: 'mobile', line: 'One codebase for iOS and Android.', ids: ['orderlyflow'] },
+  { area: 'AI systems', art: 'ai', line: 'Models inside products that must work every time.', ids: ['magicalbook-store', 'prepify', 'xiomara'] },
+  { area: 'Cloud', art: 'cloud', line: 'Pipelines that run on schedule and recover from failure.', ids: ['scrape-stripe', 'searchx'] },
+  { area: 'Automation', art: 'automation', line: 'Payments, webhooks, and the tools a business already uses.', ids: ['vakse', 'menumatch'] },
+].map((a) => ({ ...a, art: a.art as 'saas' | 'mobile' | 'ai' | 'cloud' | 'automation', proofs: a.ids.filter((id) => titleOf.has(id)).map((id) => ({ id, title: titleOf.get(id) ?? '' })) }));
 const firstRole = ROLES[0];
 ---
 
@@ -87,6 +88,9 @@ const firstRole = ROLES[0];
           areas.map((a, i) => (
             <li class="card" style={`--i:${i}`} data-stack-card>
               <div class="card-in" data-stack-face>
+                <div class="art-layer art-dim"><CapabilityArt kind={a.art} /></div>
+                <div class="art-layer art-lit"><CapabilityArt kind={a.art} /></div>
+                <span class="art-scrim" aria-hidden="true"></span>
                 <div class="card-top">
                   <span class="label n">
                     {pad(i + 1)} / {pad(areas.length)}
@@ -444,11 +448,70 @@ const firstRole = ROLES[0];
     }
   }
 
+  /* The picture behind the card (components/CapabilityArt.astro): a faint grey trace at rest, and
+     on hover the same picture in full color inside a light that follows the pointer. A scrim keeps
+     the title and the line readable over it. */
+  .art-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .art-dim {
+    opacity: 0.16;
+    filter: grayscale(1);
+    transition: opacity 600ms var(--ease-out);
+  }
+
+  .art-lit {
+    opacity: 0;
+    -webkit-mask-image: radial-gradient(22rem circle at var(--mx, 70%) var(--my, 35%), #000 40%, transparent 100%);
+    mask-image: radial-gradient(22rem circle at var(--mx, 70%) var(--my, 35%), #000 40%, transparent 100%);
+    transition: opacity 500ms var(--ease-out);
+  }
+
+  .art-scrim {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(to top, var(--color-surface) 14%, color-mix(in srgb, var(--color-surface) 70%, transparent) 34%, transparent 60%),
+      linear-gradient(to right, var(--color-surface) 4%, transparent 38%);
+  }
+
+  .card-top,
+  .card-main {
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (hover: hover) {
+    .card-in:hover .art-dim {
+      opacity: 0.3;
+    }
+
+    .card-in:hover .art-lit {
+      opacity: 1;
+    }
+  }
+
+  /* No pointer to aim with: a soft, still light rests on the picture. */
+  @media (hover: none) {
+    .art-dim {
+      opacity: 0.22;
+    }
+
+    .art-lit {
+      opacity: 0.7;
+    }
+  }
+
   /* A veil that darkens a card as the next ones cover it. */
   .card-in::after {
     content: '';
     position: absolute;
     inset: 0;
+    z-index: 2;
     background: var(--color-bg);
     opacity: var(--veil, 0);
     pointer-events: none;
@@ -501,6 +564,8 @@ const firstRole = ROLES[0];
     border-radius: 999px;
     font-size: var(--text-label);
     color: var(--color-ink-muted);
+    background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+    backdrop-filter: none;
     text-decoration: none;
     transition:
       border-color var(--dur-med) var(--ease-out),
