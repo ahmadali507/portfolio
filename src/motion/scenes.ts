@@ -19,7 +19,7 @@ export function mountScenes(doc: Document, core: MotionCore): void {
   heroScene(doc);
   mountChem(doc, core);
   mountTyped(doc, core);
-  mountCarousel(doc);
+  mountCarousel(doc, core);
   mountTrail(doc);
   mountSpotlights(doc, core);
   if (motion.reduced) return;

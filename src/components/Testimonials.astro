@@ -235,13 +235,12 @@ const initials = (name: string) =>
   .car[data-live] .card {
     --step: calc(var(--cw) * 0.76);
     grid-area: 1 / 1;
-    z-index: calc(10 - var(--a, 0));
-    opacity: calc(1 - var(--a, 0) * 0.3);
+    z-index: var(--z, 1);
+    opacity: max(0, calc(1 - var(--a, 0) * 0.34));
     transform: translateX(calc(var(--d, 0) * var(--step))) translateZ(calc(var(--a, 0) * -110px))
       rotateY(calc(var(--d, 0) * -15deg)) scale(calc(1 - var(--a, 0) * 0.08));
-    transition:
-      transform 1000ms var(--ease-expo),
-      opacity 700ms var(--ease-out);
+    /* Placed every frame by motion/carousel.ts, so no transition: the drift is the motion. */
+    will-change: transform, opacity;
     cursor: pointer;
   }
 
